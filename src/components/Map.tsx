@@ -67,6 +67,7 @@ export default function Map() {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/standard',
+      attributionControl: false,
       config: {
         basemap: {
           lightPreset,

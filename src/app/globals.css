@@ -103,3 +103,7 @@ textarea,
 select {
   font-family: inherit;
 }
+
+.washworld-map .mapboxgl-ctrl-logo {
+  display: none !important;
+}
