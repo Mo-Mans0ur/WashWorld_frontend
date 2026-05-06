@@ -1,0 +1,63 @@
+.btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 400;
+  margin: 5px;
+  transition: all 0.2s ease;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+}
+
+/* Sizes */
+.btn--sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.btn--md {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn--lg {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+}
+
+/* Primary */
+.btn--primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Secondary */
+.btn--secondary {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+/* Trapezoid */
+.btn--trapezoid {
+  background: var(--color-primary);
+  color: white;
+  padding-left: 50px;
+  padding-right: 50px;
+  border-radius: 0; /* vigtigt */
+
+  clip-path: polygon(
+    20% 0%,   /* top venstre skrå */
+    100% 0%, 
+    80% 100%, /* bund højre skrå */
+    0% 100%
+  );
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
