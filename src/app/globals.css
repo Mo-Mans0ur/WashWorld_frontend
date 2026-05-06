@@ -29,6 +29,12 @@
 
   /* Skrifttyper */
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+
+  --white-white: #f4f4f4;
+  --brand-green-01: #4cc36d;
+  --color-grey-02: #97999c;
+  --color-grey-03: #d9d9d9;
 }
 
 [data-theme="dark"] {
