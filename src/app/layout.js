@@ -13,7 +13,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full">
+        <main className="app-shell">
+          <section className="app-screen">{children}</section>
+        </main>
+      </body>
     </html>
   );
 }
