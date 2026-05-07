@@ -2,9 +2,20 @@
 
 import Image from "next/image";
 
+
+
+export default function LoginPage() {
+return(
 <Image src="/logos/washworld-white.png"
 alt= "Wash World logo"
 width={110}
 height={50}
 priority
 />
+
+)
+
+}
+
+
+
