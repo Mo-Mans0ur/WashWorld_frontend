@@ -1,9 +1,11 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
+import { Router } from "next/router";
 
 const plans = [
   {
@@ -71,6 +73,12 @@ export default function AbonnementPage() {
   const [selectedPlan, setSelectedPlan] = useState("Guld");
 
   const currentPlan = plans.find((plan) => plan.name === selectedPlan);
+
+  const router = useRouter();
+
+  function handleCreateSubscription() {
+    router.push(`/abonnement/handlesubscription?plan=${selectedPlan.toLowerCase()}`);
+  }
 
   return (
     <main
@@ -141,6 +149,7 @@ export default function AbonnementPage() {
 
         <button
           type="button"
+          onClick={handleCreateSubscription}
           className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
         >
           Opret vaskeabonnement
