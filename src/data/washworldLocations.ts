@@ -1,4 +1,4 @@
-// REMOVE LATER: WHEN A DATABASE HAS BEEN ESTABLISHED TO CONTAIN LOCATIONS
+// Midlertidig datakilde til kortet, indtil vi henter lokationer fra backend.
 
 import washworldLocationsJson from '../../washworld-locations.json'
 
@@ -7,12 +7,14 @@ export type MapLocation = {
   name: string
   address: string
   coords: [number, number]
+  openHours: string
 }
 
 type RawRow = {
   Location_id?: string
   name?: string
   address?: string
+  open_hours?: string
   coordinates?: {
     x?: string | number | null
     y?: string | number | null
@@ -44,6 +46,7 @@ export const washworldMapLocations: MapLocation[] = (
       name: row.name,
       address: row.address ?? '',
       coords,
+      openHours: row.open_hours ?? '',
     }
   })
   .filter((loc): loc is MapLocation => loc !== null)
