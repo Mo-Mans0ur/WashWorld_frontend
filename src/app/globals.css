@@ -108,6 +108,19 @@ select {
   display: none !important;
 }
 
+.washworld-user-location-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #3b82f6;
+  z-index: 1;
+  /* background: var(--color-secondary); */
+  border: 2px solid #fff;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--color-header-primary) 28%, transparent),
+    0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
 .washworld-map .washworld-popup .mapboxgl-popup-content {
   padding: 0;
   overflow: hidden;

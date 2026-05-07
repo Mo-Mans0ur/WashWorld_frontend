@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type MutableRefObject } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import MapControls from './MapControls'
@@ -68,6 +68,30 @@ function createPrimaryPin(): HTMLImageElement {
   img.width = 28
   img.height = 28
   return img
+}
+
+function createUserLocationPin(): HTMLDivElement {
+  const el = document.createElement('div')
+  el.className = 'washworld-user-location-pin'
+  return el
+}
+
+function updateUserLocationMarker(
+  map: mapboxgl.Map,
+  markerRef: MutableRefObject<mapboxgl.Marker | null>,
+  lngLat: [number, number],
+): void {
+  if (!markerRef.current) {
+    markerRef.current = new mapboxgl.Marker({
+      element: createUserLocationPin(),
+      anchor: 'center',
+    })
+      .setLngLat(lngLat)
+      .addTo(map)
+    return
+  }
+
+  markerRef.current.setLngLat(lngLat)
 }
 
 function addLocationMarkers(
@@ -159,6 +183,7 @@ function fitMapToLocations(map: mapboxgl.Map): void {
 export default function Map() {
   const mapContainer = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  const userMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const userLngLatRef = useRef<[number, number] | null>(null)
   const [lightPreset, setLightPreset] = useState<LightPreset>('day')
 
@@ -167,7 +192,13 @@ export default function Map() {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        userLngLatRef.current = [pos.coords.longitude, pos.coords.latitude]
+        const lngLat: [number, number] = [pos.coords.longitude, pos.coords.latitude]
+        userLngLatRef.current = lngLat
+
+        const map = mapRef.current
+        if (map) {
+          updateUserLocationMarker(map, userMarkerRef, lngLat)
+        }
       },
       () => {
         userLngLatRef.current = null
@@ -195,10 +226,15 @@ export default function Map() {
 
     map.on('load', () => {
       addLocationMarkers(map, () => userLngLatRef.current)
+      if (userLngLatRef.current) {
+        updateUserLocationMarker(map, userMarkerRef, userLngLatRef.current)
+      }
       fitMapToLocations(map)
     })
 
     return () => {
+      userMarkerRef.current?.remove()
+      userMarkerRef.current = null
       map.remove()
       mapRef.current = null
     }
@@ -216,11 +252,36 @@ export default function Map() {
     setLightPreset((current) => (current === 'day' ? 'night' : 'day'))
   }
 
+  const centerOnUser = () => {
+    const map = mapRef.current
+    if (!map || !navigator.geolocation) return
+
+    const focus = (lngLat: [number, number]) => {
+      userLngLatRef.current = lngLat
+      updateUserLocationMarker(map, userMarkerRef, lngLat)
+      map.flyTo({ center: lngLat, zoom: 13, duration: 700 })
+    }
+
+    if (userLngLatRef.current) {
+      focus(userLngLatRef.current)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        focus([pos.coords.longitude, pos.coords.latitude])
+      },
+      () => {},
+      { enableHighAccuracy: false, maximumAge: 120_000, timeout: 12_000 },
+    )
+  }
+
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
       <MapControls
         lightPreset={lightPreset}
         onCycleLightPreset={cycleLightPreset}
+        onCenterOnUser={centerOnUser}
       />
       <div
         ref={mapContainer}
