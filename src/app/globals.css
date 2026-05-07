@@ -34,8 +34,8 @@
 
   --white-white: #f4f4f4;
   --brand-green-01: #4cc36d;
-  --color-grey-02: #97999c;
-  --color-grey-03: #d9d9d9;
+  --color-grey-01: #97999c;
+  --color-grey-02: #d9d9d9;
 }
 
 [data-theme="dark"] {
