@@ -1,21 +1,15 @@
 'use client'
 
 type MapControlsProps = {
-  is3D: boolean
-  pitch: number
-  lightPreset: 'dawn' | 'day' | 'dusk' | 'night'
-  onToggle3D: () => void
+  lightPreset: 'day' | 'night'
   onCycleLightPreset: () => void
-  onPitchChange: (pitch: number) => void
+  onCenterOnUser: () => void
 }
 
 export default function MapControls({
-  is3D,
-  pitch,
   lightPreset,
-  onToggle3D,
   onCycleLightPreset,
-  onPitchChange,
+  onCenterOnUser,
 }: MapControlsProps) {
   const isNight = lightPreset === 'night'
 
@@ -29,60 +23,6 @@ export default function MapControls({
         width: '32px',
       }}
     >
-      <button
-        type="button"
-        onClick={onToggle3D}
-        style={{
-          width: '32px',
-          height: '32px',
-          marginBottom: is3D ? '8px' : '8px',
-          border: 'none',
-          borderRadius: '4px',
-          background: '#fff',
-          color: '#333',
-          cursor: 'pointer',
-          fontWeight: 700,
-          boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        {is3D ? '3D' : '2D'}
-      </button>
-      
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: '4px',
-          width: '32px',
-          height: '120px',
-          padding: '6px 0',
-          marginBottom: '8px',
-          boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1)',
-          display: is3D ? 'flex' : 'none',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexDirection: 'column',
-        }}
-      >
-        <input
-          type="range"
-          min={30}
-          max={70}
-          step={1}
-          value={pitch}
-          onChange={(event) => onPitchChange(Number(event.target.value))}
-          disabled={!is3D}
-          style={{
-            width: '30px',
-            height: '70px',
-            writingMode: 'vertical-lr',
-            WebkitAppearance: 'slider-vertical',
-            cursor: is3D ? 'pointer' : 'not-allowed',
-            opacity: is3D ? 1 : 0.5,
-          }}
-        />
-        <span style={{ fontSize: '10px', color: '#333', lineHeight: 1 }}>{pitch}</span>
-      </div>
-
       <button
         type="button"
         onClick={onCycleLightPreset}
@@ -139,6 +79,39 @@ export default function MapControls({
             />
           </svg>
         )}
+      </button>
+
+      <button
+        type="button"
+        onClick={onCenterOnUser}
+        title="Vis min lokation"
+        aria-label="Vis min lokation"
+        style={{
+          width: '32px',
+          height: '32px',
+          marginTop: '8px',
+          border: 'none',
+          borderRadius: '4px',
+          background: '#fff',
+          color: '#333',
+          cursor: 'pointer',
+          boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+          <path d="M12 3V6M12 18V21M3 12H6M18 12H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
       </button>
     </div>
   )

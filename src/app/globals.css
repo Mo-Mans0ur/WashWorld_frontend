@@ -107,3 +107,98 @@ select {
 .washworld-map .mapboxgl-ctrl-logo {
   display: none !important;
 }
+
+.washworld-user-location-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #3b82f6;
+  z-index: 1;
+  /* background: var(--color-secondary); */
+  border: 2px solid #fff;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--color-header-primary) 28%, transparent),
+    0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.washworld-map .washworld-popup .mapboxgl-popup-content {
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.washworld-map .washworld-popup .mapboxgl-popup-tip {
+  border-top-color: #fff;
+}
+
+.washworld-popup-card {
+  position: relative;
+  background: #fff;
+  color: #1f2937;
+  padding: 0px;
+}
+
+.washworld-popup-title {
+  margin-left: 10px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.washworld-popup-distance {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.washworld-popup-address {
+  margin: 10px 100px 10px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #4b5563;
+}
+
+.washworld-popup-footer {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0px;
+  margin-top: 10px;
+  min-height: 32px;
+}
+
+.washworld-popup-hours {
+  margin-left: 10px;
+  margin-bottom: 4px;
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.washworld-popup-hours-accent {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.washworld-popup-more {
+  flex-shrink: 0;
+  padding: 6px 12px 6px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--color-primary);
+  line-height: 1.2;
+  user-select: none;
+  border-radius: 0;
+  white-space: nowrap;
+  /* Samme venstre skrå som .btn--trapezoid — kun venstre kant; højre er lige. */
+  clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.mapboxgl-popup-close-button {
+  display: none;
+}
