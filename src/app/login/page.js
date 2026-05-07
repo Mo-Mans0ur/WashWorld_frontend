@@ -1,20 +1,41 @@
 "use client";
 
 import Image from "next/image";
+import LoginButton from "@/components/buttons/LoginButton";
+
 
 
 
 export default function LoginPage() {
 return(
-<Image src="/logos/washworld-white.png"
-alt= "Wash World logo"
-width={110}
-height={50}
-priority
-/>
+<>
+<div className="absolute w-full h-screen overflow-hidden z-10">
+    <Image src="/background/washworld-background.png" 
+    alt="Baggrund"
+    fill
+    priority
+    />
+    <div className="absolute inset-0 bg-black/40 z-20" />
+        <div className="relative z-20 flex flex-col items-center justify-center h-full gap-4">
 
+            <h2 className="text-white text-3xl font-bold">Velkommen til</h2>
+
+
+            <Image src="/logos/washworld-white.png"
+            alt= "Wash World logo"
+            width={234}
+            height={102}
+            priority
+            />
+
+
+            <input placeholder="Brugernavn" className="w-72 p-3 bg-white"/>
+            <input placeholder="Kodeord" className="w-72 p-3 bg-white"/>
+            <LoginButton/>
+        </div>
+    </div>
+</>
 )
-
 }
 
 
