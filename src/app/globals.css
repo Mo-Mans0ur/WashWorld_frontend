@@ -61,7 +61,6 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 120dvh;
-  height: 100%;
   overflow: hidden;
   position: relative;
 }

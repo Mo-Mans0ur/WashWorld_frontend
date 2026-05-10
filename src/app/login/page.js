@@ -9,7 +9,7 @@ import LoginButton from "@/components/buttons/LoginButton";
 export default function LoginPage() {
 return(
 <>
-<div className="absolute w-full h-screen overflow-hidden z-10 ">
+<div className="absolute inset-0 w-full h-full overflow-hidden z-10 ">
     <Image src="/background/washworld-background.png" 
     alt="Baggrund"
     fill
