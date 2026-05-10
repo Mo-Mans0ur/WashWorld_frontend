@@ -30,6 +30,12 @@ const VEHICLES = [
   { value: "def67890", label: "DEF67890 - Audi A4" },
 ];
 
+const PAYMENT_METHODS = [
+  { value: "card", label: "Kort •••• 4242" },
+  { value: "mobilepay", label: "MobilePay" },
+  { value: "invoice", label: "Månedlig faktura" },
+];
+
 export default function HandleSubscriptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -41,7 +47,9 @@ export default function HandleSubscriptionPage() {
   );
 
   const [vehicle, setVehicle] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [activeSheet, setActiveSheet] = useState(null);
 
   // Payment comes later, for now we just simulate a successful subscription creation
   const canSubmit = Boolean(vehicle) && acceptedTerms;
@@ -54,6 +62,26 @@ export default function HandleSubscriptionPage() {
       vehicle,
       acceptedTerms,
     });
+  }
+
+  const isSheetOpen = activeSheet !== null;
+  const sheetTitle =
+    activeSheet === "vehicle" ? "Vælg køretøj" : "Vælg betalingsmetode";
+  const sheetOptions =
+    activeSheet === "vehicle"
+      ? VEHICLES.filter((item) => item.value)
+      : PAYMENT_METHODS;
+
+  function selectFromSheet(value) {
+    if (activeSheet === "vehicle") {
+      setVehicle(value);
+    }
+
+    if (activeSheet === "payment") {
+      setPaymentMethod(value);
+    }
+
+    setActiveSheet(null);
   }
 
   return (
@@ -108,7 +136,7 @@ export default function HandleSubscriptionPage() {
               </span>
               <button
                 type="button"
-                onClick={() => setVehicle(VEHICLES[1]?.value || "")}
+                onClick={() => setActiveSheet("vehicle")}
                 className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
               >
                 Vælg
@@ -120,10 +148,14 @@ export default function HandleSubscriptionPage() {
                 <CardIcon />
               </span>
               <span className="flex-1 pr-20 text-[1rem] font-semibold text-(--color-grey-01)">
-                Vælg betalingsmetode
+                {paymentMethod
+                  ? PAYMENT_METHODS.find((item) => item.value === paymentMethod)
+                      ?.label
+                  : "Vælg betalingsmetode"}
               </span>
               <button
                 type="button"
+                onClick={() => setActiveSheet("payment")}
                 className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
               >
                 Vælg
@@ -166,6 +198,43 @@ export default function HandleSubscriptionPage() {
         </div>
       </section>
       <BottomNav />
+
+      <div
+        className={`absolute inset-0 z-40 transition ${
+          isSheetOpen ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+      >
+        <button
+          type="button"
+          aria-label="Luk vælger"
+          onClick={() => setActiveSheet(null)}
+          className={`absolute inset-0 bg-black/45 transition-opacity ${
+            isSheetOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        <div
+          className={`absolute right-0 bottom-0 left-0 rounded-t-3xl bg-(--white-white) px-5 pt-4 pb-6 text-black shadow-2xl transition-transform duration-300 ease-out ${
+            isSheetOpen ? "translate-y-0" : "translate-y-full"
+          }`}
+        >
+          <div className="mx-auto mb-4 h-1.5 w-16 rounded-full bg-(--color-grey-02)" />
+          <h3 className="text-[1.15rem] font-bold">{sheetTitle}</h3>
+
+          <div className="mt-4 space-y-2">
+            {sheetOptions.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => selectFromSheet(item.value)}
+                className="w-full rounded-xl border border-(--color-grey-02) bg-white px-4 py-3 text-left text-[1rem] font-semibold"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </>
   );
 }
