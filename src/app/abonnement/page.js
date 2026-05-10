@@ -77,18 +77,20 @@ export default function AbonnementPage() {
   const router = useRouter();
 
   function handleCreateSubscription() {
-    router.push(`/abonnement/handlesubscription?plan=${selectedPlan.toLowerCase()}`);
+    router.push(
+      `/abonnement/handlesubscription?plan=${selectedPlan.toLowerCase()}`,
+    );
   }
 
   return (
-    <main
-      className="relative flex min-h-dvh flex-col pb-28"
-      style={{
-        background: "linear-gradient(90deg, #75cfa0 0%, #8f9994 100%)",
-      }}
-    >
+    <>
       <AppHeader />
-      <section className="px-7 pt-6 text-center text-white">
+      <section
+        className="min-h-[calc(120dvh-88px-112px)] px-7 pt-6 text-center text-white"
+        style={{
+          background: "linear-gradient(90deg, #75cfa0 0%, #8f9994 100%)",
+        }}
+      >
         <h2 className="text-[1.9rem] font-bold leading-tight">
           Opret
           <br />
@@ -118,46 +120,45 @@ export default function AbonnementPage() {
             onClick={() => setSelectedPlan("Brilliant")}
           />
         </div>
-      </section>
+        <section className="mx-auto mt-7 w-[82%] overflow-hidden bg-(--white-white) shadow-lg">
+          <div className="bg-(--brand-green-01) px-6 py-5 text-center text-white">
+            <h2 className="text-[2rem] font-extrabold leading-none">
+              {currentPlan.name}
+            </h2>
 
-      <section className="mx-auto mt-7 w-[82%] overflow-hidden bg-(--white-white) shadow-lg">
-        <div className="bg-(--brand-green-01) px-6 py-5 text-center text-white">
-          <h2 className="text-[2rem] font-extrabold leading-none">
-            {currentPlan.name}
-          </h2>
-
-          <p className="mt-2 text-[1.35rem] font-extrabold">
-            {currentPlan.price}
-          </p>
-        </div>
-
-        <div className="px-5 py-4">
-          <h3 className="mb-4 text-center text-[1.15rem] font-extrabold text-black">
-            {currentPlan.description}
-          </h3>
-
-          <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-[0.75rem] font-medium text-black">
-            {currentPlan.features.map((feature) => (
-              <Feature
-                key={feature.text}
-                text={feature.text}
-                level={feature.level}
-              />
-            ))}
+            <p className="mt-2 text-[1.35rem] font-extrabold">
+              {currentPlan.price}
+            </p>
           </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={handleCreateSubscription}
-          className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
-        >
-          Opret vaskeabonnement
-        </button>
+          <div className="px-5 py-4">
+            <h3 className="mb-4 text-center text-[1.15rem] font-extrabold text-black">
+              {currentPlan.description}
+            </h3>
+
+            <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-[0.75rem] font-medium text-black">
+              {currentPlan.features.map((feature) => (
+                <Feature
+                  key={feature.text}
+                  text={feature.text}
+                  level={feature.level}
+                />
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCreateSubscription}
+            className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+          >
+            Opret vaskeabonnement
+          </button>
+        </section>
       </section>
 
       <BottomNav />
-    </main>
+    </>
   );
 }
 
