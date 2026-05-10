@@ -1,79 +1,79 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState, type MutableRefObject } from 'react'
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
-import MapControls from './MapControls'
-import { washworldMapLocations } from '../data/washworldLocations'
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import MapControls from "./MapControls";
+import { washworldMapLocations } from "../data/washworldLocations";
 
 // Henter access token variablen fra .env.local
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
-const LOCATIONS = washworldMapLocations
+const LOCATIONS = washworldMapLocations;
 
-type LightPreset = 'day' | 'night'
+type LightPreset = "day" | "night";
 
-const EARTH_RADIUS_KM = 6371
+const EARTH_RADIUS_KM = 6371;
 
 function toRadians(deg: number): number {
-  return (deg * Math.PI) / 180
+  return (deg * Math.PI) / 180;
 }
 
 /** Afstand mellem to punkter som [lng, lat] — grov men fin til "km væk" på et kort. */
 function haversineKm(from: [number, number], to: [number, number]): number {
-  const [lng1, lat1] = from
-  const [lng2, lat2] = to
-  const dLat = toRadians(lat2 - lat1)
-  const dLng = toRadians(lng2 - lng1)
+  const [lng1, lat1] = from;
+  const [lng2, lat2] = to;
+  const dLat = toRadians(lat2 - lat1);
+  const dLng = toRadians(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRadians(lat1)) *
       Math.cos(toRadians(lat2)) *
       Math.sin(dLng / 2) *
-      Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return EARTH_RADIUS_KM * c
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS_KM * c;
 }
 
 /** Dansk kilometerstreng, fx "7,6 km" */
 function formatKmDa(km: number): string {
-  return `${km.toFixed(1).replace('.', ',')} km`
+  return `${km.toFixed(1).replace(".", ",")} km`;
 }
 
 /** Gør "7-22" til "07-22" til visning — matcher det I har i datasættet. */
 function formatOpenHoursDisplay(raw: string): string {
-  const trimmed = raw.trim()
-  if (!trimmed) return '—'
+  const trimmed = raw.trim();
+  if (!trimmed) return "—";
 
-  const parts = trimmed.split('-').map((s) => s.trim())
-  if (parts.length < 2) return trimmed
+  const parts = trimmed.split("-").map((s) => s.trim());
+  if (parts.length < 2) return trimmed;
 
   const padHour = (h: string): string =>
-    /^\d{1,2}$/.test(h) ? h.padStart(2, '0') : h
+    /^\d{1,2}$/.test(h) ? h.padStart(2, "0") : h;
 
-  return `${padHour(parts[0])}-${padHour(parts[1])}`
+  return `${padHour(parts[0])}-${padHour(parts[1])}`;
 }
 
 /** Kun by/navn-delen: første ord før mellemrum, fx "Slagelse - Smedegade" → "Slagelse". */
 function locationShortName(fullName: string): string {
-  const first = fullName.trim().split(/\s+/)[0]
-  return first ?? ''
+  const first = fullName.trim().split(/\s+/)[0];
+  return first ?? "";
 }
 
 // Her laver vi stylingen af markørerne på kortet
 function createPrimaryPin(): HTMLImageElement {
-  const img = document.createElement('img')
-  img.src = '/washworld-pin.svg'
-  img.alt = ''
-  img.width = 28
-  img.height = 28
-  return img
+  const img = document.createElement("img");
+  img.src = "/washworld-pin.svg";
+  img.alt = "";
+  img.width = 28;
+  img.height = 28;
+  return img;
 }
 
 function createUserLocationPin(): HTMLDivElement {
-  const el = document.createElement('div')
-  el.className = 'washworld-user-location-pin'
-  return el
+  const el = document.createElement("div");
+  el.className = "washworld-user-location-pin";
+  return el;
 }
 
 function updateUserLocationMarker(
@@ -84,62 +84,64 @@ function updateUserLocationMarker(
   if (!markerRef.current) {
     markerRef.current = new mapboxgl.Marker({
       element: createUserLocationPin(),
-      anchor: 'center',
+      anchor: "center",
     })
       .setLngLat(lngLat)
-      .addTo(map)
-    return
+      .addTo(map);
+    return;
   }
 
-  markerRef.current.setLngLat(lngLat)
+  markerRef.current.setLngLat(lngLat);
 }
 
 function addLocationMarkers(
   map: mapboxgl.Map,
   getUserLngLat: () => [number, number] | null,
 ): void {
-  let activePopup: mapboxgl.Popup | null = null
-  let isMarkerFlyTo = false
+  let activePopup: mapboxgl.Popup | null = null;
+  let isMarkerFlyTo = false;
 
   const closeActivePopup = () => {
-    if (!activePopup) return
-    activePopup.remove()
-    activePopup = null
-  }
+    if (!activePopup) return;
+    activePopup.remove();
+    activePopup = null;
+  };
 
-  map.on('click', closeActivePopup)
-  map.on('zoomstart', () => {
-    if (isMarkerFlyTo) return
-    closeActivePopup()
-  })
-  map.on('moveend', () => {
-    isMarkerFlyTo = false
-  })
+  map.on("click", closeActivePopup);
+  map.on("zoomstart", () => {
+    if (isMarkerFlyTo) return;
+    closeActivePopup();
+  });
+  map.on("moveend", () => {
+    isMarkerFlyTo = false;
+  });
 
   LOCATIONS.forEach((loc) => {
     const popup = new mapboxgl.Popup({
       offset: 20,
-      maxWidth: '400px',
-      className: 'washworld-popup',
+      maxWidth: "400px",
+      className: "washworld-popup",
       closeOnClick: true,
       closeOnMove: false,
-    })
+    });
 
     const marker = new mapboxgl.Marker({
       element: createPrimaryPin(),
-      anchor: 'center',
+      anchor: "center",
     })
       .setLngLat(loc.coords)
-      .addTo(map)
+      .addTo(map);
 
-    marker.getElement().addEventListener('click', (event) => {
-      event.stopPropagation()
-      closeActivePopup()
+    marker.getElement().addEventListener("click", (event) => {
+      event.stopPropagation();
+      closeActivePopup();
 
-      const user = getUserLngLat()
-      const distancePart = user ? formatKmDa(haversineKm(user, loc.coords)) : '— km'
-      const hours = formatOpenHoursDisplay(loc.openHours)
-      const shortName = locationShortName(loc.name)
+      const user = getUserLngLat();
+      const distancePart = user
+        ? formatKmDa(haversineKm(user, loc.coords))
+        : "— km";
+      const hours = formatOpenHoursDisplay(loc.openHours);
+      const shortName = locationShortName(loc.name);
 
       popup
         .setHTML(
@@ -160,124 +162,133 @@ function addLocationMarkers(
       `,
         )
         .setLngLat(loc.coords)
-        .addTo(map)
-      activePopup = popup
+        .addTo(map);
+      activePopup = popup;
 
-      isMarkerFlyTo = true
+      isMarkerFlyTo = true;
       map.flyTo({
         center: loc.coords,
         zoom: 12,
-      })
-    })
-  })
+      });
+    });
+  });
 }
 
 function fitMapToLocations(map: mapboxgl.Map): void {
-  if (LOCATIONS.length === 0) return
+  if (LOCATIONS.length === 0) return;
 
-  const bounds = new mapboxgl.LngLatBounds()
-  LOCATIONS.forEach((loc) => bounds.extend(loc.coords))
-  map.fitBounds(bounds, { padding: 56, maxZoom: 8.5 })
+  const bounds = new mapboxgl.LngLatBounds();
+  LOCATIONS.forEach((loc) => bounds.extend(loc.coords));
+  map.fitBounds(bounds, { padding: 56, maxZoom: 8.5 });
 }
 
 export default function Map() {
-  const mapContainer = useRef<HTMLDivElement | null>(null)
-  const mapRef = useRef<mapboxgl.Map | null>(null)
-  const userMarkerRef = useRef<mapboxgl.Marker | null>(null)
-  const userLngLatRef = useRef<[number, number] | null>(null)
-  const [lightPreset, setLightPreset] = useState<LightPreset>('day')
+  const mapContainer = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const userLngLatRef = useRef<[number, number] | null>(null);
+  const [lightPreset, setLightPreset] = useState<LightPreset>("day");
 
   useEffect(() => {
-    if (!navigator.geolocation) return
+    if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const lngLat: [number, number] = [pos.coords.longitude, pos.coords.latitude]
-        userLngLatRef.current = lngLat
+        const lngLat: [number, number] = [
+          pos.coords.longitude,
+          pos.coords.latitude,
+        ];
+        userLngLatRef.current = lngLat;
 
-        const map = mapRef.current
+        const map = mapRef.current;
         if (map) {
-          updateUserLocationMarker(map, userMarkerRef, lngLat)
+          updateUserLocationMarker(map, userMarkerRef, lngLat);
         }
       },
       () => {
-        userLngLatRef.current = null
+        userLngLatRef.current = null;
       },
       { enableHighAccuracy: false, maximumAge: 120_000, timeout: 12_000 },
-    )
-  }, [])
+    );
+  }, []);
 
   useEffect(() => {
-    if (!mapContainer.current) return
-    if (mapRef.current) return
+    if (!mapContainer.current) return;
+    if (mapRef.current) return;
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/standard',
+      style: "mapbox://styles/mapbox/standard",
       attributionControl: false,
-      config: { basemap: { theme: 'monochrome', lightPreset } },
+      config: { basemap: { theme: "monochrome", lightPreset } },
       center: [12.5683, 55.6761],
       zoom: 6,
-    })
-    mapRef.current = map
+    });
+    mapRef.current = map;
 
     // Standard Mapbox knapper (zoom ind/ud)
-    map.addControl(new mapboxgl.NavigationControl())
+    map.addControl(new mapboxgl.NavigationControl());
 
-    map.on('load', () => {
-      addLocationMarkers(map, () => userLngLatRef.current)
+    map.on("load", () => {
+      addLocationMarkers(map, () => userLngLatRef.current);
       if (userLngLatRef.current) {
-        updateUserLocationMarker(map, userMarkerRef, userLngLatRef.current)
+        updateUserLocationMarker(map, userMarkerRef, userLngLatRef.current);
       }
-      fitMapToLocations(map)
-    })
+      fitMapToLocations(map);
+    });
 
     return () => {
-      userMarkerRef.current?.remove()
-      userMarkerRef.current = null
-      map.remove()
-      mapRef.current = null
-    }
-  }, [])
+      userMarkerRef.current?.remove();
+      userMarkerRef.current = null;
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
-    const map = mapRef.current
-    if (!map) return
+    const map = mapRef.current;
+    if (!map) return;
 
     // Vi skifter kun lys-tilstand (dag/nat), ikke tema/farver.
-    map.setConfigProperty('basemap', 'lightPreset', lightPreset)
-  }, [lightPreset])
+    map.setConfigProperty("basemap", "lightPreset", lightPreset);
+  }, [lightPreset]);
 
   const cycleLightPreset = () => {
-    setLightPreset((current) => (current === 'day' ? 'night' : 'day'))
-  }
+    setLightPreset((current) => (current === "day" ? "night" : "day"));
+  };
 
   const centerOnUser = () => {
-    const map = mapRef.current
-    if (!map || !navigator.geolocation) return
+    const map = mapRef.current;
+    if (!map || !navigator.geolocation) return;
 
     const focus = (lngLat: [number, number]) => {
-      userLngLatRef.current = lngLat
-      updateUserLocationMarker(map, userMarkerRef, lngLat)
-      map.flyTo({ center: lngLat, zoom: 13, duration: 700 })
-    }
+      userLngLatRef.current = lngLat;
+      updateUserLocationMarker(map, userMarkerRef, lngLat);
+      map.flyTo({ center: lngLat, zoom: 13, duration: 700 });
+    };
 
     if (userLngLatRef.current) {
-      focus(userLngLatRef.current)
-      return
+      focus(userLngLatRef.current);
+      return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        focus([pos.coords.longitude, pos.coords.latitude])
+        focus([pos.coords.longitude, pos.coords.latitude]);
       },
       () => {},
       { enableHighAccuracy: false, maximumAge: 120_000, timeout: 12_000 },
-    )
-  }
+    );
+  };
 
   return (
-    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+    <div
+      style={{
+        width: "100%",
+        height: "calc(120dvh - 112px)",
+        position: "relative",
+      }}
+    >
       <MapControls
         lightPreset={lightPreset}
         onCycleLightPreset={cycleLightPreset}
@@ -286,8 +297,8 @@ export default function Map() {
       <div
         ref={mapContainer}
         className="washworld-map"
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: "100%", height: "100%" }}
       />
     </div>
-  )
+  );
 }
