@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
-import { Router } from "next/router";
+import HeaderThing from "@/components/HeaderThing.jsx";
 
 const plans = [
   {
@@ -85,10 +85,15 @@ export default function AbonnementPage() {
   return (
     <>
       <AppHeader />
+      <HeaderThing
+        text="Abonnement"
+        className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
+      />
       <section
         className="min-h-[calc(120dvh-88px-112px)] px-7 pt-6 text-center text-white"
         style={{
-          background: "linear-gradient(90deg, #75cfa0 0%, #8f9994 100%)",
+          background:
+            "linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)",
         }}
       >
         <h2 className="text-[1.9rem] font-bold leading-tight">
@@ -169,7 +174,7 @@ function PlanButton({ name, active, onClick }) {
       onClick={onClick}
       className={`h-7.5 flex-1 rounded-full text-[0.85rem] font-extrabold text-black transition ${
         active
-          ? "bg-white"
+          ? "bg-(--color-surface)"
           : "bg-(--color-grey-03) ring-2 ring-(--brand-green-01)"
       }`}
     >

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
+import HeaderThing from "@/components/HeaderThing.jsx";
 
 const PLANT_DATA = {
   guld: {
@@ -87,10 +88,15 @@ export default function HandleSubscriptionPage() {
   return (
     <>
       <AppHeader />
+      <HeaderThing
+        text="Opret"
+        className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
+      />
       <section
-        className="flex min-h-[calc(120dvh-88px-112px)] flex-col px-6 pt-3.5 pb-4 text-white"
+        className="flex min-h-[calc(120dvh-88px-48px-112px)] flex-col px-6 pt-3.5 pb-4 text-white"
         style={{
-          background: "linear-gradient(90deg, #75cfa0 0%, #8f9994 100%)",
+          background:
+            "linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)",
         }}
       >
         <h1 className="text-center text-[2rem] font-bold leading-tight">
@@ -106,10 +112,10 @@ export default function HandleSubscriptionPage() {
           <h2 className="text-[2rem] font-extrabold leading-none">
             {activePlan.name}
           </h2>
-          <p className="mt-1.5 text-[1.6rem] font-extrabold leading-none">
+          <p className="mt-1.5 text-[1rem] font-bold leading-none">
             {activePlan.monthly}
           </p>
-          <p className="mt-1 text-[1.25rem] font-extrabold leading-none">
+          <p className="mt-1 text-[1.2rem] font-bold leading-none">
             {activePlan.firstMonth}
           </p>
         </div>
@@ -119,7 +125,7 @@ export default function HandleSubscriptionPage() {
           world.
         </p>
 
-        <div className="mt-auto">
+        <div className="mt-20">
           <p className="mx-auto max-w-68 text-center text-[1.2rem] font-bold leading-tight">
             Vælg bil og betalingsmiddel til dit vaskeabonnement
           </p>
@@ -208,7 +214,7 @@ export default function HandleSubscriptionPage() {
           type="button"
           aria-label="Luk vælger"
           onClick={() => setActiveSheet(null)}
-          className={`absolute inset-0 bg-black/45 transition-opacity ${
+          className={`absolute inset-0 bg-(--color-overlay-dark-45) transition-opacity ${
             isSheetOpen ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -227,7 +233,7 @@ export default function HandleSubscriptionPage() {
                 key={item.value}
                 type="button"
                 onClick={() => selectFromSheet(item.value)}
-                className="w-full rounded-xl border border-(--color-grey-02) bg-white px-4 py-3 text-left text-[1rem] font-semibold"
+                className="w-full rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left text-[1rem] font-semibold"
               >
                 {item.label}
               </button>

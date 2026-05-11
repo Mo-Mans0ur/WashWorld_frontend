@@ -33,9 +33,19 @@
   
 
   --white-white: #f4f4f4;
+  --color-black: #000000;
+  --color-danger: #b91c1c;
+  --color-overlay-dark-40: rgba(0, 0, 0, 0.4);
+  --color-overlay-dark-45: rgba(0, 0, 0, 0.45);
+  --color-header-dark: #00130c;
+  --color-dashboard-gradient-start: #75cfa0;
+  --color-dashboard-gradient-end: #8f9994;
   --brand-green-01: #4cc36d;
+  --brand-green-02: #39c765;
   --color-grey-01: #97999c;
   --color-grey-02: #d9d9d9;
+  --color-grey-03: #eeeeee;
+  --color-grey-04: #f4f4f4;
 }
 
 [data-theme="dark"] {
@@ -201,4 +211,14 @@ select {
 
 .mapboxgl-popup-close-button {
   display: none;
+}
+
+
+.carousel-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.carousel-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }

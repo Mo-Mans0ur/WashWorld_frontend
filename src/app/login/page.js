@@ -16,7 +16,7 @@ return(
     priority
     />
     <br/>
-    <div className="absolute inset-0 bg-black/40 z-20" />
+    <div className="absolute inset-0 bg-(--color-overlay-dark-40) z-20" />
         <div className="relative z-20 flex flex-col items-center justify-center h-full gap-4">
 
             <h2 className="-mt-4 text-white text-3xl font-bold">Velkommen til</h2>
@@ -32,8 +32,8 @@ return(
             <br/>
 
 
-            <input placeholder="Brugernavn" className="w-72 p-3 bg-white"/>
-            <input placeholder="Kodeord" type="password" className="w-72 p-3 bg-white"/>
+            <input placeholder="Brugernavn" className="w-72 p-3 bg-(--color-surface)"/>
+            <input placeholder="Kodeord" type="password" className="w-72 p-3 bg-(--color-surface)"/>
             <br/>
             <LoginButton/>
         </div>

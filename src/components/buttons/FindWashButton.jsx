@@ -14,7 +14,7 @@ export default function FindWashButton() {
         </span>
       </div>
 
-      <div className="flex h-full w-[44%] items-center justify-center rounded-r-full bg-white pl-6 pr-3.5 [clip-path:polygon(24%_0,100%_0,100%_100%,0_100%)]">
+      <div className="flex h-full w-[44%] items-center justify-center rounded-r-full bg-(--color-surface) pl-6 pr-3.5 [clip-path:polygon(24%_0,100%_0,100%_100%,0_100%)]">
         <span className="whitespace-nowrap text-[0.95rem] font-extrabold tracking-tight text-black">
           Find vask
         </span>
