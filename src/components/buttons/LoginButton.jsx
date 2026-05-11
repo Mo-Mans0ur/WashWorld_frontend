@@ -1,4 +1,5 @@
 export default function LoginButton({ onLoginClick, onSignupClick }) {
+
   return (
     <div className=" flex w-full max-w-60.5">
       <button
