@@ -5,74 +5,18 @@ import { useRouter } from "next/navigation";
 
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
-import HeaderThing from "@/components/HeaderThing.jsx";
-
-const plans = [
-  {
-    name: "Guld",
-    price: "139kr./ md.",
-    description: "God og effektiv",
-    features: [
-      { text: "Skumforvask", level: 1 },
-      { text: "Tørring", level: 1 },
-      { text: "Aktiv Shampoo", level: 1 },
-      { text: "Højglans", level: 0 },
-      { text: "Hjulvask", level: 1 },
-      { text: "Undervognsvask", level: 0 },
-      { text: "Højtryksvask", level: 1 },
-      { text: "Skumvask", level: 0 },
-      { text: "Børstevask", level: 1 },
-      { text: "Affedtning", level: 0 },
-      { text: "Voks", level: 1 },
-      { text: "Sæsonrens", level: 0 },
-    ],
-  },
-
-  {
-    name: "Premium",
-    price: "169kr./ md.",
-    description: "Ekstra grundig",
-    features: [
-      { text: "Skumforvask", level: 1 },
-      { text: "Tørring", level: 1 },
-      { text: "Aktiv Shampoo", level: 1 },
-      { text: "Højglans", level: 1 },
-      { text: "Hjulvask", level: 1 },
-      { text: "Undervognsvask", level: 1 },
-      { text: "Højtryksvask", level: 1 },
-      { text: "Skumvask", level: 0 },
-      { text: "Børstevask", level: 2 },
-      { text: "Affedtning", level: 0 },
-      { text: "Voks", level: 1 },
-      { text: "Sæsonrens", level: 0 },
-    ],
-  },
-
-  {
-    name: "Brilliant",
-    price: "199kr./ md.",
-    description: "Bedste vask året rundt",
-    features: [
-      { text: "Skumforvask", level: 2 },
-      { text: "Tørring", level: 2 },
-      { text: "Aktiv Shampoo", level: 1 },
-      { text: "Højglans", level: 1 },
-      { text: "Hjulvask", level: 1 },
-      { text: "Undervognsvask", level: 1 },
-      { text: "Højtryksvask", level: 2 },
-      { text: "Skumvask", level: 1 },
-      { text: "Børstevask", level: 2 },
-      { text: "Affedtning", level: 1 },
-      { text: "Voks", level: 2 },
-      { text: "Sæsonrens", level: 2 },
-    ],
-  },
-];
+import HeaderThing from "@/components/PageInfo.jsx";
+import {
+  subscriptionPageNames,
+  subscriptionPlans,
+} from "@/data/subscriptionData";
 
 export default function AbonnementPage() {
   const [selectedPlan, setSelectedPlan] = useState("Guld");
 
-  const currentPlan = plans.find((plan) => plan.name === selectedPlan);
+  const currentPlan = subscriptionPlans.find(
+    (plan) => plan.name === selectedPlan,
+  );
 
   const router = useRouter();
 
@@ -86,7 +30,7 @@ export default function AbonnementPage() {
     <>
       <AppHeader />
       <HeaderThing
-        text="Abonnement"
+        text={subscriptionPageNames.listTitle}
         className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
       <section
@@ -97,13 +41,13 @@ export default function AbonnementPage() {
         }}
       >
         <h2 className="text-[1.9rem] font-bold leading-tight">
-          Opret
+          {subscriptionPageNames.createTitleLineOne}
           <br />
-          vaskeabonnement
+          {subscriptionPageNames.createTitleLineTwo}
         </h2>
 
         <p className="mx-auto mt-2 max-w-67.5 text-[0.9rem] font-bold leading-tight">
-          Hold din bil ren med et vaskeabonnement og spar penge
+          {subscriptionPageNames.createDescription}
         </p>
 
         <div className="mt-5 flex items-center justify-between gap-5">
@@ -157,7 +101,7 @@ export default function AbonnementPage() {
             onClick={handleCreateSubscription}
             className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
           >
-            Opret vaskeabonnement
+            {subscriptionPageNames.createButton}
           </button>
         </section>
       </section>

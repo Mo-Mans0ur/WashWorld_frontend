@@ -1,4 +1,4 @@
-export default function HeaderThing({ text, userName, className = "" }) {
+export default function PageInfo({ text, userName, className = "" }) {
   const content = text ?? (userName ? `Hej ${userName}` : "");
 
   return (

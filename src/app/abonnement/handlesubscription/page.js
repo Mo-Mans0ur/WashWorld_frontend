@@ -4,38 +4,13 @@ import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
-import HeaderThing from "@/components/HeaderThing.jsx";
-
-const PLANT_DATA = {
-  guld: {
-    name: "Guld",
-    monthly: "139kr./ md.",
-    firstMonth: "Første måned 99kr.",
-  },
-
-  premium: {
-    name: "Premium",
-    monthly: "169kr./ md.",
-    firstMonth: "Første måned 129kr.",
-  },
-  brilliant: {
-    name: "Brilliant",
-    monthly: "199kr./ md.",
-    firstMonth: "Første måned 159kr.",
-  },
-};
-
-const VEHICLES = [
-  { value: "", label: "Vælg køretøj" },
-  { value: "abc12345", label: "ABC12345 - Tesla Model 3" },
-  { value: "def67890", label: "DEF67890 - Audi A4" },
-];
-
-const PAYMENT_METHODS = [
-  { value: "card", label: "Kort •••• 4242" },
-  { value: "mobilepay", label: "MobilePay" },
-  { value: "invoice", label: "Månedlig faktura" },
-];
+import HeaderThing from "@/components/PageInfo.jsx";
+import {
+  getSubscriptionPlanBySlug,
+  subscriptionPageNames,
+  subscriptionPaymentMethods,
+  subscriptionVehicles,
+} from "@/data/subscriptionData";
 
 export default function HandleSubscriptionPage() {
   const router = useRouter();
@@ -43,7 +18,7 @@ export default function HandleSubscriptionPage() {
 
   const planKey = (searchParams.get("plan") || "guld").toLowerCase();
   const activePlan = useMemo(
-    () => PLANT_DATA[planKey] || PLANT_DATA.guld,
+    () => getSubscriptionPlanBySlug(planKey),
     [planKey],
   );
 
@@ -67,11 +42,13 @@ export default function HandleSubscriptionPage() {
 
   const isSheetOpen = activeSheet !== null;
   const sheetTitle =
-    activeSheet === "vehicle" ? "Vælg køretøj" : "Vælg betalingsmetode";
+    activeSheet === "vehicle"
+      ? subscriptionPageNames.vehicleSheetTitle
+      : subscriptionPageNames.paymentSheetTitle;
   const sheetOptions =
     activeSheet === "vehicle"
-      ? VEHICLES.filter((item) => item.value)
-      : PAYMENT_METHODS;
+      ? subscriptionVehicles.filter((item) => item.value)
+      : subscriptionPaymentMethods;
 
   function selectFromSheet(value) {
     if (activeSheet === "vehicle") {
@@ -89,7 +66,7 @@ export default function HandleSubscriptionPage() {
     <>
       <AppHeader />
       <HeaderThing
-        text="Opret"
+        text={subscriptionPageNames.createTitle}
         className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
       <section
@@ -100,12 +77,12 @@ export default function HandleSubscriptionPage() {
         }}
       >
         <h1 className="text-center text-[2rem] font-bold leading-tight">
-          Opret
+          {subscriptionPageNames.createTitleLineOne}
           <br />
-          vaskeabonnement
+          {subscriptionPageNames.createTitleLineTwo}
         </h1>
         <p className="mx-auto mt-1 max-w-64 text-center text-[1rem] font-semibold leading-tight">
-          Hold din bil ren med et vaskeabonnement og spar penge
+          {subscriptionPageNames.createDescription}
         </p>
 
         <div className="mx-auto mt-3.5 w-full max-w-74 bg-(--brand-green-01) px-4 py-6 text-center shadow-lg">
@@ -113,7 +90,7 @@ export default function HandleSubscriptionPage() {
             {activePlan.name}
           </h2>
           <p className="mt-1.5 text-[1rem] font-bold leading-none">
-            {activePlan.monthly}
+            {activePlan.price}
           </p>
           <p className="mt-1 text-[1.2rem] font-bold leading-none">
             {activePlan.firstMonth}
@@ -121,13 +98,12 @@ export default function HandleSubscriptionPage() {
         </div>
 
         <p className="mx-auto mt-2 max-w-74 text-center text-[0.95rem] leading-tight">
-          *Gælder kun nummerplader, der ikke før har haft et abonnement hos Wash
-          world.
+          {subscriptionPageNames.footnote}
         </p>
 
         <div className="mt-20">
           <p className="mx-auto max-w-68 text-center text-[1.2rem] font-bold leading-tight">
-            Vælg bil og betalingsmiddel til dit vaskeabonnement
+            {subscriptionPageNames.pickerIntro}
           </p>
 
           <div className="mx-auto mt-3.5 flex w-full max-w-72 flex-col gap-1.5">
@@ -137,15 +113,17 @@ export default function HandleSubscriptionPage() {
               </span>
               <span className="flex-1 truncate pr-20 text-[1rem] font-semibold text-(--color-grey-01)">
                 {vehicle
-                  ? VEHICLES.find((option) => option.value === vehicle)?.label
-                  : "Vælg køretøj"}
+                  ? subscriptionVehicles.find(
+                      (option) => option.value === vehicle,
+                    )?.label
+                  : subscriptionPageNames.vehiclePlaceholder}
               </span>
               <button
                 type="button"
                 onClick={() => setActiveSheet("vehicle")}
                 className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
               >
-                Vælg
+                {subscriptionPageNames.selectButton}
               </button>
             </div>
 
@@ -155,16 +133,17 @@ export default function HandleSubscriptionPage() {
               </span>
               <span className="flex-1 pr-20 text-[1rem] font-semibold text-(--color-grey-01)">
                 {paymentMethod
-                  ? PAYMENT_METHODS.find((item) => item.value === paymentMethod)
-                      ?.label
-                  : "Vælg betalingsmetode"}
+                  ? subscriptionPaymentMethods.find(
+                      (item) => item.value === paymentMethod,
+                    )?.label
+                  : subscriptionPageNames.paymentPlaceholder}
               </span>
               <button
                 type="button"
                 onClick={() => setActiveSheet("payment")}
                 className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
               >
-                Vælg
+                {subscriptionPageNames.selectButton}
               </button>
             </div>
           </div>
@@ -176,9 +155,9 @@ export default function HandleSubscriptionPage() {
               className="h-4 w-4 accent-(--brand-green-01)"
             />
             <span>
-              Jeg accepterer{" "}
+              {subscriptionPageNames.termsPrefix}{" "}
               <a href="#" className="text-(--color-secondary)">
-                abonnementsvilkår
+                {subscriptionPageNames.termsLinkLabel}
               </a>
             </span>
           </label>
@@ -189,7 +168,7 @@ export default function HandleSubscriptionPage() {
               onClick={() => router.back()}
               className="h-8.5 flex-1 bg-(--color-grey-01) text-[1.45rem] font-extrabold text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
             >
-              Tilbage
+              {subscriptionPageNames.backButton}
             </button>
 
             <button
@@ -198,7 +177,7 @@ export default function HandleSubscriptionPage() {
               disabled={!canSubmit}
               className="-ml-3.5 h-8.5 flex-1 bg-(--brand-green-01) text-[1.45rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
             >
-              Opret
+              {subscriptionPageNames.submitButton}
             </button>
           </div>
         </div>
