@@ -61,7 +61,7 @@ body {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   background: #1e1e1e;
@@ -70,7 +70,9 @@ body {
 .app-screen {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   position: relative;
 }

@@ -53,19 +53,18 @@ export default function DashboardPage() {
   const userName = "Jeppe";
 
   return (
-    <>
+    <div className="flex h-dvh flex-col">
       <AppHeader />
 
-     <main
-  className="relative flex min-h-dvh flex-col pb-28"
-  style={{
-    background: `
-      linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
-      linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)
-    `,
-  }}
->
-
+    <main
+      className="relative flex flex-1 flex-col overflow-y-auto pb-8"
+      style={{
+        background: `
+          linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
+          linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)
+        `,
+        }}
+      >
         <HeaderThing userName={userName} />
 
         <section className="px-8 pt-10">
@@ -87,6 +86,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
+              
 
               <p className="text-sm font-bold text-black">9.6 km</p>
             </div>
@@ -118,7 +118,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-12 px-8">
+        <section className="mt-12 px-8 pb-8">
           <h2 className="mb-3 text-2xl font-bold text-black">Til dig</h2>
 
           <h3 className="mb-4 text-xl font-bold text-black">
@@ -139,7 +139,7 @@ export default function DashboardPage() {
       </main>
 
       <BottomNav />
-    </>
+    </div>
   );
 }
 
