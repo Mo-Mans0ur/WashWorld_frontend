@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState, type MutableRefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MutableRefObject,
+} from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapControls from "./MapControls";
-import { washworldMapLocations } from "../data/washworldLocations";
+import type { MapLocation } from "../data/washworldLocations";
+import { fetchMapLocations } from "../lib/locationsApi";
 
 // Henter access token variablen fra .env.local
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
-
-const LOCATIONS = washworldMapLocations;
 
 type LightPreset = "day" | "night";
 
@@ -60,6 +65,14 @@ function locationShortName(fullName: string): string {
   return first ?? "";
 }
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 // Her laver vi stylingen af markørerne på kortet
 function createPrimaryPin(): HTMLImageElement {
   const img = document.createElement("img");
@@ -96,6 +109,7 @@ function updateUserLocationMarker(
 
 function addLocationMarkers(
   map: mapboxgl.Map,
+  locations: MapLocation[],
   getUserLngLat: () => [number, number] | null,
 ): void {
   let activePopup: mapboxgl.Popup | null = null;
@@ -116,7 +130,7 @@ function addLocationMarkers(
     isMarkerFlyTo = false;
   });
 
-  LOCATIONS.forEach((loc) => {
+  locations.forEach((loc) => {
     const popup = new mapboxgl.Popup({
       offset: 20,
       maxWidth: "400px",
@@ -140,8 +154,9 @@ function addLocationMarkers(
       const distancePart = user
         ? formatKmDa(haversineKm(user, loc.coords))
         : "— km";
-      const hours = formatOpenHoursDisplay(loc.openHours);
-      const shortName = locationShortName(loc.name);
+      const hours = escapeHtml(formatOpenHoursDisplay(loc.openHours));
+      const shortName = escapeHtml(locationShortName(loc.name));
+      const addressHtml = escapeHtml(loc.address);
 
       popup
         .setHTML(
@@ -150,7 +165,7 @@ function addLocationMarkers(
           <h4 class="washworld-popup-title">
             ${shortName} • <span class="washworld-popup-distance">${distancePart}</span>
           </h4>
-          <p class="washworld-popup-address">${loc.address}</p>
+          <p class="washworld-popup-address">${addressHtml}</p>
           <div class="washworld-popup-footer">
             <p class="washworld-popup-hours">
               <span class="washworld-popup-hours-accent">Åben</span>
@@ -174,11 +189,14 @@ function addLocationMarkers(
   });
 }
 
-function fitMapToLocations(map: mapboxgl.Map): void {
-  if (LOCATIONS.length === 0) return;
+function fitMapToLocations(
+  map: mapboxgl.Map,
+  locations: MapLocation[],
+): void {
+  if (locations.length === 0) return;
 
   const bounds = new mapboxgl.LngLatBounds();
-  LOCATIONS.forEach((loc) => bounds.extend(loc.coords));
+  locations.forEach((loc) => bounds.extend(loc.coords));
   map.fitBounds(bounds, { padding: 56, maxZoom: 8.5 });
 }
 
@@ -188,6 +206,33 @@ export default function Map() {
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
   const userLngLatRef = useRef<[number, number] | null>(null);
   const [lightPreset, setLightPreset] = useState<LightPreset>("day");
+  const [locations, setLocations] = useState<MapLocation[]>([]);
+  const [loadStatus, setLoadStatus] = useState<"loading" | "error" | "ready">(
+    "loading",
+  );
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const data = await fetchMapLocations();
+        if (cancelled) return;
+        setLocations(data);
+        setLoadStatus("ready");
+        setLoadError(null);
+      } catch (e) {
+        if (cancelled) return;
+        setLoadStatus("error");
+        setLoadError(e instanceof Error ? e.message : "Ukendt fejl");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -213,6 +258,7 @@ export default function Map() {
   }, []);
 
   useEffect(() => {
+    if (loadStatus !== "ready") return;
     if (!mapContainer.current) return;
     if (mapRef.current) return;
 
@@ -226,15 +272,14 @@ export default function Map() {
     });
     mapRef.current = map;
 
-    // Standard Mapbox knapper (zoom ind/ud)
     map.addControl(new mapboxgl.NavigationControl());
 
     map.on("load", () => {
-      addLocationMarkers(map, () => userLngLatRef.current);
+      addLocationMarkers(map, locations, () => userLngLatRef.current);
       if (userLngLatRef.current) {
         updateUserLocationMarker(map, userMarkerRef, userLngLatRef.current);
       }
-      fitMapToLocations(map);
+      fitMapToLocations(map, locations);
     });
 
     return () => {
@@ -243,13 +288,12 @@ export default function Map() {
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [loadStatus, locations]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // Vi skifter kun lys-tilstand (dag/nat), ikke tema/farver.
     map.setConfigProperty("basemap", "lightPreset", lightPreset);
   }, [lightPreset]);
 
@@ -281,6 +325,19 @@ export default function Map() {
     );
   };
 
+  const overlayStyle: CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(255,255,255,0.85)",
+    zIndex: 2,
+    fontSize: "0.95rem",
+    padding: "1rem",
+    textAlign: "center",
+  };
+
   return (
     <div
       style={{
@@ -294,10 +351,22 @@ export default function Map() {
         onCycleLightPreset={cycleLightPreset}
         onCenterOnUser={centerOnUser}
       />
+      {loadStatus === "loading" ? (
+        <div style={overlayStyle}>Henter lokationer…</div>
+      ) : null}
+      {loadStatus === "error" ? (
+        <div style={overlayStyle}>
+          <span>{loadError ?? "Kunne ikke indlæse kortet."}</span>
+        </div>
+      ) : null}
       <div
         ref={mapContainer}
         className="washworld-map"
-        style={{ width: "100%", height: "100%" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          visibility: loadStatus === "ready" ? "visible" : "hidden",
+        }}
       />
     </div>
   );
