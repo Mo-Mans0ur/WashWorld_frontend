@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import PageInfo from "@/components/PageInfo";
 import {
+  ArrowLeftIcon,
   CalendarDaysIcon,
   CurrencyDollarIcon,
   EnvelopeIcon,
@@ -28,6 +29,7 @@ const receiptActionIcons = {
 };
 
 export default function VaskehistorikDetaljer() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const receiptId = Number(searchParams.get("id"));
   const receipt = getReceiptById(receiptId);
@@ -39,6 +41,15 @@ export default function VaskehistorikDetaljer() {
 
       <div className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
         <main className="space-y-4 px-5 py-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="inline-flex h-10 items-center gap-2 bg-(--color-grey-01) px-4 text-sm font-bold text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
+          >
+            <ArrowLeftIcon className="h-4 w-4" />
+            Tilbage
+          </button>
+
           <article className="bg-white px-4 py-4 shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
             <div className="flex items-start gap-3">
               <div className="relative h-12 w-12 shrink-0 overflow-hidden border border-neutral-400 bg-white">
