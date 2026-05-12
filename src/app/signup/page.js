@@ -16,6 +16,7 @@ return(
     fill
     priority
     />
+    
     <div className="absolute inset-0 bg-black/40 z-20" />
         <div className="relative z-20 flex flex-col items-center justify-center h-full gap-4">
 
