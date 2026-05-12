@@ -38,8 +38,8 @@
   --color-overlay-dark-40: rgba(0, 0, 0, 0.4);
   --color-overlay-dark-45: rgba(0, 0, 0, 0.45);
   --color-header-dark: #00130c;
-  --color-dashboard-gradient-start: #75cfa0;
-  --color-dashboard-gradient-end: #8f9994;
+  --color-dashboard-gradient-start: #0ECC6D;
+  --color-dashboard-gradient-end: #000000;
   --brand-green-01: #4cc36d;
   --brand-green-02: #39c765;
   --color-grey-01: #97999c;
@@ -61,7 +61,7 @@ body {
 }
 
 .app-shell {
-  min-height: 100dvh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   background: #1e1e1e;
@@ -70,7 +70,7 @@ body {
 .app-screen {
   width: 100%;
   max-width: 430px;
-  min-height: 100dvh;
+  min-height: 100vh;
   overflow: hidden;
   position: relative;
 }

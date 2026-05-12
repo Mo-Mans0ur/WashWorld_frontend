@@ -56,13 +56,16 @@ export default function DashboardPage() {
     <>
       <AppHeader />
 
-      <main
-        className="relative flex min-h-dvh flex-col pb-28"
-        style={{
-          background:
-            "linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)",
-        }}
-      >
+     <main
+  className="relative flex min-h-dvh flex-col pb-28"
+  style={{
+    background: `
+      linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
+      linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)
+    `,
+  }}
+>
+
         <HeaderThing userName={userName} />
 
         <section className="px-8 pt-10">
