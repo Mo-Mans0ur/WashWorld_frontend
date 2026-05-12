@@ -4,7 +4,7 @@ export default function SignUpButton({ onLoginClick, onSignupClick }) {
       <button
         type="button"
         onClick={onLoginClick}
-        className=" z-10 flex h-7.5 flex-[1.02] items-center justify-center bg-(--brand-green-01) [clip-path:polygon(0_0,100%_0,83%_100%,0_100%)]"
+        className=" z-10 flex h-12.5 flex-[1.02] items-center justify-center bg-(--brand-green-01) [clip-path:polygon(0_0,100%_0,83%_100%,0_100%)]"
       >
         <span className="text-xl font-bold tracking-tight text-white">
           Log ind

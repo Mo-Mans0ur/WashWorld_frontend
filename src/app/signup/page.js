@@ -16,7 +16,6 @@ return(
     fill
     priority
     />
-    <br/>
     <div className="absolute inset-0 bg-black/40 z-20" />
         <div className="relative z-20 flex flex-col items-center justify-center h-full gap-4">
 
@@ -26,7 +25,6 @@ return(
             <input placeholder="Email" className="w-72 p-3 bg-white"/>
             <input placeholder="Kodeord" className="w-72 p-3 bg-white"/>
             <input placeholder="Gentag kodeord" type="password" className="w-72 p-3 bg-white"/>
-            <br/>
         
             <label className="mx-auto mt-2.5 flex w-full max-w-72 items-center justify-center gap-2 text-[0.95rem] font-semibold text-(--white-white)">
             <input
