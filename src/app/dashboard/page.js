@@ -4,6 +4,7 @@ import Image from "next/image";
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
 import HeaderThing from "@/components/PageInfo.jsx";
+import ScreenLayout from "@/components/ScreenLayout";
 import {
   dashboardFavoriteLocations,
   dashboardNewsItems,
@@ -15,15 +16,7 @@ export default function DashboardPage() {
     <div className="flex h-dvh flex-col">
       <AppHeader />
 
-      <main
-        className="relative flex flex-1 flex-col overflow-y-auto pb-8 scrollbar-hide"
-        style={{
-          background: `
-          linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
-          linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)
-        `,
-        }}
-      >
+      <ScreenLayout>
         <HeaderThing userName={dashboardPageNames.userName} />
 
         <section className="px-8 pt-10">
@@ -82,16 +75,16 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-12 px-8 pb-8">
-          <h2 className="mb-3 text-2xl font-bold text-black">
+        <section className="mt-12 pb-8">
+          <h2 className="mb-3 px-8 text-2xl font-bold text-black">
             {dashboardPageNames.forYouTitle}
           </h2>
 
-          <h3 className="mb-4 text-xl font-bold text-black">
+          <h3 className="mb-4 px-8 text-xl font-bold text-black">
             {dashboardPageNames.newsTitle}
           </h3>
 
-          <div className="carousel-scroll flex gap-4 overflow-x-auto pb-3">
+          <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
             {dashboardNewsItems.map((newsItem) => (
               <NewsCard
                 key={newsItem.id}
@@ -102,7 +95,7 @@ export default function DashboardPage() {
             ))}
           </div>
         </section>
-      </main>
+      </ScreenLayout>
 
       <BottomNav />
     </div>

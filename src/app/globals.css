@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  /* Farvepalette */
   --color-primary: #06c167;
   --color-secondary: #ff6b06;
   --color-bg: #eef2f6;
@@ -12,21 +11,17 @@
   --color-text: #333;
   --color-text-muted: #94a3b8;
 
-  /* WashWorld officielle farver (SLET PÅ ET SENERE TIDSPUNKT) */
   --color-official-primary: #06c167;
   --color-official-secondary: #ff6b06;
 
-  /* Spacing */
   --space-sm: 1rem;
   --space-md: 1.5rem;
   --space-lg: 2rem;
 
-  /* Radius */
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
 
-  /* Skrifttyper */
   --font-gilroy:
     "Gilroy", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
@@ -72,7 +67,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; /* ✅ let main handle scrolling, not app-screen */
   position: relative;
 }
 
@@ -125,7 +120,6 @@ select {
   border-radius: 999px;
   background: #3b82f6;
   z-index: 1;
-  /* background: var(--color-secondary); */
   border: 2px solid #fff;
   box-shadow:
     0 0 0 4px color-mix(in srgb, var(--color-header-primary) 28%, transparent),
@@ -206,7 +200,6 @@ select {
   user-select: none;
   border-radius: 0;
   white-space: nowrap;
-  /* Samme venstre skrå som .btn--trapezoid — kun venstre kant; højre er lige. */
   clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
 }
 
@@ -215,22 +208,23 @@ select {
 }
 
 .carousel-scroll {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-x; /* ✅ horizontal swipe won't be captured by vertical scroll */
 }
 
 .carousel-scroll::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 
 .scrollbar-hide {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
   width: 0;
   height: 0;
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
   background: transparent;
 }
