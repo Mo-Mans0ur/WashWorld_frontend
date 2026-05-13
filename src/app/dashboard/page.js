@@ -137,7 +137,7 @@ function NewsCard({
   imageClassName = "h-20 object-cover",
 }) {
   return (
-    <article className="w-46 shrink-0 overflow-hidden rounded-sm border border-white/90 bg-white shadow-md">
+    <article className="w-46 shrink-0 overflow-hidden border-white/90 bg-white shadow-md">
       <Image
         src={image}
         alt={description}
