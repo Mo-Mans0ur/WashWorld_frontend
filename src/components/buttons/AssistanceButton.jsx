@@ -1,4 +1,6 @@
-export default function AssistanceButton({}) {
+import { Phone } from "lucide-react";
+
+export default function AssistanceButton({ iconColor = "white" }) {
   return (
     <button
       type="button"
@@ -9,7 +11,7 @@ export default function AssistanceButton({}) {
         HJÆLP
       </span>
 
-      <span className="text-xl text-white">📞</span>
+      <Phone size={22} color={iconColor} strokeWidth={2.5} />
     </button>
   );
 }
