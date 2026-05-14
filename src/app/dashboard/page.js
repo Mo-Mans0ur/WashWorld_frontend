@@ -13,7 +13,7 @@ import {
 
 export default function DashboardPage() {
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex h-full flex-col">
       <AppHeader />
 
       <ScreenLayout>

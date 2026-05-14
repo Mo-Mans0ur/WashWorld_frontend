@@ -48,6 +48,23 @@
   --color-text: #e2e8f0;
 }
 
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   font-family: var(--font-gilroy);
   background-color: var(--color-bg);
@@ -56,18 +73,21 @@ body {
 
 .app-shell {
   height: 100vh;
+  width: 100vw;
   display: flex;
   justify-content: center;
+  align-items: center;
   background: #1e1e1e;
 }
 
 .app-screen {
-  width: 100%;
+  width: 430px;
+  min-width: 430px;
   max-width: 430px;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* ✅ let main handle scrolling, not app-screen */
+  overflow: hidden;
   position: relative;
 }
 
@@ -210,7 +230,7 @@ select {
 .carousel-scroll {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  touch-action: pan-x; /* ✅ horizontal swipe won't be captured by vertical scroll */
+  touch-action: pan-x;
 }
 
 .carousel-scroll::-webkit-scrollbar {

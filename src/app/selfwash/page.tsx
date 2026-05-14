@@ -31,7 +31,7 @@ export default function ActiveWashPage() {
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex h-full flex-col">
       <AppHeader />
 
       <ScreenLayout>
