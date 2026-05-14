@@ -89,9 +89,10 @@ export default function ActiveWashPage() {
         {/* End wash button */}
         <div className="mt-8 flex justify-center px-8">
           <Button
-            variant="primary"
+            variant="trapezoid"
             size="lg"
             onClick={() => router.push("/dashboard")}
+            style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
           >
             Afslut vask
           </Button>
