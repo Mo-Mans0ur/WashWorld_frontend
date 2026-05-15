@@ -7,7 +7,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="absolute bottom-0 left-0 flex h-28 w-full items-center justify-around bg-(--color-black) text-white">
+    <nav className="flex h-28 w-full shrink-0 items-center justify-around bg-(--color-black) text-white">
       <NavItem href="/dashboard" label="Hjem" active={pathname === "/dashboard"}>
         <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xl font-extrabold">
           W

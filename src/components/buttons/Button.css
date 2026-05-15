@@ -6,7 +6,7 @@
   margin: 5px;
   transition: all 0.2s ease;
   padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
+  border-radius: 0;
 }
 
 /* Sizes */
@@ -37,20 +37,20 @@
   border: 1px solid var(--color-border);
   color: var(--color-text);
 }
+
 /* Trapezoid */
 .btn--trapezoid {
   background: var(--color-primary);
   color: white;
+  font-weight: 600;
   padding-left: 50px;
-  padding-right: 50px;
-  border-radius: 0; /* vigtigt */
-
-  clip-path: polygon(
-    20% 0%,   /* top venstre skrå */
-    100% 0%, 
-    80% 100%, /* bund højre skrå */
-    0% 100%
-  );
+  padding-right: 40px;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
 }
 
 .btn:hover {

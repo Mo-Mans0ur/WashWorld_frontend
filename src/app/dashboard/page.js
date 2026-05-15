@@ -1,74 +1,28 @@
 "use client";
 
+import Image from "next/image";
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
-import HeaderThing from "@/components/HeaderThing.jsx";
-
-const favoriteLocations = [
-  {
-    id: 1,
-    image: "/locations-pictures/herlev.jpg",
-    title: "Herlev",
-    distance: "9.6 km",
-  },
-  {
-    id: 2,
-    image: "/locations-pictures/ballerup.jpg",
-    title: "Ballerup",
-    distance: "12.3 km",
-  },
-  {
-    id: 3,
-    image: "/locations-pictures/brøndby-strand.jpg",
-    title: "Brøndby Strand",
-    distance: "15.8 km",
-  },
-];
-
-const NEWS = [
-  {
-    id: 1,
-    image: "/logos/WashWorld-black-greenbg.png",
-    description: "Start nemt din bilvask med appen",
-  },
-  {
-    id: 2,
-    image: "/locations-pictures/Oil.jpg",
-    description: "Tank oktan 100% Køreglæde",
-  },
-  {
-    id: 3,
-    image: "/locations-pictures/WashWorld_lokation-min.jpg",
-    description: "Vask 10 gange og få premium for 1 kr.",
-  },
-  {
-    id: 4,
-    image: "/tilbud.png",
-    description: "Spar 50% på alle vaske i denne uge",
-    imageClassName: "h-16 object-contain p-2",
-  },
-];
+import HeaderThing from "@/components/PageInfo.jsx";
+import ScreenLayout from "@/components/ScreenLayout";
+import {
+  dashboardFavoriteLocations,
+  dashboardNewsItems,
+  dashboardPageNames,
+} from "@/data/dashboardData";
 
 export default function DashboardPage() {
-  const userName = "Jeppe";
-
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex h-full flex-col">
       <AppHeader />
 
-    <main
-      className="relative flex flex-1 flex-col overflow-y-auto pb-8"
-      style={{
-        background: `
-          linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
-          linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)
-        `,
-        }}
-      >
-        <HeaderThing userName={userName} />
+      <ScreenLayout>
+        <HeaderThing userName={dashboardPageNames.userName} />
 
         <section className="px-8 pt-10">
-          <h2 className="mb-5 text-2xl font-bold text-black">Nær dig nu</h2>
+          <h2 className="mb-5 text-2xl font-bold text-black">
+            {dashboardPageNames.nearbyTitle}
+          </h2>
 
           <div className="flex items-center gap-3">
             <div className="flex h-20 flex-1 items-center justify-between bg-(--brand-green-01) px-4 shadow-md">
@@ -79,23 +33,26 @@ export default function DashboardPage() {
 
                 <div>
                   <p className="text-sm font-bold leading-tight text-white">
-                    Gunnar Clausens Vej 2A
+                    {dashboardPageNames.currentLocationTitle}
                   </p>
                   <p className="text-sm font-bold leading-tight text-white">
-                    8260 Viby
+                    {dashboardPageNames.currentLocationSubtitle}
                   </p>
                 </div>
               </div>
-              
 
-              <p className="text-sm font-bold text-black">9.6 km</p>
+              <p className="text-sm font-bold text-black">
+                {dashboardPageNames.currentLocationDistance}
+              </p>
             </div>
 
             <button className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md">
-              <img
+              <Image
                 src="/Car1.png"
-                alt="Find vaskehal"
+                alt={dashboardPageNames.currentLocationButtonAlt}
                 className="h-14 w-14 object-contain"
+                width={56}
+                height={56}
               />
             </button>
           </div>
@@ -103,11 +60,11 @@ export default function DashboardPage() {
 
         <section className="mt-12">
           <h2 className="mb-5 px-8 text-2xl font-bold text-black">
-            Favoritter
+            {dashboardPageNames.favoritesTitle}
           </h2>
 
           <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-            {favoriteLocations.map((location) => (
+            {dashboardFavoriteLocations.map((location) => (
               <FavoriteCard
                 key={location.id}
                 image={location.image}
@@ -118,15 +75,17 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-12 px-8 pb-8">
-          <h2 className="mb-3 text-2xl font-bold text-black">Til dig</h2>
+        <section className="mt-12 pb-8">
+          <h2 className="mb-3 px-8 text-2xl font-bold text-black">
+            {dashboardPageNames.forYouTitle}
+          </h2>
 
-          <h3 className="mb-4 text-xl font-bold text-black">
-            Nyheder og tilbud
+          <h3 className="mb-4 px-8 text-xl font-bold text-black">
+            {dashboardPageNames.newsTitle}
           </h3>
 
-          <div className="carousel-scroll flex gap-4 overflow-x-auto pb-3">
-            {NEWS.map((newsItem) => (
+          <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+            {dashboardNewsItems.map((newsItem) => (
               <NewsCard
                 key={newsItem.id}
                 image={newsItem.image}
@@ -136,7 +95,7 @@ export default function DashboardPage() {
             ))}
           </div>
         </section>
-      </main>
+      </ScreenLayout>
 
       <BottomNav />
     </div>
@@ -146,10 +105,12 @@ export default function DashboardPage() {
 function FavoriteCard({ image, title, distance }) {
   return (
     <article className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01)">
-      <img
+      <Image
         src={image}
         alt={title}
         className="h-full w-full object-cover opacity-80"
+        fill
+        sizes="144px"
       />
 
       <div className="absolute inset-0 flex flex-col justify-between">
@@ -162,7 +123,7 @@ function FavoriteCard({ image, title, distance }) {
 
         <div className="absolute -right-px -bottom-px h-6">
           <button className="flex h-full items-center justify-end rounded-none border-0 bg-(--brand-green-01) pl-6 pr-2 text-xs leading-none font-bold text-white [clip-path:polygon(24%_0,101%_0,101%_101%,0_101%)]">
-            Se mere
+            {dashboardPageNames.favoriteCardButton}
           </button>
         </div>
       </div>
@@ -176,11 +137,13 @@ function NewsCard({
   imageClassName = "h-20 object-cover",
 }) {
   return (
-    <article className="w-46 shrink-0 overflow-hidden rounded-sm border border-white/90 bg-white shadow-md">
-      <img
+    <article className="w-46 shrink-0 overflow-hidden border-white/90 bg-white shadow-md">
+      <Image
         src={image}
         alt={description}
         className={`w-full ${imageClassName}`}
+        width={184}
+        height={80}
       />
 
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">

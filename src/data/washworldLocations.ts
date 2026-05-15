@@ -3,7 +3,7 @@
 import washworldLocationsJson from '../../washworld-locations.json'
 
 export type MapLocation = {
-  id: number
+  id: string
   name: string
   address: string
   coords: [number, number]
@@ -39,10 +39,10 @@ export const washworldMapLocations: MapLocation[] = (
   .map((row) => {
     const coords = parseLngLat(row)
     if (!coords || !row.name) return null
-    const id = Number.parseInt(String(row.Location_id ?? ''), 10)
-    if (!Number.isFinite(id)) return null
+    const rawId = String(row.Location_id ?? '').trim()
+    if (!rawId) return null
     return {
-      id,
+      id: rawId,
       name: row.name,
       address: row.address ?? '',
       coords,
