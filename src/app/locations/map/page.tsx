@@ -1,11 +1,5 @@
-import Map from '@/components/Map'
-import BottomNav from '@/components/BottomNav'
+import Map from "@/components/Map";
 
 export default function Page() {
-  return (
-    <>
-      <Map />
-      <BottomNav />
-    </>
-  );
+  return <Map />;
 }
