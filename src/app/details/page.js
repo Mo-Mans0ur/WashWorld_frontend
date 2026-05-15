@@ -3,30 +3,24 @@
 import React from "react";
 import Image from "next/image";
 import AppHeader from '@/components/AppHeader';
-import BottomNav from '@/components/BottomNav'; 
-
+import BottomNav from "@/components/BottomNav.jsx"; 
+import ScreenLayout from "@/components/ScreenLayout";
+import { 
+    VaskselvDetails,
+    StovsugerDetails,
+    VaskehallDetails
+} from "@/data/detailsPageData";
 import "./page.css";
 
 
 
 export default function DetailsPage() {
   return (
-    <>
 
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <Image
-          src="/background/washworld-background.png"
-          alt="Baggrund"
-          fill
-          priority
-          className="object-cover"
-        />
-
-        <div className="absolute inset-0 bg-[var(--color-overlay-dark-40)]" />
-      </div>
-
-
-      <main className="mapDetailsPage">
+            <div className="flex h-full flex-col">
+              <AppHeader />
+        
+              <ScreenLayout>
         <HeaderThing text="Herlev" className="mb-6" />
 
 
@@ -60,85 +54,51 @@ export default function DetailsPage() {
           </div>
         </section>
 
-        {/* VASKEHALLER */}
-        <MachineSection title="Vaskehaller">
-          <MachineCard
-            title="Vaskehal 01"
-            status="Ledig"
-            type="free"
-            label="WASH"
-          />
+        <section className="mt-12">
+                  <h2 className="mb-5 px-8 text-2xl font-bold text-black">
+                    {VaskehallDetails[0].title}
+                  </h2>
+        
+                  <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+                    {VaskehallDetails.map((Vaskehall) => (
+                      <VaskehallCard
+                        key={Vaskehall.id}
+                        image={Vaskehall.image}
+                        title={Vaskehall.title}
+                        status={Vaskehall.status}
+                      />
+                    ))}
+                  </div>
+                </section>
 
-          <MachineCard
-            title="Vaskehal 02"
-            status="Optaget"
-            type="busy"
-            label="WASH"
-          />
+        </ScreenLayout>
+        <BottomNav/>
+</div>
+)
+}
 
-          <MachineCard
-            title="Vaskehal 03"
-            status="Ledig"
-            type="free"
-            label="WASH"
-          />
-        </MachineSection>
-
-        {/* VASK SELV */}
-        <MachineSection title="Vask selv">
-          <MachineCard
-            title="Vaskehal 01"
-            status="Optaget"
-            type="busy"
-            label="WASH SELV"
-          />
-
-          <MachineCard
-            title="Vaskehal 02"
-            status="Ude af drift"
-            type="offline"
-            label="WASH SELV"
-          />
-
-          <MachineCard
-            title="Vaskehal 03"
-            status="Ledig"
-            type="free"
-            label="WASH SELV"
-          />
-        </MachineSection>
-
-        {/* STØVSUGERE */}
-        <MachineSection title="Støvsugere">
-          <MachineCard
-            title="Støvsuger 01"
-            status="Ledig"
-            type="free"
-            vacuum
-          />
-
-          <MachineCard
-            title="Støvsuger 02"
-            status="Ledig"
-            type="free"
-            vacuum
-          />
-
-          <MachineCard
-            title="Støvsuger 03"
-            status="Optaget"
-            type="busy"
-            vacuum
-          />
-        </MachineSection>
-
-        <button className="startWashButton">
-          Start vask
-        </button>
-      </main>
-    </>
+     
+function VaskehallCard({ 
+    image, 
+    title, 
+    status 
+}) {
+  return (
+    <article className="w-46 shrink-0 overflow-hidden board-white/90 bg-white shadow-md">
+      <Image
+        src={image}
+        alt={title}
+        className="w-full h-20 object-cover"
+        width={184}
+        height={80}
+      />
+        <p className="px-2 pt-2 text-sm font-bold leading-tight text-neutral-600">
+          {status}
+        </p>
+    </article>
   );
 }
+
 
 function HeaderThing({
   text,
@@ -168,60 +128,5 @@ function HeaderThing({
         </p>
       </div>
     </section>
-  );
-}
-
-function MachineSection({
-  title,
-  children,
-}) {
-  return (
-    <section className="machineSection">
-      <h2>
-        {title} <span className="infoIcon">i</span>
-      </h2>
-
-      <div className="machineCarousel">
-        {children}
-      </div>
-    </section>
-  );
-}
-
-function MachineCard({
-  title,
-  status,
-  type,
-  label,
-  vacuum,
-}) {
-  return (
-    <div className="machineCard">
-      <div className="machineImage">
-        {vacuum ? (
-          <span className="vacuumEmoji">
-            🚘〰️
-          </span>
-        ) : (
-          <>
-            <div className="machineImageTop">
-              {label}
-            </div>
-
-            <span className="carEmoji">
-              🚗
-            </span>
-          </>
-        )}
-      </div>
-
-      <div className="machineTitle">
-        {title}
-      </div>
-
-      <div className={`machineStatus ${type}`}>
-        {status}
-      </div>
-    </div>
   );
 }
