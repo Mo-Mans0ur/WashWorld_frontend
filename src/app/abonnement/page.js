@@ -27,26 +27,26 @@ export default function AbonnementPage() {
   }
 
   return (
-    <>
+    <div className="flex h-dvh flex-col overflow-hidden">
       <AppHeader />
       <HeaderThing
         text={subscriptionPageNames.listTitle}
         className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
-      <section
-        className="min-h-[calc(120dvh-88px-112px)] px-7 pt-6 text-center text-white"
+      <main
+        className="flex-1 overflow-y-auto px-7 pt-6 pb-6 text-center text-white scrollbar-hide"
         style={{
           background:
             "linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)",
         }}
       >
-        <h2 className="text-[1.9rem] font-bold leading-tight">
+        <h2 className="text-[1.9rem] font-bold leading-tight ">
           {subscriptionPageNames.createTitleLineOne}
           <br />
           {subscriptionPageNames.createTitleLineTwo}
         </h2>
 
-        <p className="mx-auto mt-2 max-w-67.5 text-[0.9rem] font-bold leading-tight">
+        <p className="mx-auto mt-5 max-w-67.5 text-[0.9rem] font-bold leading-tight">
           {subscriptionPageNames.createDescription}
         </p>
 
@@ -69,7 +69,7 @@ export default function AbonnementPage() {
             onClick={() => setSelectedPlan("Brilliant")}
           />
         </div>
-        <section className="mx-auto mt-7 w-[82%] overflow-hidden bg-(--white-white) shadow-lg">
+        <section className="mx-auto mt-7 w-[82%] overflow-hidden bg-(--white-white) shadow-lg ">
           <div className="bg-(--brand-green-01) px-6 py-5 text-center text-white">
             <h2 className="text-[2rem] font-extrabold leading-none">
               {currentPlan.name}
@@ -85,7 +85,7 @@ export default function AbonnementPage() {
               {currentPlan.description}
             </h3>
 
-            <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-[0.75rem] font-medium text-black">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-[0.75rem] font-medium text-black ">
               {currentPlan.features.map((feature) => (
                 <Feature
                   key={feature.text}
@@ -104,10 +104,10 @@ export default function AbonnementPage() {
             {subscriptionPageNames.createButton}
           </button>
         </section>
-      </section>
+      </main>
 
       <BottomNav />
-    </>
+    </div>
   );
 }
 
