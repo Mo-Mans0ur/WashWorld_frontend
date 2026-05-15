@@ -14,11 +14,7 @@ export default function BottomNav() {
         </div>
       </NavItem>
 
-      <NavItem
-        href="/locations/map"
-        label="Kort"
-        active={pathname === "/locations/map"}
-      >
+      <NavItem href="/map" label="Kort" active={pathname === "/map"}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-9 w-9"

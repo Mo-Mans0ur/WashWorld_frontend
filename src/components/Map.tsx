@@ -9,7 +9,6 @@ import {
 } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import BottomNav from "./BottomNav";
 import MapControls from "./MapControls";
 import type { MapLocation } from "../data/washworldLocations";
 import { fetchMapLocations } from "../lib/locationsApi";
@@ -232,7 +231,7 @@ export default function Map() {
     });
     mapRef.current = map;
 
-    //map.addControl(new mapboxgl.NavigationControl());
+    map.addControl(new mapboxgl.NavigationControl());
 
     map.on("load", () => {
       addLocationMarkers(map, locations, () => userLngLatRef.current);
@@ -268,7 +267,7 @@ export default function Map() {
     const focus = (lngLat: [number, number]) => {
       userLngLatRef.current = lngLat;
       updateUserLocationMarker(map, userMarkerRef, lngLat);
-      map.flyTo({ center: lngLat, zoom: 9, duration: 700 });
+      map.flyTo({ center: lngLat, zoom: 13, duration: 700 });
     };
 
     if (userLngLatRef.current) {
@@ -299,8 +298,13 @@ export default function Map() {
   };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
-      <div className="relative min-h-0 w-full flex-1">
+    <div
+      style={{
+        width: "100%",
+        height: "calc(120dvh - 112px)",
+        position: "relative",
+      }}
+    >
       <MapControls
         lightPreset={lightPreset}
         onCycleLightPreset={cycleLightPreset}
@@ -323,8 +327,6 @@ export default function Map() {
           visibility: loadStatus === "ready" ? "visible" : "hidden",
         }}
       />
-      </div>
-      <BottomNav />
     </div>
   );
 }
