@@ -8,6 +8,7 @@ import PageInfo from "@/components/PageInfo";
 import {
   ArrowLeftIcon,
   CalendarDaysIcon,
+  ClockIcon,
   CurrencyDollarIcon,
   EnvelopeIcon,
   LifebuoyIcon,
@@ -84,7 +85,8 @@ export default function VaskehistorikDetaljer() {
                     <span>{receipt.date}</span>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-300">
-                    <span className="ml-4">{receipt.time}</span>
+                    <ClockIcon className="h-3 w-3 shrink-0 text-neutral-300" />
+                    <span>{receipt.time}</span>
                   </div>
                 </div>
               </div>

@@ -63,14 +63,14 @@ export default function HandleSubscriptionPage() {
   }
 
   return (
-    <>
+    <div className="relative flex h-dvh flex-col overflow-hidden">
       <AppHeader />
       <HeaderThing
         text={subscriptionPageNames.createTitle}
         className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
-      <section
-        className="flex min-h-[calc(120dvh-88px-48px-112px)] flex-col px-6 pt-3.5 pb-4 text-white"
+      <main
+        className="flex-1 overflow-y-auto px-6 pt-3.5 pb-4 text-white scrollbar-hide"
         style={{
           background:
             "linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)",
@@ -181,7 +181,7 @@ export default function HandleSubscriptionPage() {
             </button>
           </div>
         </div>
-      </section>
+      </main>
       <BottomNav />
 
       <div
@@ -220,7 +220,7 @@ export default function HandleSubscriptionPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
