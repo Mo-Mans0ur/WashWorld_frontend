@@ -11,6 +11,8 @@ import {
   subscriptionPaymentMethods,
   subscriptionVehicles,
 } from "@/data/subscriptionData";
+import Page from "@/app/locations/list/page";
+import PageInfo from "@/components/PageInfo.jsx";
 
 export default function HandleSubscriptionPage() {
   const router = useRouter();
@@ -25,7 +27,7 @@ export default function HandleSubscriptionPage() {
   const [vehicle, setVehicle] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [activeSheet, setActiveSheet] = useState(null);
+  const [activeSheet, setActiveSheet] = useState<string | null>(null);
 
   // Payment comes later, for now we just simulate a successful subscription creation
   const canSubmit = Boolean(vehicle) && acceptedTerms;
@@ -65,8 +67,9 @@ export default function HandleSubscriptionPage() {
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">
       <AppHeader />
-      <HeaderThing
+      <PageInfo
         text={subscriptionPageNames.createTitle}
+        userName=""
         className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
       <main

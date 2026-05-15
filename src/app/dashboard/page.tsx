@@ -10,6 +10,7 @@ import {
   dashboardNewsItems,
   dashboardPageNames,
 } from "@/data/dashboardData";
+import PageInfo from "@/components/PageInfo.jsx";
 
 export default function DashboardPage() {
   return (
@@ -17,7 +18,7 @@ export default function DashboardPage() {
       <AppHeader />
 
       <ScreenLayout>
-        <HeaderThing userName={dashboardPageNames.userName} />
+        <PageInfo text={"Hej"} userName={dashboardPageNames.userName} />
 
         <section className="px-8 pt-10">
           <h2 className="mb-5 text-2xl font-bold text-black">
@@ -46,7 +47,7 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <button className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md">
+            <button className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md" title={dashboardPageNames.currentLocationButtonAlt}>
               <Image
                 src="/Car1.png"
                 alt={dashboardPageNames.currentLocationButtonAlt}
@@ -90,7 +91,6 @@ export default function DashboardPage() {
                 key={newsItem.id}
                 image={newsItem.image}
                 description={newsItem.description}
-                imageClassName={newsItem.imageClassName}
               />
             ))}
           </div>

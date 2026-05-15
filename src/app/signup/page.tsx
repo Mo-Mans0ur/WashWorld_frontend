@@ -2,12 +2,24 @@
 import React, { useState } from 'react';
 import Image from "next/image";
 import SignUpButton from "@/components/buttons/SignUpButton";
+import router from 'next/router';
 
 
 
 
 export default function LoginPage() {
 const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+
+const handleLoginClick = () => {
+    router.push("/login");
+  };
+
+  const handleSignupClick = () => {
+    router.push("/dashboard");
+  };
+
+
 return(
 <>
 <div className="absolute inset-0 w-full h-full overflow-hidden z-10 ">
@@ -51,7 +63,7 @@ return(
               </a>
             </span>
           </label>
-           <SignUpButton/>
+           <SignUpButton onLoginClick={handleLoginClick} onSignupClick={handleSignupClick}/>
         </div>
     </div>
 </>

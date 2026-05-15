@@ -11,6 +11,10 @@ export default function LoginPage() {
     router.push("/dashboard");
   };
 
+  const handleSignupClick = () => {
+    router.push("/signup");
+  };
+
   return (
     <>
       <div className="absolute inset-0 w-full h-full overflow-hidden z-10  ">
@@ -20,10 +24,12 @@ export default function LoginPage() {
           fill
           priority
         />
-       
+
         <div className="absolute inset-0 bg-(--color-overlay-dark-40) z-20" />
         <div className="relative z-20 flex flex-col items-center justify-center h-full gap-4 ">
-          <h2 className="-mt-4 text-white text-3xl font-bold ">Velkommen til</h2>
+          <h2 className="-mt-4 text-white text-3xl font-bold ">
+            Velkommen til
+          </h2>
 
           <Image
             src="/logos/washworld-white.png"
@@ -34,8 +40,6 @@ export default function LoginPage() {
             className="mb-18 "
           />
 
-         
-
           <input
             placeholder="Brugernavn"
             className="w-72 p-3 bg-(--color-surface)"
@@ -45,8 +49,8 @@ export default function LoginPage() {
             type="password"
             className="w-72 p-3 bg-(--color-surface) mb-7"
           />
-          
-          <LoginButton onLoginClick={handleLoginClick} />
+
+          <LoginButton onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
         </div>
       </div>
     </>

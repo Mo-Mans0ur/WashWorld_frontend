@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 
 import AppHeader from "@/components/AppHeader.jsx";
 import BottomNav from "@/components/BottomNav.jsx";
-import HeaderThing from "@/components/PageInfo.jsx";
 import {
   subscriptionPageNames,
   subscriptionPlans,
 } from "@/data/subscriptionData";
+import Page from "../locations/list/page";
+import PageInfo from "@/components/PageInfo.jsx";
 
 export default function AbonnementPage() {
   const [selectedPlan, setSelectedPlan] = useState("Guld");
@@ -29,8 +30,9 @@ export default function AbonnementPage() {
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
       <AppHeader />
-      <HeaderThing
+      <PageInfo
         text={subscriptionPageNames.listTitle}
+        userName=""
         className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
       <main
@@ -69,41 +71,43 @@ export default function AbonnementPage() {
             onClick={() => setSelectedPlan("Brilliant")}
           />
         </div>
-        <section className="mx-auto mt-7 w-[82%] overflow-hidden bg-(--white-white) shadow-lg ">
-          <div className="bg-(--brand-green-01) px-6 py-5 text-center text-white">
-            <h2 className="text-[2rem] font-extrabold leading-none">
-              {currentPlan.name}
-            </h2>
+        {currentPlan && (
+          <section className="mx-auto mt-7 w-[82%] overflow-hidden bg-(--white-white) shadow-lg ">
+            <div className="bg-(--brand-green-01) px-6 py-5 text-center text-white">
+              <h2 className="text-[2rem] font-extrabold leading-none">
+                {currentPlan.name}
+              </h2>
 
-            <p className="mt-2 text-[1.35rem] font-extrabold">
-              {currentPlan.price}
-            </p>
-          </div>
-
-          <div className="px-5 py-4">
-            <h3 className="mb-4 text-center text-[1.15rem] font-extrabold text-black">
-              {currentPlan.description}
-            </h3>
-
-            <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-[0.75rem] font-medium text-black ">
-              {currentPlan.features.map((feature) => (
-                <Feature
-                  key={feature.text}
-                  text={feature.text}
-                  level={feature.level}
-                />
-              ))}
+              <p className="mt-2 text-[1.35rem] font-extrabold">
+                {currentPlan.price}
+              </p>
             </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={handleCreateSubscription}
-            className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
-          >
-            {subscriptionPageNames.createButton}
-          </button>
-        </section>
+            <div className="px-5 py-4">
+              <h3 className="mb-4 text-center text-[1.15rem] font-extrabold text-black">
+                {currentPlan.description}
+              </h3>
+
+              <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-[0.75rem] font-medium text-black ">
+                {currentPlan.features.map((feature) => (
+                  <Feature
+                    key={feature.text}
+                    text={feature.text}
+                    level={feature.level}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCreateSubscription}
+              className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+            >
+              {subscriptionPageNames.createButton}
+            </button>
+          </section>
+        )}
       </main>
 
       <BottomNav />

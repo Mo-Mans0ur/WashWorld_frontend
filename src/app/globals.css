@@ -4,7 +4,7 @@
   --color-primary: #06c167;
   --color-secondary: #ff6b06;
   --color-bg: #eef2f6;
-  --color-surface: #ECECED;
+  --color-surface: #ececed;
   --color-border: rgba(148, 163, 184, 0.25);
   --color-header-primary: #06c167;
   --color-header-secondary: #ff6b06;
@@ -238,6 +238,7 @@ select {
   color: #fff;
   background: var(--color-primary);
   line-height: 1.2;
+  -webkit-user-select: none;
   user-select: none;
   border-radius: 0;
   white-space: nowrap;

@@ -6,7 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import ScreenLayout from "@/components/ScreenLayout";
 import AssistanceButton from "@/components/buttons/AssistanceButton";
-import Button from "@/components/buttons/AngleButton";
+import Button from "@/components/buttons/Button";
 
 const PRICE_PER_MINUTE = 6;
 const START_PRICE = 0;
@@ -89,6 +89,7 @@ export default function ActiveWashPage() {
         {/* End wash button */}
         <div className="mt-8 flex justify-center px-8">
           <Button
+          
             variant="trapezoid"
             size="lg"
             onClick={() => router.push("/dashboard")}
