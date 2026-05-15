@@ -6,7 +6,7 @@ import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import ScreenLayout from "@/components/ScreenLayout";
 import AssistanceButton from "@/components/buttons/AssistanceButton";
-import Button from "@/components/buttons/Button";
+import Button from "@/components/buttons/AngleButton";
 
 const PRICE_PER_MINUTE = 6;
 const START_PRICE = 0;

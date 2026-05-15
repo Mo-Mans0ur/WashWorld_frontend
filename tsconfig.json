@@ -32,6 +32,6 @@
     "**/*.mts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/dashboard/page.js"  ],
+, "src/app/dashboard/page.js", "src/betaling/Betalingsmetoder"  ],
   "exclude": ["node_modules"]
 }

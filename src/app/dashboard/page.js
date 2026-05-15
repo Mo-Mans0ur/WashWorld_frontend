@@ -133,15 +133,14 @@ function FavoriteCard({ image, title, distance }) {
 
 function NewsCard({
   image,
-  description,
-  imageClassName = "h-20 object-cover",
+  description
 }) {
   return (
     <article className="w-46 shrink-0 overflow-hidden border-white/90 bg-white shadow-md">
       <Image
         src={image}
         alt={description}
-        className={`w-full ${imageClassName}`}
+        className="w-full h-20 object-cover"
         width={184}
         height={80}
       />
