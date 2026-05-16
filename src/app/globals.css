@@ -259,6 +259,23 @@ select {
   display: none;
 }
 
+@keyframes payment-reveal {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  to {
+    max-height: 32rem;
+    opacity: 1;
+  }
+}
+
+.payment-reveal {
+  overflow: hidden;
+  animation: payment-reveal 260ms ease-out;
+}
+
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
