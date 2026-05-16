@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import AppHeader from '@/components/AppHeader';
-import BottomNav from "@/components/BottomNav.jsx"; 
 import ScreenLayout from "@/components/ScreenLayout";
 import { 
     VaskselvDetails,
@@ -72,7 +71,6 @@ export default function DetailsPage() {
                 </section>
 
         </ScreenLayout>
-        <BottomNav/>
 </div>
 )
 }

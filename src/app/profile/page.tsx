@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
 import {
@@ -222,7 +221,6 @@ export default function ProfilePage() {
           </button>
         </section>
       </main>
-      <BottomNav />
     </div>
   );
 }

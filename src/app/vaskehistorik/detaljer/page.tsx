@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import PageInfo from "@/components/PageInfo";
 import {
   ArrowLeftIcon,
@@ -171,8 +170,6 @@ export default function VaskehistorikDetaljer() {
           </article>
         </main>
       </div>
-
-      <BottomNav />
     </div>
   );
 }

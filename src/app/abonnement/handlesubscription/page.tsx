@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader.jsx";
-import BottomNav from "@/components/BottomNav.jsx";
 import HeaderThing from "@/components/PageInfo.jsx";
 import {
   getSubscriptionPlanBySlug,
@@ -185,7 +184,6 @@ export default function HandleSubscriptionPage() {
           </div>
         </div>
       </main>
-      <BottomNav />
 
       <div
         className={`absolute inset-0 z-40 transition ${

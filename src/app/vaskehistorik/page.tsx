@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import PageInfo from "@/components/PageInfo";
 import { CalendarDaysIcon, MapPinIcon } from "@heroicons/react/24/solid";
 import { receiptHistory, receiptPageNames } from "@/data/receiptHistory";
@@ -86,7 +85,6 @@ export default function Vaskehistorik() {
           ))}
         </main>
       </div>
-      <BottomNav />
     </div>
   );
 }
