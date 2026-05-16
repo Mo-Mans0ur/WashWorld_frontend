@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import ScreenLayout from "@/components/ScreenLayout";
-import AssistanceButton from "@/components/buttons/AssistanceButton";
-import Button from "@/components/buttons/Button";
+import { AssistanceButton, Button } from "@/components/buttons";
 
 const PRICE_PER_MINUTE = 6;
 const START_PRICE = 0;

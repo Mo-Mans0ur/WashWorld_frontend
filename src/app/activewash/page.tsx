@@ -5,8 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import ScreenLayout from "@/components/ScreenLayout";
-import AssistanceButton from "@/components/buttons/AssistanceButton";
-import Button from "@/components/buttons/Button";
+import { AssistanceButton, Button } from "@/components/buttons";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SESSION_ID = 1042;

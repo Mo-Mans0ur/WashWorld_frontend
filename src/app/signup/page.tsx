@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Image from "next/image";
-import SignUpButton from "@/components/buttons/SignUpButton";
+import { SignUpButton } from "@/components/buttons";
 import router from 'next/router';
 
 
