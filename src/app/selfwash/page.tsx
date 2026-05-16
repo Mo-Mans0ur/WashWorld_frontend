@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import ScreenLayout from "@/components/ScreenLayout";
 import AssistanceButton from "@/components/buttons/AssistanceButton";
 import Button from "@/components/buttons/Button";
@@ -99,8 +98,6 @@ export default function ActiveWashPage() {
           </Button>
         </div>
       </ScreenLayout>
-
-      <BottomNav />
     </div>
   );
 }

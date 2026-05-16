@@ -1,4 +1,5 @@
 import "./globals.css";
+import AppNav from "@/components/AppNav";
 
 export const metadata = {
   title: "Create Next App",
@@ -15,7 +16,15 @@ export default function RootLayout({ children }) {
     <html lang="en" className="h-full antialiased">
       <body className="h-full">
         <main className="app-shell">
-          <section className="app-screen">{children}</section>
+          {/*
+            relative + overflow-hidden = sidebarens absolute-positionering
+            er bundet til denne container, og den stikker ikke ud af kanten.
+            flex-col = indhold øverst, nav i bunden.
+          */}
+          <section className="app-screen relative overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-y-auto">{children}</div>
+            <AppNav />
+          </section>
         </main>
       </body>
     </html>

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import AppHeader from "@/components/AppHeader.jsx";
-import BottomNav from "@/components/BottomNav.jsx";
 import {
   subscriptionPageNames,
   subscriptionPlans,
@@ -109,8 +108,6 @@ export default function AbonnementPage() {
           </section>
         )}
       </main>
-
-      <BottomNav />
     </div>
   );
 }

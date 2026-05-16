@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import AppHeader from "@/components/AppHeader.jsx";
-import BottomNav from "@/components/BottomNav.jsx";
 import HeaderThing from "@/components/PageInfo.jsx";
 import ScreenLayout from "@/components/ScreenLayout";
 import {
@@ -96,8 +95,6 @@ export default function DashboardPage() {
           </div>
         </section>
       </ScreenLayout>
-
-      <BottomNav />
     </div>
   );
 }

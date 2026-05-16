@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import ScreenLayout from "@/components/ScreenLayout";
 import AssistanceButton from "@/components/buttons/AssistanceButton";
 import Button from "@/components/buttons/Button";
@@ -643,8 +642,6 @@ export default function ActiveAutoWashPage({
           </div>
         </div>
       </ScreenLayout>
-
-      <BottomNav />
 
       {showModal && (
         <CompletionModal onClose={handleClose} onReceipt={handleReceipt} />

@@ -32,6 +32,6 @@
     "**/*.mts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/dashboard/page.tsx", "src/betaling/page.tsx"  ],
+, "src/app/dashboard/page.tsx", "src/betaling/page.tsx", "src/components/Appnav.jsx"  ],
   "exclude": ["node_modules"]
 }
