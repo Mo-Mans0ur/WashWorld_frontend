@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import ScreenLayout from "@/components/ScreenLayout";
 import AssistanceButton from "@/components/buttons/AssistanceButton";
+import Button from "@/components/buttons/Button";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SESSION_ID = 1042;
@@ -22,7 +24,7 @@ function getStage(p: number): WashStage {
 }
 
 const STAGE_LABEL: Record<WashStage, string> = {
-  forbereder: "Vasken forberedes…",
+  forbereder: "Vasken forberedes… sæt dig godt\ntil rette og nyd din pause.",
   sæbe:      "Vasken er i gang, sæt dig godt\ntil rette og nyd din pause.",
   skyl:      "Skylning er i gang – næsten\nhelt ren!",
   tørring:   "Tørring er i gang, snart\nklar til afhentning.",
@@ -30,7 +32,6 @@ const STAGE_LABEL: Record<WashStage, string> = {
 };
 
 // ─── Animation data ───────────────────────────────────────────────────────────
-
 const DROPS = [
   { x: "16%", delay: 0.00, dur: 0.70, w: 3.5, h: 9  },
   { x: "22%", delay: 0.24, dur: 0.62, w: 3.0, h: 7  },
@@ -70,8 +71,6 @@ const RIVULETS = [
   { x: "74%", y: 68, len: 42, delay: 0.42, dur: 0.92 },
 ] as const;
 
-// Wind gusts — each has a thick primary line + a thinner shadow below it,
-// making each gust look substantial rather than a single thin stroke.
 const WIND_GUSTS = [
   { y: 78,  wPrimary: 4.0, wShadow: 1.8, dur: 0.90, delay: 0.00 },
   { y: 96,  wPrimary: 3.4, wShadow: 1.5, dur: 0.82, delay: 0.22 },
@@ -80,8 +79,6 @@ const WIND_GUSTS = [
   { y: 148, wPrimary: 2.6, wShadow: 1.1, dur: 0.78, delay: 0.36 },
 ] as const;
 
-// Sparkles — 8 of them, spread across the full illustration area.
-// `size` is the arm half-length of the star.
 const SPARKLES = [
   { x: 22,  y: 52,  size: 13, delay: 0.00 },
   { x: 274, y: 48,  size: 12, delay: 0.28 },
@@ -92,6 +89,262 @@ const SPARKLES = [
   { x: 52,  y: 118, size: 10, delay: 0.18 },
   { x: 248, y: 112, size: 10, delay: 0.62 },
 ] as const;
+
+// ─── Completion modal ─────────────────────────────────────────────────────────
+interface CompletionModalProps {
+  onClose: () => void;
+  onReceipt: () => void;
+}
+
+function CompletionModal({ onClose, onReceipt }: CompletionModalProps) {
+  return (
+    <>
+      <style>{`
+        @keyframes backdropIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes cardIn {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes dropFloat {
+          0%,100% { transform: translateY(0px) rotate(180deg); }
+          50%     { transform: translateY(-6px) rotate(180deg); }
+        }
+        @keyframes bubbleFloat {
+          0%,100% { transform: scale(1);    opacity: 0.5;  }
+          50%     { transform: scale(1.08); opacity: 0.75; }
+        }
+        @keyframes sparkPop {
+          0%,100% { transform: scale(0.7); opacity: 0.4; }
+          50%     { transform: scale(1.1); opacity: 1;   }
+        }
+      `}</style>
+
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed", inset: 0,
+          background: "rgba(0,0,0,0.55)",
+          zIndex: 40,
+          animation: "backdropIn 0.25s ease",
+        }}
+      />
+
+      {/* Card */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        style={{
+          position: "fixed",
+          top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "calc(100% - 40px)",
+          maxWidth: 360,
+          background: "white",
+          borderRadius: 24,
+          padding: "28px 24px 24px",
+          zIndex: 50,
+          animation: "cardIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.25)",
+        }}
+      >
+        {/* Title */}
+        <h2
+          id="modal-title"
+          style={{
+            textAlign: "center",
+            fontSize: 26,
+            fontWeight: 800,
+            color: "#111",
+            margin: "0 0 20px",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Vask Afsluttet
+        </h2>
+
+        {/* Icon area with decorative drops, bubbles and sparkles */}
+        <div style={{
+          position: "relative",
+          height: 148,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 20,
+        }}>
+          {/* Top-right large drop */}
+          <div style={{
+            position: "absolute", top: 4, right: "22%",
+            width: 18, height: 26,
+            background: "linear-gradient(160deg, #66bb6a, #2e7d32)",
+            borderRadius: "50% 50% 50% 50% / 40% 40% 60% 60%",
+            transform: "rotate(180deg)",
+            animation: "dropFloat 2.2s ease-in-out 0s infinite",
+          }} />
+          {/* Bottom-left medium drop */}
+          <div style={{
+            position: "absolute", bottom: 8, left: "18%",
+            width: 14, height: 20,
+            background: "linear-gradient(160deg, #81c784, #388e3c)",
+            borderRadius: "50% 50% 50% 50% / 40% 40% 60% 60%",
+            transform: "rotate(180deg)",
+            animation: "dropFloat 2.6s ease-in-out 0.4s infinite",
+          }} />
+          {/* Top-left small drop */}
+          <div style={{
+            position: "absolute", top: 16, left: "24%",
+            width: 10, height: 15,
+            background: "linear-gradient(160deg, #a5d6a7, #43a047)",
+            borderRadius: "50% 50% 50% 50% / 40% 40% 60% 60%",
+            transform: "rotate(180deg)",
+            animation: "dropFloat 2.0s ease-in-out 0.8s infinite",
+          }} />
+          {/* Bottom-right small drop */}
+          <div style={{
+            position: "absolute", bottom: 14, right: "16%",
+            width: 11, height: 17,
+            background: "linear-gradient(160deg, #81c784, #2e7d32)",
+            borderRadius: "50% 50% 50% 50% / 40% 40% 60% 60%",
+            transform: "rotate(180deg)",
+            animation: "dropFloat 2.4s ease-in-out 0.6s infinite",
+          }} />
+
+          {/* Large bubble top-left */}
+          <div style={{
+            position: "absolute", top: 10, left: "8%",
+            width: 32, height: 32, borderRadius: "50%",
+            border: "2px solid rgba(100,180,100,0.45)",
+            background: "rgba(150,220,150,0.08)",
+            animation: "bubbleFloat 3s ease-in-out 0s infinite",
+          }} />
+          {/* Small bubble bottom-right */}
+          <div style={{
+            position: "absolute", bottom: 4, right: "8%",
+            width: 22, height: 22, borderRadius: "50%",
+            border: "2px solid rgba(100,180,100,0.35)",
+            background: "rgba(150,220,150,0.06)",
+            animation: "bubbleFloat 2.8s ease-in-out 0.5s infinite",
+          }} />
+
+          {/* Sparkle crosses */}
+          {([
+            { top: 6,    left:  "42%", size: 10, delay: "0s"    },
+            { top: 18,   right:  "6%", size:  8, delay: "0.35s" },
+            { bottom: 6, left:   "6%", size:  9, delay: "0.7s"  },
+          ] as const).map((pos, i) => (
+            <svg
+              key={i}
+              width={pos.size * 2}
+              height={pos.size * 2}
+              viewBox={`0 0 ${pos.size * 2} ${pos.size * 2}`}
+              style={{
+                position: "absolute", ...pos,
+                animation: `sparkPop 1.8s ease-in-out ${pos.delay} infinite`,
+              }}
+            >
+              <line x1={pos.size} y1="0" x2={pos.size} y2={pos.size * 2}
+                stroke="#4caf50" strokeWidth="2" strokeLinecap="round" />
+              <line x1="0" y1={pos.size} x2={pos.size * 2} y2={pos.size}
+                stroke="#4caf50" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          ))}
+
+          {/* Main icon — rename to match your actual file */}
+          <Image
+            src="/icons/vaskafsluttet.png"
+            alt="Vask afsluttet"
+            width={120}
+            height={120}
+            style={{ position: "relative", zIndex: 1 }}
+          />
+        </div>
+
+        {/* Thank you */}
+        <p style={{
+          textAlign: "center",
+          fontSize: 17,
+          fontWeight: 700,
+          color: "#111",
+          margin: "0 0 14px",
+        }}>
+          Tak for i dag!
+        </p>
+
+        {/* Divider */}
+        <div style={{ borderTop: "1px solid #e5e7eb", marginBottom: 14 }} />
+
+        {/* Receipt info */}
+        <p style={{
+          textAlign: "center",
+          fontSize: 14,
+          color: "#6b7280",
+          lineHeight: 1.55,
+          margin: "0 0 24px",
+          whiteSpace: "pre-line",
+        }}>
+          {"du kan finde kvitteringen\ninde på din profil."}
+        </p>
+
+{/* Buttons */}
+<div style={{ display: "flex", gap: 6 }}>
+
+  {/* Se kvittering — filled green parallelogram */}
+  <button
+    onClick={onReceipt}
+    style={{
+      flex: 1,
+      padding: "14px 10px",
+      background: "var(--color-primary)",
+      border: "2px solid var(--color-primary)",
+      transform: "skewX(-12deg)",
+      cursor: "pointer",
+    }}
+  >
+    <span style={{
+      display: "block",
+      transform: "skewX(12deg)", // counter-skew so text stays upright
+      color: "white",
+      fontWeight: 700,
+      fontSize: 14,
+      whiteSpace: "nowrap",
+    }}>
+      Se kvittering
+    </span>
+  </button>
+
+  {/* Luk — outlined parallelogram */}
+  <button
+    onClick={onClose}
+    style={{
+      flex: 1,
+      padding: "14px 10px",
+      background: "white",
+      border: "2px solid var(--color-primary)",
+      transform: "skewX(-12deg)",
+      cursor: "pointer",
+    }}
+  >
+    <span style={{
+      display: "block",
+      transform: "skewX(12deg)", // counter-skew so text stays upright
+      color: "#111",
+      fontWeight: 600,
+      fontSize: 14,
+      whiteSpace: "nowrap",
+    }}>
+      Luk
+    </span>
+  </button>
+
+</div>
+        </div>
+    </>
+  );
+}
 
 // ─── Nozzle ───────────────────────────────────────────────────────────────────
 function Nozzle({ active }: { active: boolean }) {
@@ -148,24 +401,18 @@ function CarIllustration({ stage, progress }: { stage: WashStage; progress: numb
           86%  {                               opacity: 0.60; }
           100% { transform: translateY(52px);  opacity: 0;    }
         }
-
-        /* Wind: slides in from the right, holds, then blows off left.
-           Starts at opacity 0 so there's a clear in→hold→out rhythm. */
         @keyframes cwWind {
           0%   { transform: translateX(14px);  opacity: 0;    }
           20%  { transform: translateX(0px);   opacity: 1;    }
           70%  { transform: translateX(-18px); opacity: 0.88; }
           100% { transform: translateX(-36px); opacity: 0;    }
         }
-        /* The shadow line lags a little behind the primary */
         @keyframes cwWindShadow {
           0%   { transform: translateX(20px);  opacity: 0;    }
           20%  { transform: translateX(6px);   opacity: 0.50; }
           70%  { transform: translateX(-12px); opacity: 0.42; }
           100% { transform: translateX(-30px); opacity: 0;    }
         }
-
-        /* Sparkle: pops in sharply, rotates, then snaps out */
         @keyframes cwSpark {
           0%   { transform: scale(0.0) rotate(0deg);  opacity: 0;    }
           18%  { transform: scale(1.4) rotate(15deg); opacity: 1;    }
@@ -173,7 +420,6 @@ function CarIllustration({ stage, progress }: { stage: WashStage; progress: numb
           82%  { transform: scale(1.2) rotate(72deg); opacity: 0.80; }
           100% { transform: scale(0.0) rotate(90deg); opacity: 0;    }
         }
-        /* Soft glow disc — pulses in sync with the star */
         @keyframes cwGlow {
           0%,100% { transform: scale(0.3); opacity: 0;    }
           30%,68% { transform: scale(1.0); opacity: 0.28; }
@@ -181,12 +427,13 @@ function CarIllustration({ stage, progress }: { stage: WashStage; progress: numb
       `}</style>
 
       <div className="relative mx-auto w-full" style={{ maxWidth: 300 }}>
-       
+        <Nozzle active={showWater} />
 
         <Image
           src="/icons/car.png"
           alt="Car being washed"
-          width={560} height={330}
+          width={560}
+          height={330}
           style={{
             display: "block", width: "100%", height: "auto",
             mixBlendMode: "screen",
@@ -204,7 +451,6 @@ function CarIllustration({ stage, progress }: { stage: WashStage; progress: numb
           position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
           pointerEvents: "none", overflow: "hidden",
         }}>
-
           {/* Water droplets */}
           {showWater && DROPS.map((d, i) => (
             <div key={i} style={{
@@ -237,24 +483,20 @@ function CarIllustration({ stage, progress }: { stage: WashStage; progress: numb
             }} />
           ))}
 
-          {/* ── Wind gusts ── */}
+          {/* Wind gusts */}
           {showDry && (
             <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
               viewBox="0 0 300 230" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
               {WIND_GUSTS.map((g, i) => (
                 <g key={i}>
-                  {/* Thick primary line */}
                   <path
                     d={`M 278,${g.y} Q 238,${g.y + 12} 184,${g.y - 7}`}
-                    stroke="white" strokeWidth={g.wPrimary}
-                    fill="none" strokeLinecap="round"
+                    stroke="white" strokeWidth={g.wPrimary} fill="none" strokeLinecap="round"
                     style={{ animation: `cwWind ${g.dur}s ease-in-out ${g.delay}s infinite` }}
                   />
-                  {/* Thinner shadow just below — adds body to the gust */}
                   <path
                     d={`M 270,${g.y + 8} Q 232,${g.y + 18} 180,${g.y + 3}`}
-                    stroke="white" strokeWidth={g.wShadow}
-                    fill="none" strokeLinecap="round"
+                    stroke="white" strokeWidth={g.wShadow} fill="none" strokeLinecap="round"
                     style={{ animation: `cwWindShadow ${g.dur}s ease-in-out ${g.delay + 0.07}s infinite` }}
                   />
                 </g>
@@ -262,38 +504,26 @@ function CarIllustration({ stage, progress }: { stage: WashStage; progress: numb
             </svg>
           )}
 
-          {/* ── Sparkles ── */}
+          {/* Sparkles */}
           {showClean && (
             <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
               viewBox="0 0 300 230" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-
               {SPARKLES.map((s, i) => (
                 <g key={i} transform={`translate(${s.x},${s.y})`}>
-                  {/* Glow disc — pulses softly behind the star */}
-                  <circle
-                    r={s.size * 1.8}
-                    fill="white"
-                    style={{ animation: `cwGlow 1.8s ease-in-out ${s.delay}s infinite` }}
-                  />
-                  {/* 4-pointed star — rotates and scales in sync */}
+                  <circle r={s.size * 1.8} fill="white"
+                    style={{ animation: `cwGlow 1.8s ease-in-out ${s.delay}s infinite` }} />
                   <g style={{ animation: `cwSpark 1.8s ease-in-out ${s.delay}s infinite` }}>
                     <line x1={-s.size} y1="0" x2={s.size} y2="0"
                       stroke="white" strokeWidth="3.2" strokeLinecap="round" />
                     <line x1="0" y1={-s.size} x2="0" y2={s.size}
                       stroke="white" strokeWidth="3.2" strokeLinecap="round" />
-                    <line
-                      x1={-s.size * 0.65} y1={-s.size * 0.65}
-                      x2={ s.size * 0.65} y2={ s.size * 0.65}
+                    <line x1={-s.size * .65} y1={-s.size * .65} x2={s.size * .65} y2={s.size * .65}
                       stroke="white" strokeWidth="2.0" strokeLinecap="round" opacity="0.78" />
-                    <line
-                      x1={ s.size * 0.65} y1={-s.size * 0.65}
-                      x2={-s.size * 0.65} y2={ s.size * 0.65}
+                    <line x1={s.size * .65} y1={-s.size * .65} x2={-s.size * .65} y2={s.size * .65}
                       stroke="white" strokeWidth="2.0" strokeLinecap="round" opacity="0.78" />
                   </g>
                 </g>
               ))}
-
-              {/* Headlight beams */}
               <g opacity={cleanOpacity}>
                 <path d="M 17,96 L 0,78 L 0,114 Z"     fill="white" opacity="0.20" />
                 <path d="M 283,96 L 300,78 L 300,114 Z" fill="white" opacity="0.20" />
@@ -318,7 +548,6 @@ function CarIllustration({ stage, progress }: { stage: WashStage; progress: numb
               </g>
             </svg>
           )}
-
         </div>
       </div>
     </>
@@ -335,8 +564,14 @@ export default function ActiveAutoWashPage({
   progress: externalProgress,
   washId = SESSION_ID,
 }: ActiveAutoWashPageProps) {
-  const [progress, setProgress] = useState(externalProgress ?? 0);
+  const router = useRouter();
+  const [progress, setProgress]           = useState(externalProgress ?? 0);
+  const [showModal, setShowModal]         = useState(false);
+  const [modalDismissed, setModalDismissed] = useState(false);
 
+  // ─── Progress driver ───────────────────────────────────────────────────────
+  // FIX: stop at 100 instead of cycling — without this the modal timeout gets
+  // cancelled every 60 ms before it has a chance to fire.
   useEffect(() => {
     if (externalProgress !== undefined) {
       setProgress(externalProgress);
@@ -344,29 +579,60 @@ export default function ActiveAutoWashPage({
     }
     let p = 0;
     const iv = setInterval(() => {
-      p = (p + 0.35) % 101;
-      setProgress(Math.min(p, 100));
+      p += 0.35;
+      if (p >= 100) {
+        setProgress(100);
+        clearInterval(iv); // stay at 100 so the modal effect below can fire
+        return;
+      }
+      setProgress(p);
     }, 60);
     return () => clearInterval(iv);
   }, [externalProgress]);
 
+  // ─── Show modal once wash is complete ─────────────────────────────────────
+  useEffect(() => {
+    if (progress >= 100 && !modalDismissed) {
+      const t = setTimeout(() => setShowModal(true), 800);
+      return () => clearTimeout(t);
+    }
+  }, [progress, modalDismissed]);
+
   const stage = getStage(progress);
+
+  const handleClose = () => {
+    setShowModal(false);
+    setModalDismissed(true);
+    router.push("/dashboard");
+  };
+
+  const handleReceipt = () => {
+    setShowModal(false);
+    router.push("/profil");
+  };
 
   return (
     <div className="flex h-full flex-col justify-around">
       <AppHeader />
+
       <ScreenLayout>
         <div className="flex h-full min-h-full flex-col justify-around px-8 py-6">
-          <div className="flex flex-col justify-center items-center">
+          <div className="flex flex-col items-center justify-center">
             <AssistanceButton />
-             <p className="text-sm p-3 text-(--white-white)/60">ID : {washId}</p>
+            <p className="p-3 text-sm text-(--white-white)/60">ID : {washId}</p>
           </div>
+
           <div className="px-2">
             <CarIllustration stage={stage} progress={progress} />
           </div>
-          <p className="whitespace-pre-line px-2 text-center text-base text-(--white-white)" aria-live="polite">
+
+          <p
+            className="whitespace-pre-line px-2 text-center text-base text-(--white-white)"
+            aria-live="polite"
+          >
             {STAGE_LABEL[stage]}
           </p>
+
           <div>
             <div className="h-6 w-full overflow-hidden bg-(--color-grey-02)">
               <div
@@ -377,7 +643,12 @@ export default function ActiveAutoWashPage({
           </div>
         </div>
       </ScreenLayout>
+
       <BottomNav />
+
+      {showModal && (
+        <CompletionModal onClose={handleClose} onReceipt={handleReceipt} />
+      )}
     </div>
   );
 }
