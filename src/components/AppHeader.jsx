@@ -11,16 +11,6 @@ export default function AppHeader() {
           height={50}
           priority
         />
-
-        <button
-          type="button"
-          aria-label="Åbn menu"
-          className="flex flex-col gap-1.5 pt-1"
-        >
-          <span className="block h-0.75 w-8 bg-(--color-surface)" />
-          <span className="block h-0.75 w-8 bg-(--color-surface)" />
-          <span className="block h-0.75 w-8 bg-(--color-surface)" />
-        </button>
       </div>
     </header>
   );

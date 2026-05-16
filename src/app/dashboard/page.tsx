@@ -17,7 +17,7 @@ export default function DashboardPage() {
       <AppHeader />
 
       <ScreenLayout>
-        <PageInfo text={"Hej"} userName={dashboardPageNames.userName} />
+        <PageInfo userName={dashboardPageNames.userName} />
 
         <section className="px-8 pt-10">
           <h2 className="mb-5 text-2xl font-bold text-black">
