@@ -18,12 +18,15 @@ export type ProfileStamp = {
   filled: boolean;
 };
 
+// as const fjernet så vi kan tilføje nye felter uden TypeScript-fejl
 export const profileUser = {
   userName: "Jeppe olsen",
   email: "Example@email.dk",
   phoneNumber: "+45 48 58 77 58",
   memberSince: "Januar 2022",
-} as const;
+  subscription: "Premium",
+  subscriptionRenewal: "01.08.2026",
+};
 
 export const profilePageNames = {
   title: "Profil",

@@ -94,7 +94,7 @@ export default function AppNav() {
           </div>
         </NavItem>
 
-        <NavItem href="/map" label="Kort" active={pathname === "/map"}>
+        <NavItem href="/locations/map" label="Kort" active={pathname === "/locations/map"}>
           <MapPin size={36} />
         </NavItem>
 
