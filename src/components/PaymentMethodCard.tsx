@@ -21,7 +21,7 @@ export default function PaymentMethodCard({ method, selected, onClick }) {
 
       <div className="flex flex-1 min-w-0 flex-col">
         <h3 className="text-sm font-bold text-black">{method.title}</h3>
-        <p className="text-xs text-(--color-grey-02)">{method.description}</p>
+        <p className="text-xs text-gray-500">{method.description}</p>
       </div>
 
       <span className="inline-grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 border-(--brand-green-01)">

@@ -10,7 +10,7 @@ const MIN_PASSWORD_LENGTH = 6;
 
 // TODO: Fjern når PHP backend er klar
 const MOCK_USER = {
-  username: "test@washworld.dk",
+  username: "admin",
   password: "123456",
 };
 

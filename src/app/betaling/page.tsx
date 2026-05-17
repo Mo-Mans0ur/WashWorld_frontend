@@ -90,7 +90,7 @@ export default function BetalingPage() {
 
           {showPaymentDetails && (
             <div key={selectedPayment} className="payment-reveal">
-              <div className="mt-6 flex items-center gap-4 text-white/85">
+              <div className="mt-6 flex items-center gap-4 text-white">
                 <div className="h-1 w-20 bg-[rgba(0,19,12,0.65)]" />
                 <div className="flex items-center gap-3">
                   <Lock className="h-5 w-5 text-[#7CFF45]" strokeWidth={3} />
@@ -100,7 +100,7 @@ export default function BetalingPage() {
                 </div>
               </div>
 
-              <div className="mt-6 rounded-lg bg-white/10 p-4">
+              <div className="mt-6 rounded-lg bg-black/40 p-4">
                 {selectedPayment === "card" && (
                   <div className="space-y-3">
                     <label className="block text-sm font-bold text-white">
@@ -111,7 +111,7 @@ export default function BetalingPage() {
                       placeholder={
                         paymentPageContent.card.cardNumberPlaceholder
                       }
-                      className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/50"
+                      className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                     />
 
                     <div className="grid grid-cols-2 gap-3">
@@ -124,7 +124,7 @@ export default function BetalingPage() {
                           placeholder={
                             paymentPageContent.card.expiryPlaceholder
                           }
-                          className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/50"
+                          className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                         />
                       </div>
                       <div>
@@ -144,7 +144,7 @@ export default function BetalingPage() {
                           <input
                             type="text"
                             placeholder={paymentPageContent.card.cvcPlaceholder}
-                            className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 pr-10 text-white placeholder-white/50"
+                            className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 pr-10 text-white placeholder-white/60"
                           />
                           <button
                             type="button"
@@ -152,7 +152,7 @@ export default function BetalingPage() {
                             onClick={() =>
                               setShowCvcHelp((current) => !current)
                             }
-                            className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white/70 transition active:scale-95"
+                            className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white/90 transition active:scale-95"
                           >
                             <CircleHelp className="h-5 w-5" strokeWidth={2} />
                           </button>
@@ -166,7 +166,7 @@ export default function BetalingPage() {
                     <input
                       type="text"
                       placeholder={paymentPageContent.card.namePlaceholder}
-                      className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/50"
+                      className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                     />
                   </div>
                 )}
@@ -182,19 +182,19 @@ export default function BetalingPage() {
                         placeholder={
                           paymentPageContent.mobilePay.countryCodePlaceholder
                         }
-                        className="w-16 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/50"
+                        className="w-16 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                       />
                       <input
                         type="text"
                         placeholder={
                           paymentPageContent.mobilePay.phonePlaceholder
                         }
-                        className="flex-1 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/50"
+                        className="flex-1 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                       />
                     </div>
-                    <div className="flex items-start gap-3 rounded bg-[#8f95d1] px-4 py-3 text-white/90">
+                    <div className="flex items-start gap-3 rounded bg-[#4a52a8] px-4 py-3 text-white">
                       <CircleAlert
-                        className="mt-0.5 h-5 w-5 shrink-0 text-sky-500"
+                        className="mt-0.5 h-5 w-5 shrink-0 text-sky-300"
                         strokeWidth={2.5}
                       />
                       <p className="text-xs font-semibold leading-relaxed">
@@ -225,13 +225,13 @@ export default function BetalingPage() {
                       </h3>
                     </div>
 
-                    <p className="mb-3 text-[11px] font-semibold leading-tight text-white/55">
+                    <p className="mb-3 text-[11px] font-semibold leading-tight text-white/80">
                       {paymentPageContent.wallet.description}
                     </p>
 
                     <label
                       htmlFor="wallet-method"
-                      className="mb-1 block text-xs font-bold text-white/85"
+                      className="mb-1 block text-xs font-bold text-white"
                     >
                       {paymentPageContent.wallet.methodLabel}
                     </label>
@@ -256,12 +256,12 @@ export default function BetalingPage() {
                           </option>
                         ))}
                       </select>
-                      <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-lg font-bold text-white/80">
+                      <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-lg font-bold text-white">
                         ▾
                       </span>
                     </div>
 
-                    <label className="mb-1 block text-xs font-bold text-white/85">
+                    <label className="mb-1 block text-xs font-bold text-white">
                       {paymentPageContent.wallet.amountLabel}
                     </label>
                     <div className="mb-3 flex h-10 items-center justify-end rounded border border-white/25 bg-white/8 px-3">
@@ -270,14 +270,13 @@ export default function BetalingPage() {
                       </span>
                     </div>
 
-                    <p className="mb-3 flex items-start gap-1.5 text-[10px] font-semibold leading-tight text-white/45">
+                    <p className="mb-3 flex items-start gap-1.5 text-[10px] font-semibold leading-tight text-white/70">
                       <span className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-sky-400" />
                       {paymentPageContent.wallet.consentText}
                     </p>
 
                     <button
                       type="button"
-                      //onClick={}
                       className="flex h-10 w-full items-center justify-center overflow-hidden rounded border border-sky-500 bg-white px-3 text-lg font-bold text-black"
                     >
                       {selectedWalletMethod && (

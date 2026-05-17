@@ -7,6 +7,7 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from "react";
+import { useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapControls from "./MapControls";
@@ -19,7 +20,6 @@ import {
   locationShortName,
 } from "../lib/locationGeo";
 
-// Henter access token variablen fra .env.local
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 type LightPreset = "day" | "night";
@@ -32,7 +32,6 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
-// Her laver vi stylingen af markørerne på kortet
 function createPrimaryPin(): HTMLImageElement {
   const img = document.createElement("img");
   img.src = "/washworld-pin.svg";
@@ -62,7 +61,6 @@ function updateUserLocationMarker(
       .addTo(map);
     return;
   }
-
   markerRef.current.setLngLat(lngLat);
 }
 
@@ -120,50 +118,80 @@ function addLocationMarkers(
       popup
         .setHTML(
           `
-        <div class="washworld-popup-card">
-          <h4 class="washworld-popup-title">
-            ${shortName} • <span class="washworld-popup-distance">${distancePart}</span>
-          </h4>
-          <p class="washworld-popup-address">${addressHtml}</p>
-          <div class="washworld-popup-footer">
-            <p class="washworld-popup-hours">
-              <span class="washworld-popup-hours-accent">Åben</span>
-              ${hours}
-            </p>
-            <span class="washworld-popup-more">Se mere</span>
+          <div class="washworld-popup-card">
+            <h4 class="washworld-popup-title">
+              ${shortName} • <span class="washworld-popup-distance">${distancePart}</span>
+            </h4>
+            <p class="washworld-popup-address">${addressHtml}</p>
+            <div class="washworld-popup-footer">
+              <p class="washworld-popup-hours">
+                <span class="washworld-popup-hours-accent">Åben</span>
+                ${hours}
+              </p>
+              <span class="washworld-popup-more">Se mere</span>
+            </div>
           </div>
-        </div>
-      `,
+        `,
         )
         .setLngLat(loc.coords)
         .addTo(map);
       activePopup = popup;
 
       isMarkerFlyTo = true;
-      map.flyTo({
-        center: loc.coords,
-        zoom: 12,
-      });
+      map.flyTo({ center: loc.coords, zoom: 12 });
     });
   });
 }
 
-function fitMapToLocations(
-  map: mapboxgl.Map,
-  locations: MapLocation[],
-): void {
+function fitMapToLocations(map: mapboxgl.Map, locations: MapLocation[]): void {
   if (locations.length === 0) return;
-
   const bounds = new mapboxgl.LngLatBounds();
   locations.forEach((loc) => bounds.extend(loc.coords));
   map.fitBounds(bounds, { padding: 56, maxZoom: 8.5 });
 }
 
+async function drawRoute(
+  map: mapboxgl.Map,
+  from: [number, number],
+  to: [number, number],
+): Promise<void> {
+  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from[0]},${from[1]};${to[0]},${to[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+  const res = await fetch(url);
+  const json = await res.json();
+  const route = json.routes?.[0]?.geometry;
+  if (!route) return;
+
+  if (map.getSource("route")) {
+    (map.getSource("route") as mapboxgl.GeoJSONSource).setData(route);
+    return;
+  }
+
+  map.addSource("route", { type: "geojson", data: route });
+  map.addLayer({
+    id: "route",
+    type: "line",
+    source: "route",
+    layout: { "line-join": "round", "line-cap": "round" },
+    paint: {
+      "line-color": "#00b140",
+      "line-width": 5,
+      "line-opacity": 0.85,
+    },
+  });
+}
+
 export default function Map() {
+  const searchParams = useSearchParams();
+  const destLat = searchParams.get("lat");
+  const destLng = searchParams.get("lng");
+
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
   const userLngLatRef = useRef<[number, number] | null>(null);
+  const routeDrawnRef = useRef(false);
+
   const [lightPreset, setLightPreset] = useState<LightPreset>("day");
   const [locations, setLocations] = useState<MapLocation[]>([]);
   const [loadStatus, setLoadStatus] = useState<"loading" | "error" | "ready">(
@@ -173,7 +201,6 @@ export default function Map() {
 
   useEffect(() => {
     let cancelled = false;
-
     (async () => {
       try {
         const data = await fetchMapLocations();
@@ -187,15 +214,11 @@ export default function Map() {
         setLoadError(e instanceof Error ? e.message : "Ukendt fejl");
       }
     })();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
-
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lngLat: [number, number] = [
@@ -203,15 +226,10 @@ export default function Map() {
           pos.coords.latitude,
         ];
         userLngLatRef.current = lngLat;
-
         const map = mapRef.current;
-        if (map) {
-          updateUserLocationMarker(map, userMarkerRef, lngLat);
-        }
+        if (map) updateUserLocationMarker(map, userMarkerRef, lngLat);
       },
-      () => {
-        userLngLatRef.current = null;
-      },
+      () => { userLngLatRef.current = null; },
       { enableHighAccuracy: false, maximumAge: 120_000, timeout: 12_000 },
     );
   }, []);
@@ -235,10 +253,25 @@ export default function Map() {
 
     map.on("load", () => {
       addLocationMarkers(map, locations, () => userLngLatRef.current);
+
       if (userLngLatRef.current) {
         updateUserLocationMarker(map, userMarkerRef, userLngLatRef.current);
       }
-      fitMapToLocations(map, locations);
+
+      // Tegn rute hvis vi kom fra dashboard med en destination
+      if (destLat && destLng && userLngLatRef.current && !routeDrawnRef.current) {
+        const to: [number, number] = [parseFloat(destLng), parseFloat(destLat)];
+        routeDrawnRef.current = true;
+
+        drawRoute(map, userLngLatRef.current, to).then(() => {
+          const bounds = new mapboxgl.LngLatBounds()
+            .extend(userLngLatRef.current!)
+            .extend(to);
+          map.fitBounds(bounds, { padding: 80 });
+        });
+      } else {
+        fitMapToLocations(map, locations);
+      }
     });
 
     return () => {
@@ -247,12 +280,11 @@ export default function Map() {
       map.remove();
       mapRef.current = null;
     };
-  }, [loadStatus, locations]);
+  }, [loadStatus, locations, destLat, destLng]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
     map.setConfigProperty("basemap", "lightPreset", lightPreset);
   }, [lightPreset]);
 
@@ -276,9 +308,7 @@ export default function Map() {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        focus([pos.coords.longitude, pos.coords.latitude]);
-      },
+      (pos) => focus([pos.coords.longitude, pos.coords.latitude]),
       () => {},
       { enableHighAccuracy: false, maximumAge: 120_000, timeout: 12_000 },
     );
@@ -298,26 +328,20 @@ export default function Map() {
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "calc(120dvh - 112px)",
-        position: "relative",
-      }}
-    >
+    <div style={{ width: "100%", height: "calc(120dvh - 112px)", position: "relative" }}>
       <MapControls
         lightPreset={lightPreset}
         onCycleLightPreset={cycleLightPreset}
         onCenterOnUser={centerOnUser}
       />
-      {loadStatus === "loading" ? (
+      {loadStatus === "loading" && (
         <div style={overlayStyle}>Henter lokationer…</div>
-      ) : null}
-      {loadStatus === "error" ? (
+      )}
+      {loadStatus === "error" && (
         <div style={overlayStyle}>
           <span>{loadError ?? "Kunne ikke indlæse kortet."}</span>
         </div>
-      ) : null}
+      )}
       <div
         ref={mapContainer}
         className="washworld-map"

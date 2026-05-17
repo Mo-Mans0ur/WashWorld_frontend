@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
+import Link from "next/link";
 import AppHeader from "@/components/AppHeader.jsx";
 import ScreenLayout from "@/components/ScreenLayout";
 import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
@@ -45,7 +46,7 @@ export default function DashboardPage() {
             latitude,
             longitude,
             loc.location_coordinate_y,
-            loc.location_coordinate_x
+            loc.location_coordinate_x,
           );
           return { ...loc, distance: `${km.toFixed(1)} km` };
         })
@@ -57,7 +58,7 @@ export default function DashboardPage() {
   }, [locations]);
 
   const favoriteLocationsWithDistance = locationsWithDistance.filter(
-    (loc) => TEMP_FAVORITE_IDS.includes(loc.location_id)
+    (loc) => TEMP_FAVORITE_IDS.includes(loc.location_id),
   );
 
   return (
@@ -94,7 +95,13 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <button
+            {/* Bil-knap → navigerer til kortet med rute til nærmeste vaskehal */}
+            <Link
+              href={
+                nearestLocation
+                  ? `/locations/map?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
+                  : "/locations/map"
+              }
               className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md"
               title={dashboardPageNames.currentLocationButtonAlt}
             >
@@ -105,7 +112,7 @@ export default function DashboardPage() {
                 width={56}
                 height={56}
               />
-            </button>
+            </Link>
           </div>
         </section>
 
@@ -159,8 +166,8 @@ function FavoriteCard({ title, address, distance }: { title: string; address: st
         className="h-full w-full object-cover opacity-80"
         fill
         sizes="144px"
-        quality={70} // Optimized image quality
-        loading="eager" // Ensures LCP image loads promptly
+        quality={70}
+        loading="eager"
       />
 
       <div className="absolute inset-0 flex flex-col justify-between">
@@ -196,7 +203,7 @@ function NewsCard({ image, description }: { image: string; description: string }
         className="w-full h-20 object-cover"
         width={184}
         height={80}
-        quality={70} 
+        quality={70}
       />
 
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">
