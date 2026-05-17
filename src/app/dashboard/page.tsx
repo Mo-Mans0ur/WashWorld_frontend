@@ -1,17 +1,55 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import AppHeader from "@/components/AppHeader.jsx";
-import HeaderThing from "@/components/PageInfo.jsx";
 import ScreenLayout from "@/components/ScreenLayout";
 import {
   dashboardFavoriteLocations,
   dashboardNewsItems,
   dashboardPageNames,
+  DashboardLocation,
 } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo.jsx";
 
+type LocationWithDistance = DashboardLocation & { distance: string | null };
+
+function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export default function DashboardPage() {
+  const [nearestLocation, setNearestLocation] = useState<LocationWithDistance | null>(null);
+  const [locationsWithDistance, setLocationsWithDistance] = useState<LocationWithDistance[]>(
+    dashboardFavoriteLocations.map((loc) => ({ ...loc, distance: null }))
+  );
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const { latitude, longitude } = pos.coords;
+
+      const withDistances = dashboardFavoriteLocations
+        .map((loc) => {
+          const km = haversineDistance(latitude, longitude, loc.coords.lat, loc.coords.lng);
+          return { ...loc, distance: `${km.toFixed(1)} km` };
+        })
+        .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+
+      setLocationsWithDistance(withDistances);
+      setNearestLocation(withDistances[0]);
+    });
+  }, []);
+
   return (
     <div className="flex h-full flex-col">
       <AppHeader />
@@ -33,20 +71,23 @@ export default function DashboardPage() {
 
                 <div>
                   <p className="text-sm font-bold leading-tight text-white">
-                    {dashboardPageNames.currentLocationTitle}
+                  {nearestLocation?.address?.street ?? "Finder nærmeste..."}
                   </p>
                   <p className="text-sm font-bold leading-tight text-white">
-                    {dashboardPageNames.currentLocationSubtitle}
+                  {nearestLocation?.address?.city}
                   </p>
                 </div>
               </div>
 
               <p className="text-sm font-bold text-black">
-                {dashboardPageNames.currentLocationDistance}
+                {nearestLocation?.distance ?? "—"}
               </p>
             </div>
 
-            <button className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md" title={dashboardPageNames.currentLocationButtonAlt}>
+            <button
+              className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md"
+              title={dashboardPageNames.currentLocationButtonAlt}
+            >
               <Image
                 src="/Car1.png"
                 alt={dashboardPageNames.currentLocationButtonAlt}
@@ -64,7 +105,7 @@ export default function DashboardPage() {
           </h2>
 
           <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-            {dashboardFavoriteLocations.map((location) => (
+            {locationsWithDistance.map((location) => (
               <FavoriteCard
                 key={location.id}
                 image={location.image}
@@ -99,7 +140,7 @@ export default function DashboardPage() {
   );
 }
 
-function FavoriteCard({ image, title, distance }) {
+function FavoriteCard({ image, title, distance }: { image: string; title: string; distance: string | null }) {
   return (
     <article className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01)">
       <Image
@@ -115,7 +156,7 @@ function FavoriteCard({ image, title, distance }) {
           {title}
         </h3>
         <p className="absolute bottom-1.5 left-2.5 z-10 text-sm font-bold text-(--brand-green-01)">
-          {distance}
+          {distance ?? "—"}
         </p>
 
         <div className="absolute -right-px -bottom-px h-6">
@@ -128,10 +169,7 @@ function FavoriteCard({ image, title, distance }) {
   );
 }
 
-function NewsCard({
-  image,
-  description
-}) {
+function NewsCard({ image, description }: { image: string; description: string }) {
   return (
     <article className="w-46 shrink-0 overflow-hidden border-white/90 bg-white shadow-md">
       <Image
