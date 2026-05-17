@@ -1,7 +1,7 @@
 // src/app/layout.tsx — ingen "use client", metadata virker igen
 import "./globals.css";
-import AppNav from "@/components/AppNav";
 import Providers from "@/components/Providers";
+import ScreenLayout from "@/components/ScreenLayout";
 
 export const metadata = {
   title: "Create Next App",
@@ -18,12 +18,13 @@ export default function RootLayout({ children }) {
     <html lang="en" className="h-full antialiased">
       <body className="h-full" suppressHydrationWarning>
         <Providers>
-          <main className="app-shell">
-            <section className="app-screen relative overflow-hidden flex flex-col">
-              <div className="flex-1 overflow-y-auto">{children}</div>
-              <AppNav />
-            </section>
-          </main>
+          <ScreenLayout>
+            <div className="app-shell">
+              <section className="app-screen relative flex min-h-0 flex-col overflow-hidden">
+                <div className="min-h-0 flex-1 overflow-y-auto pb-16">{children}</div>
+              </section>
+            </div>
+          </ScreenLayout>
         </Providers>
       </body>
     </html>

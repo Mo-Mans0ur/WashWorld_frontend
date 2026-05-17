@@ -5,7 +5,6 @@ import type { MapLocation } from "@/data/washworldLocations";
 import { fetchMapLocations } from "@/lib/locationsApi";
 import AppHeader from "@/components/AppHeader";
 import LocationPopupCard from "@/components/LocationPopupCard";
-import ScreenLayout from "@/components/ScreenLayout";
 import { formatKmDa, haversineKm } from "@/lib/locationGeo";
 
 type LocationWithDistance = MapLocation & { distanceKm: number | null };
@@ -82,53 +81,51 @@ export default function LocationsList() {
     <>
       <AppHeader />
 
-      <ScreenLayout>
-        <header className="px-5 pt-4">
-          <h1 className="text-lg font-bold text-black">Vaskehaller</h1>
-          <p className="mt-1 text-sm text-black/60">
-            {userCoords
-              ? "Sorteret efter afstand"
-              : "Tillad placering for at sortere efter afstand"}
-          </p>
-        </header>
+      <header className="px-5 pt-4">
+        <h1 className="text-lg font-bold text-black">Vaskehaller</h1>
+        <p className="mt-1 text-sm text-black/60">
+          {userCoords
+            ? "Sorteret efter afstand"
+            : "Tillad placering for at sortere efter afstand"}
+        </p>
+      </header>
 
-        {loadStatus === "loading" ? (
-          <p className="px-5 py-12 text-center text-[0.95rem] text-black/70">
-            Henter lokationer…
-          </p>
-        ) : null}
+      {loadStatus === "loading" ? (
+        <p className="px-5 py-12 text-center text-[0.95rem] text-black/70">
+          Henter lokationer…
+        </p>
+      ) : null}
 
-        {loadStatus === "error" ? (
-          <p className="px-5 py-12 text-center text-[0.95rem] text-(--color-danger)">
-            {loadError ?? "Kunne ikke indlæse lokationer."}
-          </p>
-        ) : null}
+      {loadStatus === "error" ? (
+        <p className="px-5 py-12 text-center text-[0.95rem] text-(--color-danger)">
+          {loadError ?? "Kunne ikke indlæse lokationer."}
+        </p>
+      ) : null}
 
-        {loadStatus === "ready" ? (
-          <ul className="space-y-3 px-5 py-4">
-            {sortedLocations.length === 0 ? (
-              <li className="py-8 text-center text-sm text-black/60">
-                Ingen lokationer fundet.
+      {loadStatus === "ready" ? (
+        <ul className="space-y-3 px-5 py-4">
+          {sortedLocations.length === 0 ? (
+            <li className="py-8 text-center text-sm text-black/60">
+              Ingen lokationer fundet.
+            </li>
+          ) : (
+            sortedLocations.map((loc) => (
+              <li key={loc.id} className="washworld-location-list-item">
+                <LocationPopupCard
+                  name={loc.name}
+                  address={loc.address}
+                  openHours={loc.openHours}
+                  distanceLabel={
+                    loc.distanceKm !== null
+                      ? formatKmDa(loc.distanceKm)
+                      : "— km"
+                  }
+                />
               </li>
-            ) : (
-              sortedLocations.map((loc) => (
-                <li key={loc.id} className="washworld-location-list-item">
-                  <LocationPopupCard
-                    name={loc.name}
-                    address={loc.address}
-                    openHours={loc.openHours}
-                    distanceLabel={
-                      loc.distanceKm !== null
-                        ? formatKmDa(loc.distanceKm)
-                        : "— km"
-                    }
-                  />
-                </li>
-              ))
-            )}
-          </ul>
-        ) : null}
-      </ScreenLayout>
+            ))
+          )}
+        </ul>
+      ) : null}
     </>
   );
 }

@@ -4,8 +4,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
-import AppNav from "@/components/AppNav";
-import ScreenLayout from "@/components/ScreenLayout";
 import PageInfo from "@/components/PageInfo";
 import PaymentMethodCard from "@/components/PaymentMethodCard";
 import { paymentOptions, paymentPageContent } from "@/data/paymentData";
@@ -71,8 +69,7 @@ export default function BetalingPage() {
         className="bg-[linear-gradient(rgba(255,255,255,0.4),rgba(255,255,255,0.4)),linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
 
-      <ScreenLayout>
-        <section className="flex flex-1 flex-col px-6 pt-8">
+      <section className="flex flex-1 flex-col px-6 pt-8">
           <h1 className="mb-6 text-2xl font-bold text-white">
             {paymentPageContent.pageTitle}
           </h1>
@@ -314,7 +311,6 @@ export default function BetalingPage() {
             </button>
           </div>
         </section>
-      </ScreenLayout>
     </div>
   );
 }

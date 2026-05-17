@@ -94,7 +94,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #1e1e1e;
+  background: transparent;
 }
 
 .app-screen {
@@ -106,6 +106,14 @@ body {
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  background:
+    linear-gradient(to right, #31854e 0%, rgba(0, 0, 0, 0) 60%),
+    linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)),
+    linear-gradient(
+      90deg,
+      var(--color-dashboard-gradient-start) 0%,
+      var(--color-dashboard-gradient-end) 100%
+    );
 }
 
 @font-face {

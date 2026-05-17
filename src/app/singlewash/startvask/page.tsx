@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import AppHeader from "@/components/AppHeader.jsx";
-import PageInfo from "@/components/PageInfo.jsx";
+import AppHeader from "@/components/AppHeader";
+import PageInfo from "@/components/PageInfo";
 import ScreenLayout from "@/components/ScreenLayout";
 import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
 import StartWashButton from "@/components/buttons/StartWashButton";

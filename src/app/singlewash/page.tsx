@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import AppHeader from "@/components/AppHeader.jsx";
-import PageInfo from "@/components/PageInfo.jsx";
+import AppHeader from "@/components/AppHeader";
+import PageInfo from "@/components/PageInfo";
 import { paymentPageContent } from "@/data/paymentData";
 import { singleWashPageContent, paymentPlans } from "@/data/singleWashData";
 

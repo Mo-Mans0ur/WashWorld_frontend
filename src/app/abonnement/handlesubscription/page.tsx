@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppHeader from "@/components/AppHeader.jsx";
-import HeaderThing from "@/components/PageInfo.jsx";
+import AppHeader from "@/components/AppHeader";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
@@ -11,7 +10,7 @@ import {
   subscriptionVehicles,
 } from "@/data/subscriptionData";
 import Page from "@/app/locations/list/page";
-import PageInfo from "@/components/PageInfo.jsx";
+import PageInfo from "@/components/PageInfo";
 
 export default function HandleSubscriptionPage() {
   const router = useRouter();

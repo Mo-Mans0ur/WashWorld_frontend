@@ -77,70 +77,34 @@ export default function AppNav() {
             >
               <Icon size={18} className="text-white/50 group-hover:text-white transition-colors" />
               <span className="text-[0.95rem] font-semibold">{label}</span>
-              <ChevronRight
-                size={14}
-                className="ml-auto text-white/20 group-hover:text-white/50 group-hover:translate-x-0.5 transition-all"
-              />
+              <ChevronRight size={18} />
             </Link>
           ))}
         </nav>
       </div>
 
-      {/* Bundnavigation */}
-      <nav className="flex h-28 w-full shrink-0 items-center justify-around bg-(--color-black) text-white">
-        <NavItem href="/dashboard" label="Hjem" active={pathname === "/dashboard"}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-xl font-extrabold">
-            W
-          </div>
-        </NavItem>
-
-        <NavItem href="/locations/map" label="Kort" active={pathname === "/locations/map"}>
-          <MapPin size={36} />
-        </NavItem>
-
-        <NavItem href="/profile" label="Profil" active={pathname === "/profile"}>
-          <User size={36} />
-        </NavItem>
-
-        {/* Burgermenu-knap */}
+      {/* Bottom nav */}
+      <nav className="absolute bottom-0 left-1/2 z-30 flex h-16 w-full max-w-[430px] -translate-x-1/2 items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
+        <Link href="/dashboard" className="flex flex-col items-center text-white/70 hover:text-white">
+          <Home size={26} />
+          <span className="text-xs">Home</span>
+        </Link>
+        <Link href="/locations/map" className="flex flex-col items-center text-white/70 hover:text-white">
+          <MapPin size={26} />
+          <span className="text-xs">Kort</span>
+        </Link>
+        <Link href="/profile" className="flex flex-col items-center text-white/70 hover:text-white">
+          <User size={26} />
+          <span className="text-xs">Profil</span>
+        </Link>
         <button
-          onClick={() => setMenuOpen((prev) => !prev)}
-          className={`flex flex-col items-center transition ${
-            menuOpen ? "opacity-100" : "opacity-80"
-          }`}
+          onClick={() => setMenuOpen(true)}
+          className="flex flex-col items-center text-white/70 hover:text-white focus:outline-none"
         >
-          <div className="flex h-9 w-9 items-center justify-center">
-            {menuOpen ? <X size={32} /> : <Menu size={32} />}
-          </div>
-          <span
-            className={`mt-1 text-[0.9rem] font-bold ${
-              menuOpen ? "text-(--brand-green-01)" : "text-white"
-            }`}
-          >
-            Menu
-          </span>
+          <Menu size={26} />
+          <span className="text-xs">Menu</span>
         </button>
       </nav>
     </>
-  );
-}
-
-function NavItem({ href, label, active, children }) {
-  return (
-    <Link
-      href={href}
-      className={`flex flex-col items-center transition ${
-        active ? "opacity-100" : "opacity-80"
-      }`}
-    >
-      {children}
-      <span
-        className={`mt-1 text-[0.9rem] font-bold ${
-          active ? "text-(--brand-green-01)" : "text-white"
-        }`}
-      >
-        {label}
-      </span>
-    </Link>
   );
 }

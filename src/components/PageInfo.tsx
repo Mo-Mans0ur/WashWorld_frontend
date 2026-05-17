@@ -1,4 +1,10 @@
-export default function PageInfo({ text = "", userName, className = "" }) {
+interface PageInfoProps {
+  text?: string;
+  userName?: string;
+  className?: string;
+}
+
+export default function PageInfo({ text = "", userName, className = "" }: PageInfoProps) {
   const content = text || (userName ? `Hej ${userName}` : "");
 
   return (

@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import AppHeader from "@/components/AppHeader.jsx";
-import ScreenLayout from "@/components/ScreenLayout";
+import AppHeader from "@/components/AppHeader";
 import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
-import PageInfo from "@/components/PageInfo.jsx";
+import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 
 const TEMP_FAVORITE_IDS = ["1048", "1043", "1049", "1011", "1051"];
@@ -62,11 +61,10 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex flex-1 min-h-0 flex-col">
       <AppHeader />
 
-      <ScreenLayout>
-        <PageInfo userName={dashboardPageNames.userName} />
+      <PageInfo userName={dashboardPageNames.userName} />
 
         <section className="px-8 pt-10">
           <h2 className="mb-5 text-2xl font-bold text-black">
@@ -152,7 +150,6 @@ export default function DashboardPage() {
             ))}
           </div>
         </section>
-      </ScreenLayout>
     </div>
   );
 }
