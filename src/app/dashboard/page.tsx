@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import AppHeader from "@/components/AppHeader.jsx";
 import ScreenLayout from "@/components/ScreenLayout";
-import {
-  dashboardFavoriteLocations,
-  dashboardNewsItems,
-  dashboardPageNames,
-  DashboardLocation,
-} from "@/data/dashboardData";
+import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo.jsx";
+import { fetchLocations } from "@/lib/Api";
 
-type LocationWithDistance = DashboardLocation & { distance: string | null };
+const TEMP_FAVORITE_IDS = ["1048", "1043", "1049", "1011", "1051"];
 
-function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+function getDistanceInKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -27,28 +24,41 @@ function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
 }
 
 export default function DashboardPage() {
-  const [nearestLocation, setNearestLocation] = useState<LocationWithDistance | null>(null);
-  const [locationsWithDistance, setLocationsWithDistance] = useState<LocationWithDistance[]>(
-    dashboardFavoriteLocations.map((loc) => ({ ...loc, distance: null }))
-  );
+  const { data: locations = [], isLoading } = useQuery({
+    queryKey: ["locations"],
+    queryFn: fetchLocations,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const [nearestLocation, setNearestLocation] = useState<any>(null);
+  const [locationsWithDistance, setLocationsWithDistance] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    if (!locations.length || !navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition((pos) => {
       const { latitude, longitude } = pos.coords;
 
-      const withDistances = dashboardFavoriteLocations
-        .map((loc) => {
-          const km = haversineDistance(latitude, longitude, loc.coords.lat, loc.coords.lng);
+      const withDistances = locations
+        .map((loc: any) => {
+          const km = getDistanceInKm(
+            latitude,
+            longitude,
+            loc.location_coordinate_y,
+            loc.location_coordinate_x
+          );
           return { ...loc, distance: `${km.toFixed(1)} km` };
         })
-        .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+        .sort((a: any, b: any) => parseFloat(a.distance) - parseFloat(b.distance));
 
       setLocationsWithDistance(withDistances);
       setNearestLocation(withDistances[0]);
     });
-  }, []);
+  }, [locations]);
+
+  const favoriteLocationsWithDistance = locationsWithDistance.filter(
+    (loc) => TEMP_FAVORITE_IDS.includes(loc.location_id)
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -71,10 +81,10 @@ export default function DashboardPage() {
 
                 <div>
                   <p className="text-sm font-bold leading-tight text-white">
-                  {nearestLocation?.address?.street ?? "Finder nærmeste..."}
+                    {isLoading ? "Henter..." : nearestLocation?.location_name ?? "Finder nærmeste..."}
                   </p>
                   <p className="text-sm font-bold leading-tight text-white">
-                  {nearestLocation?.address?.city}
+                    {nearestLocation?.location_address}
                   </p>
                 </div>
               </div>
@@ -105,11 +115,11 @@ export default function DashboardPage() {
           </h2>
 
           <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-            {locationsWithDistance.map((location) => (
+            {favoriteLocationsWithDistance.map((location: any) => (
               <FavoriteCard
-                key={location.id}
-                image={location.image}
-                title={location.title}
+                key={location.location_id}
+                title={location.location_name}
+                address={location.location_address}
                 distance={location.distance}
               />
             ))}
@@ -140,21 +150,29 @@ export default function DashboardPage() {
   );
 }
 
-function FavoriteCard({ image, title, distance }: { image: string; title: string; distance: string | null }) {
+function FavoriteCard({ title, address, distance }: { title: string; address: string; distance: string | null }) {
   return (
     <article className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01)">
       <Image
-        src={image}
+        src="/locations-pictures/Herlev.jpg"
         alt={title}
         className="h-full w-full object-cover opacity-80"
         fill
         sizes="144px"
+        quality={70} // Optimized image quality
+        loading="eager" // Ensures LCP image loads promptly
       />
 
       <div className="absolute inset-0 flex flex-col justify-between">
-        <h3 className="px-3 pt-3 text-xl font-bold leading-tight text-white">
-          {title}
-        </h3>
+        <div className="px-3 pt-3">
+          <h3 className="text-sm font-bold leading-tight text-white">
+            {title}
+          </h3>
+          <p className="text-xs leading-tight text-white/70">
+            {address}
+          </p>
+        </div>
+
         <p className="absolute bottom-1.5 left-2.5 z-10 text-sm font-bold text-(--brand-green-01)">
           {distance ?? "—"}
         </p>
@@ -178,6 +196,7 @@ function NewsCard({ image, description }: { image: string; description: string }
         className="w-full h-20 object-cover"
         width={184}
         height={80}
+        quality={70} 
       />
 
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">

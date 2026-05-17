@@ -127,9 +127,9 @@ export default function ProfilePage() {
                 </h2>
               </div>
               <div className="mt-3 flex items-center gap-2.5">
-                {profileStamps.map((stamp) => (
+                {profileStamps.map((stamp, index) => (
                   <Stamp
-                    key={`${stamp.label}-${stamp.filled}`}
+                    key={`${stamp.label}-${stamp.filled}-${index}`}
                     filled={stamp.filled}
                   >
                     {stamp.label}

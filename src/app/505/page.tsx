@@ -11,6 +11,7 @@ export default function UnsupportedPage() {
           alt="Wash World"
           width={246}
           height={112}
+          style={{ width: "auto" }}
           className="mx-auto"
           priority
         />

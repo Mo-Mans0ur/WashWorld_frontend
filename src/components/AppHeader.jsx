@@ -10,6 +10,7 @@ export default function AppHeader() {
           width={110}
           height={50}
           priority
+          style={{ width: "auto" }}
         />
       </div>
     </header>
