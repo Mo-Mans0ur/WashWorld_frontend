@@ -28,6 +28,18 @@ export type ReceiptDetailField = {
   key: ReceiptDetailFieldKey;
 };
 
+export type LatestSingleWashReceiptInput = {
+  planName: string;
+  price: string;
+  plate: string;
+  payment: string;
+  location?: string;
+  station?: string;
+};
+
+export const LATEST_SINGLE_WASH_RECEIPT_KEY =
+  "washworld.latestSingleWashReceipt";
+
 export const receiptPageNames = {
   historyTitle: "Kvitteringer",
   detailsTitle: "Detaljer",
@@ -51,8 +63,86 @@ export const receiptActionNames = [
   "Kontakt support",
 ] as const;
 
+function formatReceiptAmount(price: string) {
+  return price.replace("kr.", " Dkk");
+}
+
+function buildLatestSingleWashReceipt(
+  latestReceipt: LatestSingleWashReceiptInput,
+): ReceiptHistoryItem {
+  const now = new Date();
+  const date = new Intl.DateTimeFormat("da-DK", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(now);
+  const time = new Intl.DateTimeFormat("da-DK", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(now);
+  const amount = formatReceiptAmount(latestReceipt.price);
+
+  return {
+    id: 2,
+    title: "Enkeltvask",
+    status: "Gennemført",
+    statusClass: "bg-emerald-400 text-emerald-900",
+    date,
+    time,
+    location: latestReceipt.location ?? "Gunnar Clausens Vej 2A, 8260 Viby",
+    amount,
+    plate: latestReceipt.plate || "DB 43 234",
+    image: "/icons/EnkeltVaskIcon.png",
+    washType: latestReceipt.planName,
+    station: latestReceipt.station ?? "Vaskehal 01",
+    payment: latestReceipt.payment,
+    orderId: "#2188-3901",
+    summaryLabel: latestReceipt.planName,
+    summaryValue: amount,
+  };
+}
+
+export function saveLatestSingleWashReceipt(
+  latestReceipt: LatestSingleWashReceiptInput,
+) {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.setItem(
+    LATEST_SINGLE_WASH_RECEIPT_KEY,
+    JSON.stringify(latestReceipt),
+  );
+}
+
+export function getReceiptHistoryItems() {
+  if (typeof window === "undefined") {
+    return receiptHistory;
+  }
+
+  const latestReceipt = window.localStorage.getItem(
+    LATEST_SINGLE_WASH_RECEIPT_KEY,
+  );
+
+  if (!latestReceipt) {
+    return receiptHistory;
+  }
+
+  try {
+    const parsedReceipt = JSON.parse(
+      latestReceipt,
+    ) as LatestSingleWashReceiptInput;
+
+    return receiptHistory.map((item) =>
+      item.id === 2 ? buildLatestSingleWashReceipt(parsedReceipt) : item,
+    );
+  } catch {
+    return receiptHistory;
+  }
+}
+
 export function getReceiptById(id: number) {
-  return receiptHistory.find((item) => item.id === id) || receiptHistory[0];
+  return (
+    getReceiptHistoryItems().find((item) => item.id === id) || receiptHistory[0]
+  );
 }
 
 export const receiptHistory: ReceiptHistoryItem[] = [

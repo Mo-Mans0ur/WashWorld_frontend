@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
@@ -17,6 +18,7 @@ import {
 } from "@heroicons/react/24/solid";
 import {
   getReceiptById,
+  receiptHistory,
   receiptActionNames,
   receiptDetailFieldNames,
   receiptPageNames,
@@ -32,7 +34,13 @@ export default function VaskehistorikDetaljer() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const receiptId = Number(searchParams.get("id"));
-  const receipt = getReceiptById(receiptId);
+  const [receipt, setReceipt] = useState(
+    getReceiptById(receiptId || receiptHistory[0].id),
+  );
+
+  useEffect(() => {
+    setReceipt(getReceiptById(receiptId || receiptHistory[0].id));
+  }, [receiptId]);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">

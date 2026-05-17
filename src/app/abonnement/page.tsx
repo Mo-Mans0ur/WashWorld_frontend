@@ -8,7 +8,6 @@ import {
   subscriptionPageNames,
   subscriptionPlans,
 } from "@/data/subscriptionData";
-import Page from "../locations/list/page";
 import PageInfo from "@/components/PageInfo.jsx";
 
 export default function AbonnementPage() {

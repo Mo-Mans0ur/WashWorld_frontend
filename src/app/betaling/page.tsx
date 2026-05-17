@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import AppNav from "@/components/AppNav";
 import ScreenLayout from "@/components/ScreenLayout";
 import PageInfo from "@/components/PageInfo";
 import PaymentMethodCard from "@/components/PaymentMethodCard";
 import { paymentOptions, paymentPageContent } from "@/data/paymentData";
+import { paymentPlans } from "@/data/singleWashData";
 import { CircleAlert, CircleHelp, Lock } from "lucide-react";
 
 function getPaymentId(title: string) {
@@ -28,22 +29,21 @@ const paymentMethods = paymentOptions.map((option, index) => ({
   image: option.icon || `/payment/${index}.png`,
 }));
 
-const paymentRoutes: Record<string, string> = {
-  card: "/betaling/kort",
-  mobilepay: "/betaling/mobilepay",
-  wallet: "/betaling/wallet",
-};
-
 export default function BetalingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [walletMethod, setWalletMethod] = useState<"apple" | "google">("apple");
   const [showCvcHelp, setShowCvcHelp] = useState(false);
+  const selectedPlan = searchParams.get("plan") ?? "guld";
+  const selectedPlanDetails =
+    paymentPlans.find((plan) => plan.slug === selectedPlan) ?? paymentPlans[0];
+  const selectedPlanAmount = selectedPlanDetails.price.replace("kr.", " kr");
   const selectedWalletMethod = paymentPageContent.wallet.methods.find(
     (method) => method.value === walletMethod,
   );
   const hasSelectedRoute =
-    selectedPayment !== null && Boolean(paymentRoutes[selectedPayment]);
+    selectedPayment !== null && selectedPayment !== "contactless";
   const showPaymentDetails =
     selectedPayment !== null && selectedPayment !== "contactless";
 
@@ -55,9 +55,11 @@ export default function BetalingPage() {
   }
 
   function handleContinue() {
-    if (!selectedPayment || !paymentRoutes[selectedPayment]) return;
+    if (!selectedPayment || selectedPayment === "contactless") return;
 
-    router.push(paymentRoutes[selectedPayment]);
+    router.push(
+      `/singlewash/nummerplade?plan=${selectedPlan}&payment=${selectedPayment}`,
+    );
   }
 
   return (
@@ -264,7 +266,7 @@ export default function BetalingPage() {
                     </label>
                     <div className="mb-3 flex h-10 items-center justify-end rounded border border-white/25 bg-white/8 px-3">
                       <span className="text-[30px] font-bold text-(--brand-green-01)">
-                        {paymentPageContent.wallet.amount}
+                        {selectedPlanAmount}
                       </span>
                     </div>
 
