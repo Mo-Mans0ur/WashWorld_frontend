@@ -15,15 +15,15 @@ export type EquipmentCounts = {
 
 export const EQUIPMENT_SECTIONS = [
   {
-    type: "vaskehall",
+    type: "vaskehal",
     label: "Vaskehaller",
-    titlePrefix: "Vaskehall",
+    titlePrefix: "Vaskehal",
     image: "/icons/EnkeltVaskIcon.png",
     liveStatusLabel: "Bilvask",
     liveStatusIcon: "/icons/EnkeltVaskIcon.png",
   },
   {
-    type: "vaskselv",
+    type: "vask_selv",
     label: "Vask selv",
     titlePrefix: "Vask selv",
     image: "/icons/vaskselvIcon.png",
