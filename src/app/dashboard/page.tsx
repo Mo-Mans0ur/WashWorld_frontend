@@ -8,6 +8,7 @@ import AppHeader from "@/components/AppHeader";
 import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
+import { formatLocationAddress } from "@/lib/locationsApi";
 
 const TEMP_FAVORITE_IDS = ["1048", "1043", "1049", "1011", "1051"];
 
@@ -83,7 +84,9 @@ export default function DashboardPage() {
                     {isLoading ? "Henter..." : nearestLocation?.location_name ?? "Finder nærmeste..."}
                   </p>
                   <p className="text-sm font-bold leading-tight text-white">
-                    {nearestLocation?.location_address}
+                    {nearestLocation
+                      ? formatLocationAddress(nearestLocation)
+                      : null}
                   </p>
                 </div>
               </div>
@@ -124,7 +127,7 @@ export default function DashboardPage() {
               <FavoriteCard
                 key={location.location_id}
                 title={location.location_name}
-                address={location.location_address}
+                address={formatLocationAddress(location)}
                 distance={location.distance}
               />
             ))}

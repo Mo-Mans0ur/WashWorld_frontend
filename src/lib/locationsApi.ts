@@ -1,13 +1,24 @@
 import type { MapLocation } from "../data/washworldLocations";
 
-type ApiLocationRow = {
+export type ApiLocationRow = {
   location_id: string;
+  location_name: string;
   location_address: string;
   location_zipcode: string;
   location_coordinate_x: number;
   location_coordinate_y: number;
   location_open_hours: string;
 };
+
+export function formatLocationAddress(row: {
+  location_address: string;
+  location_zipcode: string;
+}): string {
+  const street = row.location_address.trim();
+  const zip = row.location_zipcode.trim();
+  if (street && zip) return `${street}, ${zip}`;
+  return street || zip;
+}
 
 function mapApiRowToMapLocation(row: ApiLocationRow): MapLocation | null {
   const lng = Number(row.location_coordinate_x);
@@ -16,15 +27,15 @@ function mapApiRowToMapLocation(row: ApiLocationRow): MapLocation | null {
   const inDenmark = lng >= 7 && lng <= 16 && lat >= 54 && lat <= 58;
   if (!inDenmark) return null;
 
-  const address = `${row.location_address}, ${row.location_zipcode}`.trim();
-  const name = row.location_address.trim();
+  const name = row.location_name?.trim();
+  if (!name) return null;
 
   return {
     id: row.location_id,
     name,
-    address,
+    address: formatLocationAddress(row),
     coords: [lng, lat],
-    openHours: row.location_open_hours ?? "",
+    openHours: row.location_open_hours?.trim() ?? "",
   };
 }
 
@@ -73,4 +84,12 @@ export async function fetchMapLocations(): Promise<MapLocation[]> {
   return rows
     .map(mapApiRowToMapLocation)
     .filter((loc): loc is MapLocation => loc !== null);
+}
+
+/** Finder én lokation ud fra API-listen (samme endpoint som kortet). */
+export async function fetchLocationById(
+  id: string,
+): Promise<MapLocation | null> {
+  const locations = await fetchMapLocations();
+  return locations.find((loc) => loc.id === id) ?? null;
 }

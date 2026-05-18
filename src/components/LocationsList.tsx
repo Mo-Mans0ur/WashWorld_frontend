@@ -112,6 +112,7 @@ export default function LocationsList() {
             sortedLocations.map((loc) => (
               <li key={loc.id} className="washworld-location-list-item">
                 <LocationPopupCard
+                  locationId={loc.id}
                   name={loc.name}
                   address={loc.address}
                   openHours={loc.openHours}

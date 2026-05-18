@@ -1,9 +1,11 @@
+import Link from "next/link";
 import {
   formatOpenHoursDisplay,
   locationShortName,
 } from "@/lib/locationGeo";
 
 type LocationPopupCardProps = {
+  locationId: string;
   name: string;
   address: string;
   openHours: string;
@@ -12,6 +14,7 @@ type LocationPopupCardProps = {
 
 /** Samme markup og CSS-klasser som kort-popup'en i Map.tsx */
 export default function LocationPopupCard({
+  locationId,
   name,
   address,
   openHours,
@@ -29,7 +32,12 @@ export default function LocationPopupCard({
           <span className="washworld-popup-hours-accent">Åben</span>{" "}
           {formatOpenHoursDisplay(openHours)}
         </p>
-        <span className="washworld-popup-more">Se mere</span>
+        <Link
+          href={`/details?id=${encodeURIComponent(locationId)}`}
+          className="washworld-popup-more"
+        >
+          Se mere
+        </Link>
       </div>
     </div>
   );

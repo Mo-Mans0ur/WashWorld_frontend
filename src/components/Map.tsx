@@ -7,7 +7,7 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapControls from "./MapControls";
@@ -64,10 +64,26 @@ function updateUserLocationMarker(
   markerRef.current.setLngLat(lngLat);
 }
 
+function bindDetailsLink(
+  popup: mapboxgl.Popup,
+  locationId: string,
+  onOpenDetails: (locationId: string) => void,
+): void {
+  const link = popup.getElement()?.querySelector(".washworld-popup-more");
+  if (!link) return;
+
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onOpenDetails(locationId);
+  });
+}
+
 function addLocationMarkers(
   map: mapboxgl.Map,
   locations: MapLocation[],
   getUserLngLat: () => [number, number] | null,
+  onOpenDetails: (locationId: string) => void,
 ): void {
   let activePopup: mapboxgl.Popup | null = null;
   let isMarkerFlyTo = false;
@@ -128,13 +144,14 @@ function addLocationMarkers(
                 <span class="washworld-popup-hours-accent">Åben</span>
                 ${hours}
               </p>
-              <span class="washworld-popup-more">Se mere</span>
+              <a href="/details?id=${encodeURIComponent(loc.id)}" class="washworld-popup-more">Se mere</a>
             </div>
           </div>
         `,
         )
         .setLngLat(loc.coords)
         .addTo(map);
+      bindDetailsLink(popup, loc.id, onOpenDetails);
       activePopup = popup;
 
       isMarkerFlyTo = true;
@@ -182,6 +199,7 @@ async function drawRoute(
 }
 
 export default function Map() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const destLat = searchParams.get("lat");
   const destLng = searchParams.get("lng");
@@ -260,7 +278,13 @@ export default function Map() {
     map.addControl(new mapboxgl.NavigationControl());
 
     map.on("load", () => {
-      addLocationMarkers(map, locations, () => userLngLatRef.current);
+      addLocationMarkers(
+        map,
+        locations,
+        () => userLngLatRef.current,
+        (locationId) =>
+          router.push(`/details?id=${encodeURIComponent(locationId)}`),
+      );
 
       if (userLngLatRef.current) {
         updateUserLocationMarker(map, userMarkerRef, userLngLatRef.current);
