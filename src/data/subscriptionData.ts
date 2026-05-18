@@ -38,6 +38,15 @@ export const subscriptionPageNames = {
   paymentSheetTitle: "Vælg betalingsmetode",
 } as const;
 
+export const subscriptionPaymentPageContent = {
+  pageInfoTitle: "Kortoplysninger",
+  pageTitle: "Tilføj betalingsoplysninger",
+  buttons: {
+    back: "Tilbage",
+    continue: "Tilføj kort",
+  },
+} as const;
+
 export const subscriptionPlans: SubscriptionPlan[] = [
   {
     slug: "guld",
@@ -113,7 +122,7 @@ export const subscriptionVehicles: SubscriptionOption[] = [
 export const subscriptionPaymentMethods: SubscriptionOption[] = [
   { value: "card", label: "Kort •••• 4242" },
   { value: "mobilepay", label: "MobilePay" },
-  { value: "invoice", label: "Månedlig faktura" },
+  { value: "wallet", label: "Apple Pay / Google Pay" },
 ];
 
 export function getSubscriptionPlanBySlug(slug: string) {
