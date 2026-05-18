@@ -11,9 +11,7 @@ import {
   UserRound,
 } from "lucide-react";
 
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
-import ScreenLayout from "@/components/ScreenLayout";
 import {
   profileUpdateInitialValues,
   profileUpdatePageContent,
@@ -57,9 +55,7 @@ export default function UpdateProfilePage() {
   }
 
   return (
-    <ScreenLayout>
-      <div className="min-h-full bg-[linear-gradient(135deg,#f6fbf7_0%,#ebf6ef_24%,#34a853_100%)]">
-        <AppHeader />
+    <div className="min-h-full bg-[linear-gradient(135deg,#f6fbf7_0%,#ebf6ef_24%,#34a853_100%)]">
         <PageInfo
           text={profileUpdatePageContent.pageInfoTitle}
           userName={profileUser.userName}
@@ -200,7 +196,6 @@ export default function UpdateProfilePage() {
           </div>
         </section>
       </div>
-    </ScreenLayout>
   );
 }
 

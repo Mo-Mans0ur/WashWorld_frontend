@@ -2,8 +2,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import AppHeader from "@/components/AppHeader";
-import ScreenLayout from "@/components/ScreenLayout";
 import {
   subscriptionPageNames,
   subscriptionPlans,
@@ -29,13 +27,11 @@ export default function AbonnementPage() {
   }
 
   function handleCreateSubscription() {
-    router.push(
-      `/abonnement/handlesubscription?plan=${selectedPlan.toLowerCase()}`,
-    );
+    router.push(`/abonnement/betaling?plan=${selectedPlan.toLowerCase()}`);
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
+    <div className="min-h-full flex flex-col">
       <style>{`
   @keyframes slideInRight {
     from { opacity: 0; transform: translateX(100%) scale(0.95); }
@@ -49,9 +45,7 @@ export default function AbonnementPage() {
   .slide-left  { animation: slideInLeft  0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
 `}</style>
 
-      <AppHeader />
-      <ScreenLayout>
-        <PageInfo text={subscriptionPageNames.listTitle} userName="" />
+      <PageInfo text={subscriptionPageNames.listTitle} userName="" />
         <section className="flex flex-1 flex-col px-7 pt-6 pb-6 text-center text-white">
           <h2 className="text-[1.9rem] font-bold leading-tight">
             {subscriptionPageNames.createTitleLineOne}
@@ -121,7 +115,6 @@ export default function AbonnementPage() {
             </div>
           )}
         </section>
-      </ScreenLayout>
     </div>
   );
 }

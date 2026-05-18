@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
@@ -27,17 +26,19 @@ export default function HandleSubscriptionPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
 
-  // Payment comes later, for now we just simulate a successful subscription creation
-  const canSubmit = Boolean(vehicle) && acceptedTerms;
+  const canSubmit = Boolean(vehicle) && Boolean(paymentMethod) && acceptedTerms;
 
   function handleSubmit() {
     if (!canSubmit) return;
-    // Simulate subscription creation and redirect to confirmation page
+
     console.log("create subscription", {
       plan: planKey,
       vehicle,
+      paymentMethod,
       acceptedTerms,
     });
+
+    router.push("/profile");
   }
 
   const isSheetOpen = activeSheet !== null;
@@ -63,20 +64,13 @@ export default function HandleSubscriptionPage() {
   }
 
   return (
-    <div className="relative flex h-dvh flex-col overflow-hidden">
-      <AppHeader />
+    <div className="relative flex h-full flex-col overflow-hidden">
       <PageInfo
         text={subscriptionPageNames.createTitle}
         userName=""
         className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
-      <main
-        className="flex-1 overflow-y-auto px-6 pt-3.5 pb-4 text-white scrollbar-hide"
-        style={{
-          background:
-            "linear-gradient(90deg, var(--color-dashboard-gradient-start) 0%, var(--color-dashboard-gradient-end) 100%)",
-        }}
-      >
+      <main className="flex-1 overflow-y-auto bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)] px-6 pt-3.5 pb-4 text-white scrollbar-hide">
         <h1 className="text-center text-[2rem] font-bold leading-tight">
           {subscriptionPageNames.createTitleLineOne}
           <br />

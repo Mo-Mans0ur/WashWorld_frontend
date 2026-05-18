@@ -4,9 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
-import ScreenLayout from "@/components/ScreenLayout";
 import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
 import { singleWashPlatePageContent } from "@/data/singleWashData";
 
@@ -26,16 +24,14 @@ export default function SingleWashPlatePage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
-      <AppHeader />
+    <div className="min-h-full flex flex-col">
       <PageInfo
         text={singleWashPlatePageContent.pageInfoTitle}
         userName=""
-        className="bg-[linear-gradient(rgba(255,255,255,0.4),rgba(255,255,255,0.4)),linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
+        className=""
       />
 
-      <ScreenLayout>
-        <section className="relative flex flex-1 flex-col px-7 pt-8 pb-5 text-white">
+      <section className="relative flex flex-1 flex-col px-7 pt-8 pb-5 text-white">
           <SingleWashAdviceInfo />
 
           <h1
@@ -96,7 +92,6 @@ export default function SingleWashPlatePage() {
             </button>
           </div>
         </section>
-      </ScreenLayout>
     </div>
   );
 }
