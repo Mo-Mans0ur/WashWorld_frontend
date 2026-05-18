@@ -163,7 +163,7 @@ function FavoriteCard({ title, address, distance }: { title: string; address: st
         className="h-full w-full object-cover opacity-80"
         fill
         sizes="144px"
-        quality={70}
+        quality={75}
         loading="eager"
       />
 
@@ -200,7 +200,7 @@ function NewsCard({ image, description }: { image: string; description: string }
         className="w-full h-20 object-cover"
         width={184}
         height={80}
-        quality={70}
+        quality={75}
       />
 
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">

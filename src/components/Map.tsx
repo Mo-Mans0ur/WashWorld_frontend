@@ -200,6 +200,14 @@ export default function Map() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    const orig = Element.prototype.releasePointerCapture;
+    Element.prototype.releasePointerCapture = function (pointerId) {
+      try { orig.call(this, pointerId); } catch { /* mapbox-gl throws NotFoundError on fast drags */ }
+    };
+    return () => { Element.prototype.releasePointerCapture = orig; };
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
