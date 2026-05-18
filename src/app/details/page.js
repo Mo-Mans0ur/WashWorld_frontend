@@ -11,6 +11,7 @@ import {
     VaskehallDetails
 } from "@/data/detailsPageData";
 import "./page.css";
+import AngleButton from "@/components/buttons/AngleButton";
 
 
 
@@ -56,7 +57,7 @@ export default function DetailsPage() {
 
         <section className="mt-12">
                   <h2 className="mb-5 px-8 text-2xl font-bold text-black">
-                    {VaskehallDetails[0].title}
+                  Vaskehaller
                   </h2>
         
                   <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
@@ -67,8 +68,45 @@ export default function DetailsPage() {
                         title={Vaskehall.title}
                         status={Vaskehall.status}
                       />
-                    ))}
+                    ))} 
                   </div>
+
+                </section>
+
+                <section className="mt-12">
+                  <h2 className="mb-5 px-8 text-2xl font-bold text-black">
+                  Vask selv
+                  </h2>
+        
+                  <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+                    {VaskselvDetails.map((Vaskselv) => (
+                      <VaskselvCard
+                        key={Vaskselv.id}
+                        image={Vaskselv.image}
+                        title={Vaskselv.title}
+                        status={Vaskselv.status}
+                      />
+                    ))} 
+                  </div>
+
+                </section>
+
+                 <section className="mt-12">
+                  <h2 className="mb-5 px-8 text-2xl font-bold text-black">
+                  Støvsugere
+                  </h2>
+        
+                  <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+                    {StovsugerDetails.map((Stovsuger) => (
+                      <StovsugerCard
+                        key={Stovsuger.id}
+                        image={Stovsuger.image}
+                        title={Stovsuger.title}
+                        status={Stovsuger.status}
+                      />
+                    ))} 
+                  </div>
+
                 </section>
 
         </ScreenLayout>
@@ -84,18 +122,63 @@ function VaskehallCard({
     status 
 }) {
   return (
-    <article className="w-46 shrink-0 overflow-hidden board-white/90 bg-white shadow-md">
+    <button className=" h-min-75 shrink-0 overflow-hidden board-white/90 bg-white font-bold shadow-md flex items-end">
+        <div className="flex flex-row items-center justify-start gap-2 p-1 min-w-50">
       <Image
         src={image}
         alt={title}
-        className="w-full h-20 object-cover"
-        width={184}
+        className=""
+        width={67}
+        height={67}
+      />
+      {title}
+    </div>
+    <AngleButton text={"Ledig"} />
+    </button>
+  );
+}
+
+function VaskselvCard({ 
+    image, 
+    title, 
+    status 
+}) {
+  return (
+    <button className=" h-min-75 shrink-0 overflow-hidden board-white/90 bg-white font-bold shadow-md flex items-end">
+        <div className="flex flex-row items-center justify-start gap-2 p-1 min-w-50">
+      <Image
+        src={image}
+        alt={title}
+        className=""
+        width={67}
+        height={67}
+      />
+      {title}
+    </div>
+    <AngleButton text={"Ledig"} />
+    </button>
+  );
+}
+
+function StovsugerCard({ 
+    image, 
+    title, 
+    status 
+}) {
+  return (
+    <button className=" h-min-75 shrink-0 overflow-hidden board-white/90 bg-white font-bold shadow-md flex items-end">
+        <div className="flex flex-row items-center justify-start gap-2 p-3 min-w-50">
+      <Image
+        src={image}
+        alt={title}
+        className=""
+        width={67}
         height={80}
       />
-        <p className="px-2 pt-2 text-sm font-bold leading-tight text-neutral-600">
-          {status}
-        </p>
-    </article>
+      {title}
+    </div>
+    <AngleButton text={"Ledig"} />
+    </button>
   );
 }
 
@@ -130,3 +213,4 @@ function HeaderThing({
     </section>
   );
 }
+
