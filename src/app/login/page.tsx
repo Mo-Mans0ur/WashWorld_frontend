@@ -4,11 +4,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { LoginButton } from "@/components/buttons";
-import { loginUser } from "@/lib/api/auth";
-import { useAuth } from "@/context/AuthContext";
 
-const MIN_EMAIL_LENGTH = 5;
+const MIN_USERNAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 6;
+
+const MOCK_USER = {
+  username: "admin",
+  password: "123456",
+};
 
 function getInputStyle(value: string, minLength: number) {
   if (value.length === 0) return "border-2 border-transparent";
@@ -44,13 +47,13 @@ export default function LoginPage() {
       );
       login(token, user);
       router.push("/dashboard");
-    } catch (err) {
+    } else {
       const message =
-        err instanceof Error ? err.message : "Ugyldigt brugernavn eller kodeord";
+        "Ugyldigt brugernavn eller kodeord";
       setError(message);
-    } finally {
-      setIsSubmitting(false);
     }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -80,15 +83,20 @@ export default function LoginPage() {
             className="mb-18"
           />
 
+          <div className="w-72 bg-yellow-400/20 border border-yellow-400/50 p-3 text-yellow-200 text-xs rounded">
+            <p className="font-bold mb-1">Midlertidig testbruger:</p>
+            <p>Brugernavn: {MOCK_USER.username}</p>
+            <p>Kodeord: {MOCK_USER.password}</p>
+          </div>
+
           <div className="flex w-72 flex-col gap-1">
             <input
-              placeholder="Email"
-              type="email"
+              placeholder="Brugernavn"
               autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               disabled={isSubmitting}
-              className={`w-full bg-(--color-surface) p-3 outline-none transition-colors ${getInputStyle(email, MIN_EMAIL_LENGTH)}`}
+              className={`w-full bg-(--color-surface) p-3 outline-none transition-colors ${getInputStyle(username, MIN_USERNAME_LENGTH)}`}
             />
             <p className="min-h-4 text-xs text-red-400">
               {email.length > 0 && email.length < MIN_EMAIL_LENGTH
@@ -139,3 +147,4 @@ export default function LoginPage() {
     </>
   );
 }
+
