@@ -1,5 +1,5 @@
 
-export type Vaskehall = {
+export type Vaskehal = {
 id: number;
 image: string;
 title: string;
@@ -23,7 +23,7 @@ status: string;
 
 
 
-export const VaskehallDetails: Vaskehall[] = [
+export const VaskehallDetails: Vaskehal[] = [
 {
 id: 1,
 image:"/icons/EnkeltVaskIcon.png", 

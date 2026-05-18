@@ -7,16 +7,14 @@ import { Star, Info } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import AngleButton from "@/components/buttons/AngleButton";
 import StartWashButton from "@/components/buttons/StartWashButton";
-import {
-  VaskselvDetails,
-  StovsugerDetails,
-  VaskehallDetails,
-} from "@/data/detailsPageData";
 import type { MapLocation } from "@/data/washworldLocations";
 import {
   EQUIPMENT_SECTIONS,
   countEquipmentByType,
+  equipmentByType,
   fetchLocationEquipment,
+  formatEquipmentTitle,
+  normalizeEquipmentType,
   type LocationEquipment,
 } from "@/lib/equipmentApi";
 import { fetchLocationById } from "@/lib/locationsApi";
@@ -35,25 +33,6 @@ const statusClass: Record<string, string> = {
   Ledig: "bg-(--brand-green-01)",
   Optaget: "bg-amber-500",
 };
-
-/** Vises når API'et endnu ikke returnerer udstyr for lokationen. */
-const MOCK_LIVE_STATUS = [
-  {
-    liveStatusIcon: "/icons/EnkeltVaskIcon.png",
-    liveStatusLabel: "Bilvask",
-    counts: { available: 1, total: 3 },
-  },
-  {
-    liveStatusIcon: "/icons/vaskselvIcon.png",
-    liveStatusLabel: "Vask selv",
-    counts: { available: 2, total: 3 },
-  },
-  {
-    liveStatusIcon: "/icons/vacuum.png",
-    liveStatusLabel: "Støvsugere",
-    counts: { available: 0, total: 5 },
-  },
-] as const;
 
 function formatLiveStatus(counts: { available: number; total: number }): string {
   return `${counts.available} / ${counts.total}`;
@@ -86,9 +65,14 @@ export default function DetailsPage() {
     (async () => {
       setLoadStatus("loading");
       setLoadError(null);
+      setSelectedId(null);
 
       try {
-        const locationData = await fetchLocationById(locationId);
+        const [locationData, equipmentData] = await Promise.all([
+          fetchLocationById(locationId),
+          fetchLocationEquipment(locationId),
+        ]);
+
         if (cancelled) return;
 
         if (!locationData) {
@@ -100,15 +84,8 @@ export default function DetailsPage() {
         }
 
         setLocation(locationData);
-
-        try {
-          const equipmentData = await fetchLocationEquipment(locationId);
-          if (!cancelled) setEquipment(equipmentData);
-        } catch {
-          if (!cancelled) setEquipment([]);
-        }
-
-        if (!cancelled) setLoadStatus("ready");
+        setEquipment(equipmentData);
+        setLoadStatus("ready");
       } catch (e) {
         if (cancelled) return;
         setLocation(null);
@@ -123,24 +100,44 @@ export default function DetailsPage() {
     };
   }, [locationId]);
 
-  const liveStatusCounts = useMemo(() => {
-    if (equipment.length === 0) {
-      return MOCK_LIVE_STATUS;
-    }
+  const liveStatusCounts = useMemo(
+    () =>
+      EQUIPMENT_SECTIONS.map((section) => ({
+        liveStatusIcon: section.liveStatusIcon,
+        liveStatusLabel: section.liveStatusLabel,
+        counts: countEquipmentByType(equipment, section.type),
+      })),
+    [equipment],
+  );
 
-    return EQUIPMENT_SECTIONS.map((section) => ({
-      liveStatusIcon: section.liveStatusIcon,
-      liveStatusLabel: section.liveStatusLabel,
-      counts: countEquipmentByType(equipment, section.type),
-    }));
-  }, [equipment]);
+  const equipmentSections = useMemo(
+    () =>
+      EQUIPMENT_SECTIONS.map((section) => ({
+        ...section,
+        items: equipmentByType(equipment, section.type),
+      })),
+    [equipment],
+  );
 
-  const displayName = location?.name ?? "Herlev";
-  const displayAddress = location?.address ?? "Dynamovej 4, 2860 Søborg";
-  const displayHours = location
-    ? formatOpenHoursDisplay(location.openHours)
-    : "7-22";
-  const displayId = location?.id ?? locationId ?? "1040";
+  const selectedEquipment = useMemo(
+    () =>
+      equipment.find((item) => item.location_equipment_id === selectedId) ??
+      null,
+    [equipment, selectedId],
+  );
+
+  const selectedTitle = useMemo(() => {
+    if (!selectedEquipment) return null;
+    const section = EQUIPMENT_SECTIONS.find(
+      (s) =>
+        s.type ===
+        normalizeEquipmentType(selectedEquipment.location_equipment_type),
+    );
+    return formatEquipmentTitle(
+      section?.titlePrefix ?? "Maskine",
+      selectedEquipment.location_equipment_number,
+    );
+  }, [selectedEquipment]);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
@@ -148,7 +145,9 @@ export default function DetailsPage() {
       <section className="relative h-12">
         <div className="relative inline-flex h-full min-w-45 items-center gap-3 bg-(--brand-green-01) pl-6 pr-10 [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]">
           <p className="whitespace-nowrap text-2xl font-bold text-white">
-            {loadStatus === "loading" ? "Henter…" : displayName}
+            {loadStatus === "loading"
+              ? "Henter…"
+              : (location?.name ?? "—")}
           </p>
           <button
             type="button"
@@ -174,16 +173,16 @@ export default function DetailsPage() {
             </p>
           ) : null}
 
-          {loadStatus === "ready" ? (
+          {loadStatus === "ready" && location ? (
             <>
               <section className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-bold text-neutral-900">{displayAddress}</p>
+                  <p className="font-bold text-neutral-900">{location.address}</p>
                   <p className="text-sm text-neutral-600">Miljøvenlig bilvask</p>
-                  <p className="text-sm text-neutral-600">ID: {displayId}</p>
+                  <p className="text-sm text-neutral-600">ID: {location.id}</p>
                 </div>
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-(--brand-green-01) text-sm font-bold text-neutral-800">
-                  {displayHours}
+                  {formatOpenHoursDisplay(location.openHours)}
                 </div>
               </section>
 
@@ -231,87 +230,45 @@ export default function DetailsPage() {
                 </div>
               </section>
 
-              <section>
-                <h2 className="mb-3 flex items-center gap-1.5 text-xl font-bold text-neutral-900">
-                  Vaskehaller <Info size={16} className="text-neutral-500" />
-                </h2>
-                <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
-                  {VaskehallDetails.map((item) => (
-                    <MachineCard
-                      key={item.id}
-                      id={`vaskehall-${item.id}`}
-                      image={item.image}
-                      title={item.title}
-                      status={item.status}
-                      selected={selectedId === `vaskehall-${item.id}`}
-                      onSelect={setSelectedId}
-                    />
-                  ))}
-                </div>
-              </section>
-
-              <section>
-                <h2 className="mb-3 flex items-center gap-1.5 text-xl font-bold text-neutral-900">
-                  Vask selv <Info size={16} className="text-neutral-500" />
-                </h2>
-                <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
-                  {VaskselvDetails.map((item) => (
-                    <MachineCard
-                      key={item.id}
-                      id={`vaskselv-${item.id}`}
-                      image={item.image}
-                      title={item.title}
-                      status={item.status}
-                      selected={selectedId === `vaskselv-${item.id}`}
-                      onSelect={setSelectedId}
-                    />
-                  ))}
-                </div>
-              </section>
-
-              <section>
-                <h2 className="mb-3 flex items-center gap-1.5 text-xl font-bold text-neutral-900">
-                  Støvsugere <Info size={16} className="text-neutral-500" />
-                </h2>
-                <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
-                  {StovsugerDetails.map((item) => (
-                    <MachineCard
-                      key={item.id}
-                      id={`stovsuger-${item.id}`}
-                      image={item.image}
-                      title={item.title}
-                      status={item.status}
-                      selected={selectedId === `stovsuger-${item.id}`}
-                      onSelect={setSelectedId}
-                    />
-                  ))}
-                </div>
-              </section>
+              {equipmentSections.map((section) => (
+                <section key={section.type}>
+                  <h2 className="mb-3 flex items-center gap-1.5 text-xl font-bold text-neutral-900">
+                    {section.label}{" "}
+                    <Info size={16} className="text-neutral-500" />
+                  </h2>
+                  <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
+                    {section.items.length === 0 ? (
+                      <p className="py-4 text-sm text-neutral-600">
+                        Ingen {section.label.toLowerCase()} på denne lokation.
+                      </p>
+                    ) : (
+                      section.items.map((item) => (
+                        <MachineCard
+                          key={item.location_equipment_id}
+                          id={item.location_equipment_id}
+                          image={section.image}
+                          title={formatEquipmentTitle(
+                            section.titlePrefix,
+                            item.location_equipment_number,
+                          )}
+                          status={item.location_equipment_status}
+                          selected={
+                            selectedId === item.location_equipment_id
+                          }
+                          onSelect={setSelectedId}
+                        />
+                      ))
+                    )}
+                  </div>
+                </section>
+              ))}
 
               <StartWashButton onClick={() => {}} />
-              {selectedId &&
-                (() => {
-                  const allItems = [
-                    ...VaskehallDetails.map((i) => ({
-                      key: `vaskehall-${i.id}`,
-                      title: i.title,
-                    })),
-                    ...VaskselvDetails.map((i) => ({
-                      key: `vaskselv-${i.id}`,
-                      title: i.title,
-                    })),
-                    ...StovsugerDetails.map((i) => ({
-                      key: `stovsuger-${i.id}`,
-                      title: i.title,
-                    })),
-                  ];
-                  const selected = allItems.find((i) => i.key === selectedId);
-                  return selected ? (
-                    <p className="text-center text-sm text-white">
-                      Valgt: {selected.title}
-                    </p>
-                  ) : null;
-                })()}
+              {selectedTitle ? (
+                <p className="text-center text-sm text-white">
+                  Valgt: {selectedTitle}
+                </p>
+              ) : null}
             </>
           ) : null}
         </main>
