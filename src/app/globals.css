@@ -94,7 +94,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent;
+  background: var(--color-bg); /* desktop background fills the rest */
 }
 
 .app-screen {

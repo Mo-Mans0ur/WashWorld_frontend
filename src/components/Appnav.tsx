@@ -39,7 +39,7 @@ export default function AppNav() {
         }`}
       />
 
-      {/* Lodret sidebar */}
+      {/* Sidebar */}
       <div
         className={`absolute inset-y-0 right-0 z-50 w-64 bg-(--color-black) shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
           menuOpen ? "translate-x-0" : "translate-x-full"
@@ -58,7 +58,7 @@ export default function AppNav() {
           </button>
         </div>
 
-        {/* Menu-punkter */}
+        {/* Menu items */}
         <nav className="flex flex-col px-3 pt-3 gap-0.5">
           {subMenuItems.map(({ label, href, icon: Icon }, i) => (
             <Link
@@ -75,7 +75,10 @@ export default function AppNav() {
                 }ms, opacity 0.3s ease ${80 + i * 50}ms`,
               }}
             >
-              <Icon size={18} className="text-white/50 group-hover:text-white transition-colors" />
+              <Icon
+                size={18}
+                className="text-white/50 group-hover:text-white transition-colors"
+              />
               <span className="text-[0.95rem] font-semibold">{label}</span>
               <ChevronRight size={18} />
             </Link>
@@ -83,17 +86,26 @@ export default function AppNav() {
         </nav>
       </div>
 
-      {/* Bottom nav */}
-      <nav className="absolute bottom-0 left-1/2 z-30 flex h-16 w-full max-w-[430px] -translate-x-1/2 items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
-        <Link href="/dashboard" className="flex flex-col items-center text-white/70 hover:text-white">
+      {/* Bottom nav — fills the container, no manual centering needed */}
+      <nav className="absolute bottom-0 left-0 right-0 z-30 flex h-16 w-full items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
+        <Link
+          href="/dashboard"
+          className="flex flex-col items-center text-white/70 hover:text-white"
+        >
           <Home size={26} />
           <span className="text-xs">Home</span>
         </Link>
-        <Link href="/locations/map" className="flex flex-col items-center text-white/70 hover:text-white">
+        <Link
+          href="/locations/map"
+          className="flex flex-col items-center text-white/70 hover:text-white"
+        >
           <MapPin size={26} />
           <span className="text-xs">Kort</span>
         </Link>
-        <Link href="/profile" className="flex flex-col items-center text-white/70 hover:text-white">
+        <Link
+          href="/profile"
+          className="flex flex-col items-center text-white/70 hover:text-white"
+        >
           <User size={26} />
           <span className="text-xs">Profil</span>
         </Link>
