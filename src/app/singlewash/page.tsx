@@ -21,7 +21,7 @@ export default function SingleWashPage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
+    <div className="flex min-h-full flex-col">
       <AppHeader />
       <PageInfo
         text={singleWashPageContent.pageInfoTitle}

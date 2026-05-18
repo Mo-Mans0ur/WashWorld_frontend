@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
-import ScreenLayout from "@/components/ScreenLayout";
 import { AssistanceButton, Button } from "@/components/buttons";
 import { saveLatestSingleWashReceipt } from "@/data/receiptHistory";
 import { paymentPlans } from "@/data/singleWashData";
@@ -875,37 +874,35 @@ export default function ActiveAutoWashPage({
   };
 
   return (
-    <div className="flex h-full flex-col justify-around">
+    <div className="flex min-h-full flex-col">
       <AppHeader />
 
-      <ScreenLayout>
-        <div className="flex h-full min-h-full flex-col justify-around px-8 py-6">
-          <div className="flex flex-col items-center justify-center">
-            <AssistanceButton />
-            <p className="p-3 text-sm text-(--white-white)/60">ID : {washId}</p>
-          </div>
+      <div className="flex flex-1 min-h-0 flex-col justify-around px-8 py-6 pb-24">
+        <div className="flex flex-col items-center justify-center">
+          <AssistanceButton />
+          <p className="p-3 text-sm text-(--white-white)/60">ID : {washId}</p>
+        </div>
 
-          <div className="px-2">
-            <CarIllustration stage={stage} progress={progress} />
-          </div>
+        <div className="px-2">
+          <CarIllustration stage={stage} progress={progress} />
+        </div>
 
-          <p
-            className="whitespace-pre-line px-2 text-center text-base text-(--white-white)"
-            aria-live="polite"
-          >
-            {STAGE_LABEL[stage]}
-          </p>
+        <p
+          className="whitespace-pre-line px-2 text-center text-base text-(--white-white)"
+          aria-live="polite"
+        >
+          {STAGE_LABEL[stage]}
+        </p>
 
-          <div>
-            <div className="h-6 w-full overflow-hidden bg-(--color-grey-02)">
-              <div
-                className="h-full bg-(--color-primary) transition-all duration-300 ease-linear"
-                style={{ width: `${Math.max(1, progress)}%` }}
-              />
-            </div>
+        <div>
+          <div className="h-6 w-full overflow-hidden bg-(--color-grey-02)">
+            <div
+              className="h-full bg-(--color-primary) transition-all duration-300 ease-linear"
+              style={{ width: `${Math.max(1, progress)}%` }}
+            />
           </div>
         </div>
-      </ScreenLayout>
+      </div>
 
       {showModal && (
         <CompletionModal onClose={handleClose} onReceipt={handleReceipt} />

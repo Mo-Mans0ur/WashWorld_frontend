@@ -21,7 +21,7 @@ export default function AppNav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const subMenuItems = [
-    { label: "Biler", href: "/biler", icon: Car },
+    { label: "Køretøjer", href: "/biler", icon: Car },
     { label: "Betalingsmetode", href: "/betaling", icon: CreditCard },
     { label: "Abonnement", href: "/abonnement", icon: BadgeCheck },
     { label: "Hjælp", href: "/hjaelp", icon: LifeBuoy },
