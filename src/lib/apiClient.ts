@@ -22,13 +22,15 @@ export function clearToken(): void {
 type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
+  /** Undgå redirect til /login ved 401 (fx ved forkert kodeord på login-siden). */
+  skipAuthRedirect?: boolean;
 };
 
 export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { method = "GET", body } = options;
+  const { method = "GET", body, skipAuthRedirect = false } = options;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -43,12 +45,6 @@ export async function apiRequest<T>(
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
 
-  if (res.status === 401) {
-    clearToken();
-    if (typeof window !== "undefined") window.location.href = "/login";
-    throw new Error("Ikke autoriseret — log ind igen");
-  }
-
   if (!res.ok) {
     let errorMsg = `Fejl ${res.status}`;
     try {
@@ -57,6 +53,16 @@ export async function apiRequest<T>(
     } catch {
       // ignore parse errors
     }
+
+    if (res.status === 401) {
+      if (!skipAuthRedirect) {
+        clearToken();
+        if (typeof window !== "undefined") window.location.href = "/login";
+        throw new Error("Ikke autoriseret — log ind igen");
+      }
+      throw new Error(errorMsg);
+    }
+
     throw new Error(errorMsg);
   }
 
