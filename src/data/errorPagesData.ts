@@ -7,7 +7,7 @@ export const notFoundPageData = {
     "broken).",
   ],
   primaryActionLabel: "Tilbage",
-  primaryActionHref: "/dashboard",
+  primaryActionHref: "/login",
 } as const;
 
 export const unsupportedPageData = {
@@ -20,5 +20,5 @@ export const unsupportedPageData = {
     "minutes.",
   ],
   primaryActionLabel: "Tilbage",
-  primaryActionHref: "/dashboard",
+  primaryActionHref: "/login",
 } as const;

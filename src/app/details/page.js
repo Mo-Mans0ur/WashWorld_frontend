@@ -3,8 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import AppHeader from '@/components/AppHeader';
-import BottomNav from "@/components/BottomNav.jsx"; 
-import ScreenLayout from "@/components/ScreenLayout";
 import { 
     VaskselvDetails,
     StovsugerDetails,
@@ -21,8 +19,7 @@ export default function DetailsPage() {
             <div className="flex h-full flex-col">
               <AppHeader />
         
-              <ScreenLayout>
-        <HeaderThing text="Herlev" className="mb-6" />
+              <HeaderThing text="Herlev" className="mb-6" />
 
 
         <section className="locationInfo">
@@ -59,7 +56,7 @@ export default function DetailsPage() {
                   <h2 className="mb-5 px-8 text-2xl font-bold text-black">
                   Vaskehaller
                   </h2>
-        
+
                   <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
                     {VaskehallDetails.map((Vaskehall) => (
                       <VaskehallCard
@@ -108,9 +105,6 @@ export default function DetailsPage() {
                   </div>
 
                 </section>
-
-        </ScreenLayout>
-        <BottomNav/>
 </div>
 )
 }

@@ -1,5 +1,4 @@
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import ScreenLayout from "@/components/ScreenLayout";
 import PageInfo from "@/components/PageInfo";
 
@@ -17,7 +16,6 @@ export default function Betaling() {
                     </div>
                 </section>
             </ScreenLayout>
-            <BottomNav />
         </div>
 
     )

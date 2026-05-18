@@ -1,12 +1,24 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import PageInfo from "@/components/PageInfo";
 import { CalendarDaysIcon, MapPinIcon } from "@heroicons/react/24/solid";
-import { receiptHistory, receiptPageNames } from "@/data/receiptHistory";
+import {
+  getReceiptHistoryItems,
+  receiptHistory,
+  receiptPageNames,
+} from "@/data/receiptHistory";
 
 export default function Vaskehistorik() {
+  const [receipts, setReceipts] = useState(receiptHistory);
+
+  useEffect(() => {
+    setReceipts(getReceiptHistoryItems());
+  }, []);
+
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
       <AppHeader />
@@ -14,7 +26,7 @@ export default function Vaskehistorik() {
 
       <div className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
         <main className="space-y-3 px-5 py-4">
-          {receiptHistory.map((receipt) => (
+          {receipts.map((receipt) => (
             <article
               key={receipt.id}
               className="relative w-full overflow-hidden bg-white text-left shadow-[0_8px_18px_rgba(0,0,0,0.08)]"
@@ -86,7 +98,6 @@ export default function Vaskehistorik() {
           ))}
         </main>
       </div>
-      <BottomNav />
     </div>
   );
 }

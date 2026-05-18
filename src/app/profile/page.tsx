@@ -1,19 +1,18 @@
 "use client";
 import { useState } from "react";
 import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
 import {
-  SparklesIcon,
-  CalendarIcon,
-  CreditCardIcon,
-  BellIcon,
-  QuestionMarkCircleIcon,
-  TicketIcon,
-  StarIcon,
-  ChevronRightIcon,
-} from "@heroicons/react/24/solid";
+  Sparkles,
+  Calendar,
+  CreditCard,
+  Bell,
+  HelpCircle,
+  Ticket,
+  Star,
+  ChevronRight,
+} from "lucide-react";
 import {
   profileBadges,
   profileMenuItems,
@@ -23,11 +22,11 @@ import {
 } from "@/data/profileData";
 
 const menuItemIcons = {
-  sparkles: <SparklesIcon />,
-  calendar: <CalendarIcon />,
-  "credit-card": <CreditCardIcon />,
-  bell: <BellIcon />,
-  "question-mark": <QuestionMarkCircleIcon />,
+  sparkles: <Sparkles size={20} />,
+  calendar: <Calendar size={20} />,
+  "credit-card": <CreditCard size={20} />,
+  bell: <Bell size={20} />,
+  "question-mark": <HelpCircle size={20} />,
 };
 
 export default function ProfilePage() {
@@ -41,13 +40,45 @@ export default function ProfilePage() {
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]">
       <AppHeader />
-      <PageInfo text={profilePageNames.title} userName={profileUser.userName} />
 
       <main className="relative flex flex-1 flex-col overflow-y-auto pb-4 scrollbar-hide">
+        <PageInfo text={profilePageNames.title} userName={profileUser.userName} />
+
         <section className="space-y-4 p-4 pt-4">
+
+          {/* Abonnement — øverst, ingen titel, alt inde i kortet */}
+          <article className="overflow-hidden rounded bg-(--white-white) shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-neutral-500">Nuværende plan</p>
+                <p className="text-lg font-bold text-natural-800">
+                  {profileUser.subscription ?? "Premium"}
+                </p>
+                {profileUser.subscriptionRenewal && (
+                  <p className="mt-0.5 text-xs font-semibold text-neutral-400">
+                    Fornyes d. {profileUser.subscriptionRenewal}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
+                  Aktiv
+                </span>
+                <button
+                  type="button"
+                  onClick={() => (window.location.href = "/abonnement")}
+                  className="text-xs font-bold text-(--brand-green-01) underline underline-offset-2"
+                >
+                  Skift plan
+                </button>
+              </div>
+            </div>
+          </article>
+
+          {/* Bruger-kort */}
           <article className="overflow-hidden rounded bg-(--white-white) shadow-2xl">
             <div className="flex items-start gap-3 px-4 py-3">
-              <div className="mt-0.5 flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-(--brand-green-01) text-3xl text-white">
+              <div className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-(--brand-green-01) text-3xl text-white">
                 <svg
                   viewBox="0 0 24 24"
                   className="h-10 w-10"
@@ -71,11 +102,10 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="flex item-center justify-between border-t border-neutral-200">
+            <div className="flex items-center justify-between border-t border-neutral-200">
               <p className="flex px-4 py-3 text-xs font-semibold items-center text-neutral-500">
                 {profilePageNames.memberSinceLabel} {profileUser.memberSince}
               </p>
-
               <button
                 type="button"
                 className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
@@ -84,20 +114,22 @@ export default function ProfilePage() {
               </button>
             </div>
           </article>
+
+          {/* Klippekort */}
           <article className="overflow-hidden rounded bg-(--white-white) shadow-2xl">
             <div className="px-4 py-3">
               <div className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
-                  <TicketIcon />
+                  <Ticket size={16} />
                 </span>
                 <h2 className="text-2xl font-bold text-natural-800">
                   {profilePageNames.clipCardTitle}
                 </h2>
               </div>
               <div className="mt-3 flex items-center gap-2.5">
-                {profileStamps.map((stamp) => (
+                {profileStamps.map((stamp, index) => (
                   <Stamp
-                    key={`${stamp.label}-${stamp.filled}`}
+                    key={`${stamp.label}-${stamp.filled}-${index}`}
                     filled={stamp.filled}
                   >
                     {stamp.label}
@@ -112,10 +144,11 @@ export default function ProfilePage() {
             </div>
           </article>
 
+          {/* Badges */}
           <article className="rounded bg-(--white-white) px-4 py-3 shadow-2xl">
             <div className="mb-2 flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
-                <StarIcon />
+                <Star size={16} />
               </span>
               <div>
                 <h2 className="text-2xl font-bold text-natural-800">
@@ -185,6 +218,7 @@ export default function ProfilePage() {
             </div>
           </article>
 
+          {/* Menu-punkter */}
           <article className="overflow-hidden rounded bg-(--white-white) shadow-md">
             {profileMenuItems.map((item, index) => (
               <button
@@ -194,35 +228,35 @@ export default function ProfilePage() {
                 className="flex w-full items-center border-b border-neutral-200 px-4 py-2.5 text-left last:border-b-0"
               >
                 <span className="flex items-center gap-2.5 text-sm font-bold text-neutral-800">
-                  <span className="h-5 w-5 text-(--brand-green-01)">
+                  <span className="text-(--brand-green-01)">
                     {menuItemIcons[item.iconKey]}
                   </span>
                   {item.label}
                 </span>
-                <span className="ml-auto flex items-center text-xl font-bold text-(--brand-green-01)">
-                  <ChevronRightIcon className="h-5 w-5" />
+                <span className="ml-auto text-(--brand-green-01)">
+                  <ChevronRight size={20} />
                 </span>
               </button>
             ))}
           </article>
 
+          {/* Knapper */}
           <button
             type="button"
             onClick={() => (window.location.href = "/login")}
-            className="mx-auto block w-[78%] rounded-lg bg-white py-2.5 text-xl font-bold text-red-500 shadow-md "
+            className="mx-auto block w-[78%] rounded-lg bg-white py-2.5 text-xl font-bold text-red-500 shadow-md"
           >
             {profilePageNames.logout}
           </button>
 
           <button
             type="button"
-            className="mx-auto block w-[78%] rounded-lg bg-red-600 py-2.5 text-xl font-bold text-white shadow-md "
+            className="mx-auto block w-[78%] rounded-lg bg-red-600 py-2.5 text-xl font-bold text-white shadow-md"
           >
             {profilePageNames.deleteAccount}
           </button>
         </section>
       </main>
-      <BottomNav />
     </div>
   );
 }

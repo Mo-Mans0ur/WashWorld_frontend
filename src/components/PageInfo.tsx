@@ -1,5 +1,11 @@
-export default function PageInfo({ text, userName, className = "" }) {
-  const content = text ?? (userName ? `Hej ${userName}` : "");
+interface PageInfoProps {
+  text?: string;
+  userName?: string;
+  className?: string;
+}
+
+export default function PageInfo({ text = "", userName, className = "" }: PageInfoProps) {
+  const content = text || (userName ? `Hej ${userName}` : "");
 
   return (
     <section className={`relative h-12 ${className}`}>

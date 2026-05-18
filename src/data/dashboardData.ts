@@ -2,7 +2,14 @@ export type DashboardLocation = {
   id: number;
   image: string;
   title: string;
-  distance: string;
+  address: {
+    street: string;
+    city: string;
+  };
+  coords: {
+    lat: number;
+    lng: number;
+  };
 };
 
 export type DashboardNewsItem = {
@@ -18,9 +25,6 @@ export const dashboardPageNames = {
   favoritesTitle: "Favoritter",
   forYouTitle: "Til dig",
   newsTitle: "Nyheder og tilbud",
-  currentLocationTitle: "Gunnar Clausens Vej 2A",
-  currentLocationSubtitle: "8260 Viby",
-  currentLocationDistance: "9.6 km",
   currentLocationButtonAlt: "Find vaskehal",
   favoriteCardButton: "Se mere",
 } as const;
@@ -30,19 +34,31 @@ export const dashboardFavoriteLocations: DashboardLocation[] = [
     id: 1,
     image: "/locations-pictures/herlev.jpg",
     title: "Herlev",
-    distance: "9.6 km",
+    address: {
+      street: "Dynamovej 5",
+      city: "2730 Herlev",
+    },
+    coords: { lat: 55.7276, lng: 12.4394 },
   },
   {
     id: 2,
     image: "/locations-pictures/ballerup.jpg",
     title: "Ballerup",
-    distance: "12.3 km",
+    address: {
+      street: "Telegrafvej 5",
+      city: "2750 Ballerup",
+    },
+    coords: { lat: 55.7289, lng: 12.3613 },
   },
   {
     id: 3,
     image: "/locations-pictures/brøndby-strand.jpg",
     title: "Brøndby Strand",
-    distance: "15.8 km",
+    address: {
+      street: "Brøndby Strand Torv 1",
+      city: "2660 Brøndby Strand",
+    },
+    coords: { lat: 55.6289, lng: 12.3939 },
   },
 ];
 
