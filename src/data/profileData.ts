@@ -33,6 +33,7 @@ export const profilePageNames = {
   memberSinceLabel: "Meldlem siden:",
   editProfile: "Rediger profil",
   updatedMessage: "Brugeroplysninger opdateret",
+  preferencesUpdatedMessage: "Bruger præferencer ændret",
   clipCardTitle: "klippekort",
   clipCardProgress: "3 ud af 5 vaske",
   badgesTitle: "Badges",
@@ -126,8 +127,8 @@ export const profileMenuItems: ProfileMenuItem[] = [
     href: "betaling og kort",
     iconKey: "credit-card",
   },
-  { label: "notifikationer", href: "notifikationer", iconKey: "bell" },
-  { label: "kundeservice", href: "kundeservice", iconKey: "question-mark" },
+  { label: "notifikationer", href: "/notifikationer", iconKey: "bell" },
+  { label: "kundeservice", href: "/kundeservice", iconKey: "question-mark" },
 ];
 
 export const profileUpdatePageContent = {
