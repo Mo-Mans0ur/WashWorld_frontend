@@ -32,6 +32,7 @@ export const profilePageNames = {
   title: "Profil",
   memberSinceLabel: "Meldlem siden:",
   editProfile: "Rediger profil",
+  updatedMessage: "User information updated",
   clipCardTitle: "klippekort",
   clipCardProgress: "3 ud af 5 vaske",
   badgesTitle: "Badges",
@@ -128,3 +129,51 @@ export const profileMenuItems: ProfileMenuItem[] = [
   { label: "notifikationer", href: "notifikationer", iconKey: "bell" },
   { label: "kundeservice", href: "kundeservice", iconKey: "question-mark" },
 ];
+
+export const profileUpdatePageContent = {
+  pageInfoTitle: "Profil",
+  profileSectionTitle: "Profil",
+  passwordSectionTitle: "Adgangskode",
+  memberSinceLabel: "Medlem siden",
+  fields: {
+    firstName: {
+      label: "Fornavn",
+      placeholder: "Indtast dit fornavn",
+    },
+    lastName: {
+      label: "Efternavn",
+      placeholder: "Indtast dit efternavn",
+    },
+    email: {
+      label: "E-mail",
+      placeholder: "Indtast din e-mail",
+    },
+    phoneNumber: {
+      label: "Telefonnummer",
+      placeholder: "Indtast dit telefonnummer",
+    },
+    newPassword: {
+      label: "Ny adgangskode (valgfrit)",
+      placeholder: "Indtast ny adgangskode",
+    },
+    confirmPassword: {
+      label: "Gentag ny adgangskode",
+      placeholder: "Gentag ny adgangskode",
+    },
+  },
+  passwordHint: "Lad feltet være tomt, hvis du ikke vil ændre din adgangskode.",
+  buttons: {
+    save: "Gem ændringer",
+    cancel: "Annuller",
+    logout: "Log ud",
+  },
+} as const;
+
+export const profileUpdateInitialValues = {
+  firstName: "Jeppe",
+  lastName: "Olsen",
+  email: "jeppe.olsen@email.dk",
+  phoneNumber: "+45 48 58 77 58",
+  newPassword: "",
+  confirmPassword: "",
+} as const;

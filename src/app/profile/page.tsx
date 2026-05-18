@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
@@ -30,27 +31,74 @@ const menuItemIcons = {
 };
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showBadges, setShowBadges] = useState(false);
   const [activeBadgeId, setActiveBadgeId] = useState<number | null>(null);
+  const [showUpdatedMessage, setShowUpdatedMessage] = useState(false);
+  const [updatedMessagePhase, setUpdatedMessagePhase] = useState<
+    "idle" | "pre-enter" | "enter" | "exit"
+  >("idle");
   const revealBadges = () => setShowBadges(true);
   const badges = profileBadges;
   const activeBadge =
     badges.find((badge) => badge.id === activeBadgeId) || null;
+
+  useEffect(() => {
+    if (searchParams.get("updated") !== "1") {
+      return;
+    }
+
+    setShowUpdatedMessage(true);
+    setUpdatedMessagePhase("pre-enter");
+
+    const enterTimeoutId = window.setTimeout(() => {
+      setUpdatedMessagePhase("enter");
+    }, 40);
+
+    const closeTimeoutId = window.setTimeout(() => {
+      setUpdatedMessagePhase("exit");
+    }, 1900);
+
+    const clearTimeoutId = window.setTimeout(() => {
+      setShowUpdatedMessage(false);
+      setUpdatedMessagePhase("idle");
+      router.replace("/profile");
+    }, 2350);
+
+    return () => {
+      window.clearTimeout(enterTimeoutId);
+      window.clearTimeout(closeTimeoutId);
+      window.clearTimeout(clearTimeoutId);
+    };
+  }, [router, searchParams]);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]">
       <AppHeader />
 
       <main className="relative flex flex-1 flex-col overflow-y-auto pb-4 scrollbar-hide">
-        <PageInfo text={profilePageNames.title} userName={profileUser.userName} />
+        {showUpdatedMessage ? (
+          <div
+            className={`profile-update-toast pointer-events-none absolute right-4 top-4 z-20 max-w-52 rounded-xl bg-white/96 px-4 py-2 text-right text-[0.82rem] font-extrabold text-(--brand-green-01) shadow-[0_12px_24px_rgba(0,0,0,0.16)] ${updatedMessagePhase === "enter" ? "profile-update-toast-enter" : ""} ${updatedMessagePhase === "exit" ? "profile-update-toast-exit" : ""}`}
+          >
+            {profilePageNames.updatedMessage}
+          </div>
+        ) : null}
+
+        <PageInfo
+          text={profilePageNames.title}
+          userName={profileUser.userName}
+        />
 
         <section className="space-y-4 p-4 pt-4">
-
           {/* Abonnement — øverst, ingen titel, alt inde i kortet */}
           <article className="overflow-hidden rounded bg-(--white-white) shadow-2xl">
             <div className="flex items-center justify-between px-4 py-3">
               <div>
-                <p className="text-sm font-semibold text-neutral-500">Nuværende plan</p>
+                <p className="text-sm font-semibold text-neutral-500">
+                  Nuværende plan
+                </p>
                 <p className="text-lg font-bold text-natural-800">
                   {profileUser.subscription ?? "Premium"}
                 </p>
@@ -108,6 +156,9 @@ export default function ProfilePage() {
               </p>
               <button
                 type="button"
+                onClick={() =>
+                  (window.location.href = "/profile/updateprofile")
+                }
                 className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
               >
                 {profilePageNames.editProfile}

@@ -393,6 +393,25 @@ select {
   animation: wash-advice-card-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
+.profile-update-toast {
+  opacity: 0;
+  transform: translateX(42px);
+  transition:
+    transform 0.34s ease,
+    opacity 0.34s ease;
+  will-change: transform, opacity;
+}
+
+.profile-update-toast-enter {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.profile-update-toast-exit {
+  opacity: 0;
+  transform: translateX(42px);
+}
+
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
