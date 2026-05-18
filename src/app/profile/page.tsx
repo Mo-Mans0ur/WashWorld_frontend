@@ -42,9 +42,14 @@ export default function ProfilePage() {
   const badges = profileBadges;
   const activeBadge =
     badges.find((badge) => badge.id === activeBadgeId) || null;
+  const updatedParam = searchParams.get("updated");
+  const updatedMessage =
+    updatedParam === "preferences"
+      ? profilePageNames.preferencesUpdatedMessage
+      : profilePageNames.updatedMessage;
 
   useEffect(() => {
-    if (searchParams.get("updated") !== "1") {
+    if (updatedParam !== "1" && updatedParam !== "preferences") {
       return;
     }
 
@@ -70,7 +75,7 @@ export default function ProfilePage() {
       window.clearTimeout(closeTimeoutId);
       window.clearTimeout(clearTimeoutId);
     };
-  }, [router, searchParams]);
+  }, [router, updatedParam]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]">
@@ -80,7 +85,7 @@ export default function ProfilePage() {
           <div
             className={`profile-update-toast pointer-events-none absolute right-4 top-4 z-20 max-w-52 rounded-xl bg-white/96 px-4 py-2 text-right text-[0.82rem] font-extrabold text-(--brand-green-01) shadow-[0_12px_24px_rgba(0,0,0,0.16)] ${updatedMessagePhase === "enter" ? "profile-update-toast-enter" : ""} ${updatedMessagePhase === "exit" ? "profile-update-toast-exit" : ""}`}
           >
-            {profilePageNames.updatedMessage}
+            {updatedMessage}
           </div>
         ) : null}
 
