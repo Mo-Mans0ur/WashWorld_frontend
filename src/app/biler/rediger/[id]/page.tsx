@@ -50,7 +50,7 @@ export default function RedigerBilPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full bg-[linear-gradient(160deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]">
+    <div className="flex flex-col min-h-full">
       <PageInfo text="Rediger køretøj" />
 
       <main className="flex flex-col gap-4 px-6 pt-8 pb-8">

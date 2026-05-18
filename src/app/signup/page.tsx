@@ -4,9 +4,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SignUpButton } from "@/components/buttons";
+import { registerUser } from "@/lib/api/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -43,38 +46,18 @@ export default function SignUpPage() {
 
     setIsLoading(true);
     try {
-      // TODO: Skift URL til jeres PHP backend når den er klar
-      // Fra: "/api/auth/signup"
-      // Til: process.env.NEXT_PUBLIC_API_URL + "/signup.php"
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // TODO: Feltnavne skal matche hvad PHP forventer og databasen bruger
-        // user_firstname, user_lastname, user_email, user_password_hashed
-        // Bemærk: password hashing skal ske i PHP, ikke her
-        body: JSON.stringify({
-          user_firstname: form.firstName,
-          user_lastname: form.lastName,
-          user_email: form.email,
-          user_password: form.password,
-        }),
+      const { token, user } = await registerUser({
+        user_firstname: form.firstName,
+        user_lastname: form.lastName,
+        user_email: form.email,
+        user_password: form.password,
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        setErrors({ general: data.message ?? "Noget gik galt" });
-        return;
-      }
-
-      // TODO: Beslut hvad der sker efter signup
-      // Option 1: Send brugeren til login-siden (hvis I bruger email-verificering)
-      // router.push("/login");
-      // Option 2: Log brugeren ind med det samme og gem token
-      // const { token } = await res.json();
-      // localStorage.setItem("token", token);
+      login(token, user);
       router.push("/dashboard");
-    } catch {
-      setErrors({ general: "Noget gik galt. Prøv igen." });
+    } catch (err) {
+      setErrors({
+        general: err instanceof Error ? err.message : "Noget gik galt. Prøv igen.",
+      });
     } finally {
       setIsLoading(false);
     }

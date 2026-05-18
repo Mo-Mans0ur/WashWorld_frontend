@@ -2,7 +2,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import ScreenLayout from "@/components/ScreenLayout";
 import { VehiclesProvider } from "@/context/VehiclesContext";
-
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "Create Next App",
@@ -19,9 +19,11 @@ export default function RootLayout({ children }) {
     <html lang="en" className="h-full antialiased">
       <body className="h-full" suppressHydrationWarning>
         <Providers>
-          <VehiclesProvider>
-            <ScreenLayout>{children}</ScreenLayout>
-          </VehiclesProvider>
+          <AuthProvider>
+            <VehiclesProvider>
+              <ScreenLayout>{children}</ScreenLayout>
+            </VehiclesProvider>
+          </AuthProvider>
         </Providers>
       </body>
     </html>
