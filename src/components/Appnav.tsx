@@ -21,8 +21,8 @@ export default function AppNav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const subMenuItems = [
-    { label: "Køretøjer", href: "/biler", icon: Car },
-    { label: "Betalingsmetode", href: "/betaling", icon: CreditCard },
+    { label: "Mine Køretøjer", href: "/biler", icon: Car },
+    { label: "Betalingsoplysninger", href: "/betaling", icon: CreditCard },
     { label: "Abonnement", href: "/abonnement", icon: BadgeCheck },
     { label: "Hjælp", href: "/hjaelp", icon: LifeBuoy },
   ];
@@ -67,7 +67,6 @@ export default function AppNav() {
               onClick={() => setMenuOpen(false)}
               className="flex items-center gap-3 px-3 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group"
               style={{
-                transitionDelay: menuOpen ? `${80 + i * 50}ms` : "0ms",
                 transform: menuOpen ? "translateX(0)" : "translateX(16px)",
                 opacity: menuOpen ? 1 : 0,
                 transition: `color 0.2s, background 0.2s, transform 0.3s ease ${

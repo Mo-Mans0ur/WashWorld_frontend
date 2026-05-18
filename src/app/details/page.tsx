@@ -144,6 +144,17 @@ export default function DetailsPage() {
 
           {/* Start vask */}
           <StartWashButton onClick={() => {}} />
+          {selectedId && (() => {
+            const allItems = [
+              ...VaskehallDetails.map((i) => ({ key: `vaskehall-${i.id}`, title: i.title })),
+              ...VaskselvDetails.map((i) => ({ key: `vaskselv-${i.id}`, title: i.title })),
+              ...StovsugerDetails.map((i) => ({ key: `stovsuger-${i.id}`, title: i.title })),
+            ];
+            const selected = allItems.find((i) => i.key === selectedId);
+            return selected ? (
+              <p className="text-center text-sm text-white">Valgt: {selected.title}</p>
+            ) : null;
+          })()}
 
         </main>
       </div>
@@ -155,7 +166,7 @@ function MachineCard({ id, image, title, status, selected, onSelect }: MachineCa
   return (
     <button
       onClick={() => onSelect(selected ? null : id)}
-      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden bg-white font-bold shadow-md ring-inset transition-shadow ${selected ? "ring-2 ring-(--brand-green-01)" : ""}`}
+      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden bg-white font-bold shadow-md ring-inset transition-shadow ${selected ? "ring-4 ring-(--brand-green-01)" : ""}`}
     >
       <div className="flex flex-1 self-center flex-row items-center justify-start gap-2 p-1">
         <Image
