@@ -61,7 +61,7 @@ export default function BetalingPage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
+    <div className="flex min-h-full flex-col">
       <AppHeader />
       <PageInfo
         text={paymentPageContent.pageInfoTitle}
@@ -69,7 +69,7 @@ export default function BetalingPage() {
         className="bg-[linear-gradient(rgba(255,255,255,0.4),rgba(255,255,255,0.4)),linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
 
-      <section className="flex flex-1 flex-col px-6 pt-8">
+      <section className="flex flex-1 flex-col px-6 pt-8 pb-6">
           <h1 className="mb-6 text-2xl font-bold text-white">
             {paymentPageContent.pageTitle}
           </h1>
