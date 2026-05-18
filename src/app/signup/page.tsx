@@ -4,12 +4,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SignUpButton } from "@/components/buttons";
-import { registerUser } from "@/lib/api/auth";
-import { useAuth } from "@/context/AuthContext";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { login } = useAuth();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -46,18 +43,26 @@ export default function SignUpPage() {
 
     setIsLoading(true);
     try {
-      const { token, user } = await registerUser({
-        user_firstname: form.firstName,
-        user_lastname: form.lastName,
-        user_email: form.email,
-        user_password: form.password,
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_firstname: form.firstName,
+          user_lastname: form.lastName,
+          user_email: form.email,
+          user_password: form.password,
+        }),
       });
-      login(token, user);
+
+      if (!res.ok) {
+        const data = await res.json();
+        setErrors({ general: data.message ?? "Noget gik galt" });
+        return;
+      }
+
       router.push("/dashboard");
-    } catch (err) {
-      setErrors({
-        general: err instanceof Error ? err.message : "Noget gik galt. Prøv igen.",
-      });
+    } catch {
+      setErrors({ general: "Noget gik galt. Prøv igen." });
     } finally {
       setIsLoading(false);
     }

@@ -4,11 +4,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LoginButton } from "@/components/buttons";
-import { loginUser } from "@/lib/api/auth";
-import { useAuth } from "@/context/AuthContext";
 
-const MIN_EMAIL_LENGTH = 5;
+const MIN_USERNAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 6;
+
+const MOCK_USER = {
+  username: "admin",
+  password: "123456",
+};
 
 function getInputStyle(value: string, minLength: number) {
   if (value.length === 0) return "border-2 border-transparent";
@@ -18,8 +21,7 @@ function getInputStyle(value: string, minLength: number) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,15 +29,17 @@ export default function LoginPage() {
   const handleLoginClick = async () => {
     setError(null);
     setIsLoading(true);
-    try {
-      const { token, user } = await loginUser(email, password); // sender som user_email + user_password
-      login(token, user);
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    if (username === MOCK_USER.username && password === MOCK_USER.password) {
+      localStorage.setItem("mock_user", JSON.stringify({ username }));
       router.push("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ugyldigt brugernavn eller kodeord");
-    } finally {
-      setIsLoading(false);
+    } else {
+      setError("Ugyldigt brugernavn eller kodeord");
     }
+
+    setIsLoading(false);
   };
 
   const handleSignupClick = () => {
@@ -68,17 +72,22 @@ export default function LoginPage() {
             className="mb-18"
           />
 
+          <div className="w-72 bg-yellow-400/20 border border-yellow-400/50 p-3 text-yellow-200 text-xs rounded">
+            <p className="font-bold mb-1">Midlertidig testbruger:</p>
+            <p>Brugernavn: {MOCK_USER.username}</p>
+            <p>Kodeord: {MOCK_USER.password}</p>
+          </div>
+
           <div className="flex w-72 flex-col gap-1">
             <input
-              placeholder="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`w-full p-3 bg-(--color-surface) outline-none transition-colors ${getInputStyle(email, MIN_EMAIL_LENGTH)}`}
+              placeholder="Brugernavn"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className={`w-full p-3 bg-(--color-surface) outline-none transition-colors ${getInputStyle(username, MIN_USERNAME_LENGTH)}`}
             />
             <p className="min-h-4 text-red-400 text-xs">
-              {email.length > 0 && email.length < MIN_EMAIL_LENGTH
-                ? `Min. ${MIN_EMAIL_LENGTH} tegn (${email.length}/${MIN_EMAIL_LENGTH})`
+              {username.length > 0 && username.length < MIN_USERNAME_LENGTH
+                ? `Min. ${MIN_USERNAME_LENGTH} tegn (${username.length}/${MIN_USERNAME_LENGTH})`
                 : ""}
             </p>
           </div>
