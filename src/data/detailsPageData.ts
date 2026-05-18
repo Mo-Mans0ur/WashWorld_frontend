@@ -26,19 +26,19 @@ status: string;
 export const VaskehallDetails: Vaskehall[] = [
 {
 id: 1,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/EnkeltVaskIcon.png", 
 title: "Vaskehall 1",
 status: "Ledig",
 },
 {
 id: 2,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/EnkeltVaskIcon.png", 
 title: "Vaskehall 2",
 status: "Optaget",
 },
 {
 id: 3,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/EnkeltVaskIcon.png", 
 title: "Vaskehall 3",
 status: "Ledig",
 },];
@@ -67,19 +67,19 @@ status: "Ledig",
 export const StovsugerDetails: Stovsuger[] = [
 {
 id: 1,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/vacuum.png", 
 title: "Stovsuger 1",
 status: "Ledig",
 },
 {
 id: 2,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/vacuum.png", 
 title: "Stovsuger 2",
 status: "Optaget",
 },
 {
 id: 3,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/vacuum.png", 
 title: "Stovsuger 3",
 status: "Ledig",
 },];
