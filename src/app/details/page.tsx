@@ -1,25 +1,25 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Star, Info } from "lucide-react";
 import AngleButton from "@/components/buttons/AngleButton";
 import StartWashButton from "@/components/buttons/StartWashButton";
-import {
-  VaskselvDetails,
-  StovsugerDetails,
-  VaskehallDetails,
-} from "@/data/detailsPageData";
 import type { MapLocation } from "@/data/washworldLocations";
 import {
   EQUIPMENT_SECTIONS,
   countEquipmentByType,
+  equipmentByType,
+  formatEquipmentTitle,
   fetchLocationEquipment,
   type LocationEquipment,
 } from "@/lib/equipmentApi";
 import { fetchLocationById } from "@/lib/locationsApi";
 import { formatOpenHoursDisplay } from "@/lib/locationGeo";
+
+// TODO: erstat med rigtig subscription-check når auth er implementeret
+const HAS_SUBSCRIPTION = true;
 
 interface MachineCardProps {
   id: string;
@@ -30,47 +30,46 @@ interface MachineCardProps {
   onSelect: (id: string | null) => void;
 }
 
+// Mapning fra API-status til Tailwind baggrundsfarve på maskinkortet
 const statusClass: Record<string, string> = {
   Ledig: "bg-(--brand-green-01)",
   Optaget: "bg-amber-500",
+  "Ud af drift": "bg-red-500",
 };
 
-/** Vises når API'et endnu ikke returnerer udstyr for lokationen. */
-const MOCK_LIVE_STATUS = [
-  {
-    liveStatusIcon: "/icons/EnkeltVaskIcon.png",
-    liveStatusLabel: "Bilvask",
-    counts: { available: 1, total: 3 },
-  },
-  {
-    liveStatusIcon: "/icons/vaskselvIcon.png",
-    liveStatusLabel: "Vask selv",
-    counts: { available: 2, total: 3 },
-  },
-  {
-    liveStatusIcon: "/icons/vacuum.png",
-    liveStatusLabel: "Støvsugere",
-    counts: { available: 0, total: 5 },
-  },
-] as const;
+// Oversætter API's lowercase-statusværdier til de viste navne med stort forbogstav
+function normalizeStatus(status: string): string {
+  const s = status.trim().toLowerCase();
+  if (s === "ledig") return "Ledig";
+  if (s === "optaget") return "Optaget";
+  if (s === "ud af drift") return "Ud af drift";
+  return status;
+}
 
+// Formaterer live-status tæller som "ledig / total", fx "3 / 6"
 function formatLiveStatus(counts: { available: number; total: number }): string {
   return `${counts.available} / ${counts.total}`;
 }
 
 export default function DetailsPage() {
+  // Henter lokationens id fra URL'en, fx /details?id=1051
   const searchParams = useSearchParams();
   const locationId = searchParams.get("id");
+  const router = useRouter();
 
+  // Brugerens interaktionstilstande
   const [liked, setLiked] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null); // fx "vaskehal-42"
+  const [openInfo, setOpenInfo] = useState<string | null>(null); // hvilken sektion der viser dimensionspopup
+
+  // Data hentet fra API'et
   const [location, setLocation] = useState<MapLocation | null>(null);
   const [equipment, setEquipment] = useState<LocationEquipment[]>([]);
-  const [loadStatus, setLoadStatus] = useState<"loading" | "error" | "ready">(
-    "loading",
-  );
+  const [loadStatus, setLoadStatus] = useState<"loading" | "error" | "ready">("loading");
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  // Henter lokationsdata og udstyr fra API'et når locationId ændrer sig.
+  // cancelled-flaget forhindrer at setState kaldes efter komponenten er unmountet.
   useEffect(() => {
     if (!locationId) {
       setLocation(null);
@@ -100,6 +99,7 @@ export default function DetailsPage() {
 
         setLocation(locationData);
 
+        // Udstyrshentning fejler lydstille – siden viser blot 0-tæller hvis API'et er nede
         try {
           const equipmentData = await fetchLocationEquipment(locationId);
           if (!cancelled) setEquipment(equipmentData);
@@ -122,27 +122,61 @@ export default function DetailsPage() {
     };
   }, [locationId]);
 
-  const liveStatusCounts = useMemo(() => {
-    if (equipment.length === 0) {
-      return MOCK_LIVE_STATUS;
+  // Finder titel og status for den valgte maskine ud fra selectedId.
+  // selectedId har formatet "{type}-{location_equipment_id}", fx "vaskehal-42".
+  // String() bruges fordi API'et returnerer id som tal, men selectedId er en string.
+  const selectedItem = useMemo(() => {
+    if (!selectedId || equipment.length === 0) return null;
+    for (const section of EQUIPMENT_SECTIONS) {
+      const prefix = `${section.type}-`;
+      if (selectedId.startsWith(prefix)) {
+        const equipId = selectedId.slice(prefix.length);
+        const items = equipmentByType(equipment, section.type);
+        const idx = items.findIndex(
+          (e) => String(e.location_equipment_id) === equipId,
+        );
+        if (idx !== -1) {
+          return {
+            title: formatEquipmentTitle(section.titlePrefix, idx + 1),
+            status: normalizeStatus(items[idx].location_equipment_status),
+          };
+        }
+      }
     }
+    return null;
+  }, [selectedId, equipment]);
 
-    return EQUIPMENT_SECTIONS.map((section) => ({
+  // Beregner ledig/total for hver udstyrstype til Live Status-sektionen
+  const liveStatusCounts = useMemo(() =>
+    EQUIPMENT_SECTIONS.map((section) => ({
       liveStatusIcon: section.liveStatusIcon,
       liveStatusLabel: section.liveStatusLabel,
       counts: countEquipmentByType(equipment, section.type),
-    }));
-  }, [equipment]);
+    })),
+  [equipment]);
 
+  // Sender brugeren videre afhængigt af om de har et abonnement:
+  // - Med abonnement: direkte til aktiv vask med lokation og maskine
+  // - Uden abonnement: til enkeltvaske-flowet hvor de vælger vasketype
+  function handleStartWash() {
+    if (HAS_SUBSCRIPTION) {
+      router.push(
+        `/activewash?subscription=true&location=${locationId ?? ""}&equipment=${selectedId ?? ""}`,
+      );
+    } else {
+      router.push("/singlewash");
+    }
+  }
+
+  // Fallback-værdier vises mens data hentes
   const displayName = location?.name ?? "Herlev";
   const displayAddress = location?.address ?? "Dynamovej 4, 2860 Søborg";
-  const displayHours = location
-    ? formatOpenHoursDisplay(location.openHours)
-    : "7-22";
+  const displayHours = location ? formatOpenHoursDisplay(location.openHours) : "7-22";
   const displayId = location?.id ?? locationId ?? "1040";
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
+      {/* Header med lokationsnavn og favoritknap */}
       <section className="relative h-12">
         <div className="relative inline-flex h-full min-w-45 items-center gap-3 bg-(--brand-green-01) pl-6 pr-10 [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]">
           <p className="whitespace-nowrap text-2xl font-bold text-white">
@@ -156,9 +190,7 @@ export default function DetailsPage() {
           >
             <Star
               size={22}
-              className={
-                liked ? "fill-yellow-400 stroke-yellow-400" : "stroke-white/70"
-              }
+              className={liked ? "fill-yellow-400 stroke-yellow-400" : "stroke-white/70"}
             />
           </button>
         </div>
@@ -166,6 +198,7 @@ export default function DetailsPage() {
 
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         <main className="space-y-6 px-6 py-5">
+          {/* Fejlbesked hvis lokationen ikke kunne hentes */}
           {loadStatus === "error" ? (
             <p className="text-center text-sm text-(--color-danger)">
               {loadError ?? "Kunne ikke indlæse lokationen."}
@@ -174,6 +207,7 @@ export default function DetailsPage() {
 
           {loadStatus === "ready" ? (
             <>
+              {/* Lokationsinformation: adresse, åbningstider og ID */}
               <section className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-bold text-neutral-900">{displayAddress}</p>
@@ -185,131 +219,75 @@ export default function DetailsPage() {
                 </div>
               </section>
 
+              {/* Live Status: viser antal ledige maskiner per udstyrstype */}
               <section>
                 <h2 className="mb-2 font-bold text-neutral-900">Live Status</h2>
-                <div className="flex items-center justify-around rounded bg-white/80 py-3 shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={liveStatusCounts[0].liveStatusIcon}
-                      alt={liveStatusCounts[0].liveStatusLabel}
-                      width={28}
-                      height={28}
-                      className="object-contain"
-                    />
-                    <span className="text-sm font-bold text-neutral-700">
-                      {formatLiveStatus(liveStatusCounts[0].counts)}
-                    </span>
-                  </div>
-                  <div className="h-8 w-px bg-neutral-200" />
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={liveStatusCounts[1].liveStatusIcon}
-                      alt={liveStatusCounts[1].liveStatusLabel}
-                      width={28}
-                      height={28}
-                      className="object-contain"
-                    />
-                    <span className="text-sm font-bold text-neutral-700">
-                      {formatLiveStatus(liveStatusCounts[1].counts)}
-                    </span>
-                  </div>
-                  <div className="h-8 w-px bg-neutral-200" />
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={liveStatusCounts[2].liveStatusIcon}
-                      alt={liveStatusCounts[2].liveStatusLabel}
-                      width={28}
-                      height={28}
-                      className="object-contain"
-                    />
-                    <span className="text-sm font-bold text-neutral-700">
-                      {formatLiveStatus(liveStatusCounts[2].counts)}
-                    </span>
-                  </div>
-                </div>
-              </section>
-
-              <section>
-                <h2 className="mb-3 flex items-center gap-1.5 text-xl font-bold text-neutral-900">
-                  Vaskehaller <Info size={16} className="text-neutral-500" />
-                </h2>
-                <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
-                  {VaskehallDetails.map((item) => (
-                    <MachineCard
-                      key={item.id}
-                      id={`vaskehall-${item.id}`}
-                      image={item.image}
-                      title={item.title}
-                      status={item.status}
-                      selected={selectedId === `vaskehall-${item.id}`}
-                      onSelect={setSelectedId}
-                    />
+                <div className="flex items-center justify-around divide-x divide-neutral-200 rounded bg-white/80 py-3 shadow-sm">
+                  {liveStatusCounts.map((s) => (
+                    <div key={s.liveStatusLabel} className="flex flex-1 items-center justify-center gap-2">
+                      <Image
+                        src={s.liveStatusIcon}
+                        alt={s.liveStatusLabel}
+                        width={28}
+                        height={28}
+                        className="object-contain"
+                      />
+                      <span className="text-sm font-bold text-neutral-700">
+                        {formatLiveStatus(s.counts)}
+                      </span>
+                    </div>
                   ))}
                 </div>
               </section>
 
-              <section>
-                <h2 className="mb-3 flex items-center gap-1.5 text-xl font-bold text-neutral-900">
-                  Vask selv <Info size={16} className="text-neutral-500" />
-                </h2>
-                <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
-                  {VaskselvDetails.map((item) => (
-                    <MachineCard
-                      key={item.id}
-                      id={`vaskselv-${item.id}`}
-                      image={item.image}
-                      title={item.title}
-                      status={item.status}
-                      selected={selectedId === `vaskselv-${item.id}`}
-                      onSelect={setSelectedId}
-                    />
-                  ))}
-                </div>
-              </section>
+              {/* Maskinlister: én sektion per udstyrstype (vaskehaller, vask selv, støvsugere).
+                  Info-knappen viser en popup med køretøjsdimensioner for sektionen. */}
+              {EQUIPMENT_SECTIONS.map((section) => (
+                <section key={section.type}>
+                  <div className="relative mb-3">
+                    <h2 className="flex items-center gap-1.5 text-xl font-bold text-neutral-900">
+                      {section.label}
+                      <button
+                        type="button"
+                        onClick={() => setOpenInfo(openInfo === section.type ? null : section.type)}
+                        aria-label={`Vis dimensioner for ${section.label}`}
+                        className="text-black"
+                      >
+                        <Info size={13} />
+                      </button>
+                    </h2>
+                    {openInfo === section.type && (
+                      <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded bg-white px-4 py-3 text-sm text-neutral-700 shadow-lg ring-1 ring-black/10">
+                        <p className="font-semibold mb-1">Maks. køretøjsdimensioner</p>
+                        <p>Højde: 2,6 m</p>
+                        <p>Sidespejl til sidespejl: 2,58 m</p>
+                      </div>
+                    )}
+                  </div>
+                  {/* Vandret scrollbar med maskinekort – sorteret efter nummer fra API'et */}
+                  <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
+                    {equipmentByType(equipment, section.type).map((item, idx) => (
+                      <MachineCard
+                        key={item.location_equipment_id}
+                        id={`${section.type}-${item.location_equipment_id}`}
+                        image={section.image}
+                        title={formatEquipmentTitle(section.titlePrefix, idx + 1)}
+                        status={normalizeStatus(item.location_equipment_status)}
+                        selected={selectedId === `${section.type}-${item.location_equipment_id}`}
+                        onSelect={setSelectedId}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
 
-              <section>
-                <h2 className="mb-3 flex items-center gap-1.5 text-xl font-bold text-neutral-900">
-                  Støvsugere <Info size={16} className="text-neutral-500" />
-                </h2>
-                <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
-                  {StovsugerDetails.map((item) => (
-                    <MachineCard
-                      key={item.id}
-                      id={`stovsuger-${item.id}`}
-                      image={item.image}
-                      title={item.title}
-                      status={item.status}
-                      selected={selectedId === `stovsuger-${item.id}`}
-                      onSelect={setSelectedId}
-                    />
-                  ))}
-                </div>
-              </section>
-
-              <StartWashButton onClick={() => {}} />
-              {selectedId &&
-                (() => {
-                  const allItems = [
-                    ...VaskehallDetails.map((i) => ({
-                      key: `vaskehall-${i.id}`,
-                      title: i.title,
-                    })),
-                    ...VaskselvDetails.map((i) => ({
-                      key: `vaskselv-${i.id}`,
-                      title: i.title,
-                    })),
-                    ...StovsugerDetails.map((i) => ({
-                      key: `stovsuger-${i.id}`,
-                      title: i.title,
-                    })),
-                  ];
-                  const selected = allItems.find((i) => i.key === selectedId);
-                  return selected ? (
-                    <p className="text-center text-sm text-white">
-                      Valgt: {selected.title}
-                    </p>
-                  ) : null;
-                })()}
+              {/* Start vask-knap og navn på valgt maskine */}
+              <StartWashButton onClick={handleStartWash} status={selectedItem?.status ?? null} />
+              {selectedItem && (
+                <p className="text-center text-sm text-white">
+                  Valgt: {selectedItem.title}
+                </p>
+              )}
             </>
           ) : null}
         </main>
@@ -318,14 +296,9 @@ export default function DetailsPage() {
   );
 }
 
-function MachineCard({
-  id,
-  image,
-  title,
-  status,
-  selected,
-  onSelect,
-}: MachineCardProps) {
+// Kort der repræsenterer én maskine. Klikkes for at vælge/fravælge maskinen.
+// Viser status (ledig/optaget/ud af drift) med farvekodet badge i hjørnet.
+function MachineCard({ id, image, title, status, selected, onSelect }: MachineCardProps) {
   return (
     <button
       onClick={() => onSelect(selected ? null : id)}

@@ -9,10 +9,12 @@ import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 import { formatLocationAddress } from "@/lib/locationsApi";
 
+// TODO: erstat med brugerens rigtige favorit-IDs fra API'et når auth er implementeret
 const TEMP_FAVORITE_IDS = ["1048", "1043", "1049", "1011", "1051"];
 
+// Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
 function getDistanceInKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371;
+  const R = 6371; // jordens radius i km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =
@@ -24,15 +26,22 @@ function getDistanceInKm(lat1: number, lng1: number, lat2: number, lng2: number)
 }
 
 export default function DashboardPage() {
+  // TanStack Query henter alle lokationer fra API'et og cacher dem automatisk.
+  // isLoading er true mens det første kald er i gang – bruges til at vise "Henter...".
+  // staleTime på 5 minutter betyder at det cachede data genbruges i stedet for at
+  // lave et nyt API-kald, så længe brugeren navigerer frem og tilbage inden for 5 min.
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ["locations"],
     queryFn: fetchLocations,
     staleTime: 1000 * 60 * 5,
   });
 
+  // Lokationer beriget med beregnet afstand til brugeren
   const [nearestLocation, setNearestLocation] = useState<any>(null);
   const [locationsWithDistance, setLocationsWithDistance] = useState<any[]>([]);
 
+  // Når lokationer er hentet, beder vi om brugerens GPS-position og beregner
+  // afstand til hver lokation. Sorteres nærmest-først, og nærmeste gemmes separat.
   useEffect(() => {
     if (!locations.length || !navigator.geolocation) return;
 
@@ -56,6 +65,7 @@ export default function DashboardPage() {
     });
   }, [locations]);
 
+  // Filtrerer de hentede lokationer ned til kun brugerens favoritter
   const favoriteLocationsWithDistance = locationsWithDistance.filter(
     (loc) => TEMP_FAVORITE_IDS.includes(loc.location_id),
   );
@@ -65,6 +75,7 @@ export default function DashboardPage() {
 
       <PageInfo userName={dashboardPageNames.userName} />
 
+        {/* Nærmeste vaskehal med link til kort */}
         <section className="px-8 pt-10">
           <h2 className="mb-5 text-2xl font-bold text-black">
             {dashboardPageNames.nearbyTitle}
@@ -115,6 +126,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {/* Favoritvaskehaller – vandret scrollbar med kort der linker til detaljesiden */}
         <section className="mt-12">
           <h2 className="mb-5 px-8 text-2xl font-bold text-black">
             {dashboardPageNames.favoritesTitle}
@@ -124,6 +136,7 @@ export default function DashboardPage() {
             {favoriteLocationsWithDistance.map((location: any) => (
               <FavoriteCard
                 key={location.location_id}
+                locationId={location.location_id}
                 title={location.location_name}
                 address={formatLocationAddress(location)}
                 distance={location.distance}
@@ -132,6 +145,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {/* Nyheder og tilbud – statisk indhold fra dashboardData */}
         <section className="mt-12 pb-8">
           <h2 className="mb-3 px-8 text-2xl font-bold text-black">
             {dashboardPageNames.forYouTitle}
@@ -155,9 +169,11 @@ export default function DashboardPage() {
   );
 }
 
-function FavoriteCard({ title, address, distance }: { title: string; address: string; distance: string | null }) {
+// Kort der viser en favoritlokation med billede, navn, adresse og afstand.
+// Klikkes for at gå til lokationens detaljeside.
+function FavoriteCard({ locationId, title, address, distance }: { locationId: string; title: string; address: string; distance: string | null }) {
   return (
-    <article className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01)">
+    <Link href={`/details?id=${encodeURIComponent(locationId)}`} className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01) block">
       <Image
         src="/locations-pictures/Herlev.jpg"
         alt={title}
@@ -188,10 +204,11 @@ function FavoriteCard({ title, address, distance }: { title: string; address: st
           </button>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
+// Kort der viser en nyhed med billede og beskrivelse
 function NewsCard({ image, description }: { image: string; description: string }) {
   return (
     <article className="w-46 shrink-0 overflow-hidden border-white/90 bg-white shadow-md">

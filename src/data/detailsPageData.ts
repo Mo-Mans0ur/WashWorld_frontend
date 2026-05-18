@@ -38,9 +38,9 @@ status: "Optaget",
 },
 {
 id: 3,
-image:"/icons/EnkeltVaskIcon.png", 
+image:"/icons/EnkeltVaskIcon.png",
 title: "Vaskehall 3",
-status: "Ledig",
+status: "Ud af drift",
 },];
 
 export const VaskselvDetails: Vaskselv[] = [
@@ -58,9 +58,9 @@ status: "Optaget",
 },
 {
 id: 3,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/vaskselvIcon.png",
 title: "Vaskselv 3",
-status: "Ledig",
+status: "Ud af drift",
 },];
 
 

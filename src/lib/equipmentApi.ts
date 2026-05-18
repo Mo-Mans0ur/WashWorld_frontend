@@ -15,15 +15,15 @@ export type EquipmentCounts = {
 
 export const EQUIPMENT_SECTIONS = [
   {
-    type: "vaskehall",
+    type: "vaskehal",
     label: "Vaskehaller",
-    titlePrefix: "Vaskehall",
+    titlePrefix: "Vaskehal",
     image: "/icons/EnkeltVaskIcon.png",
     liveStatusLabel: "Bilvask",
     liveStatusIcon: "/icons/EnkeltVaskIcon.png",
   },
   {
-    type: "vaskselv",
+    type: "vask_selv",
     label: "Vask selv",
     titlePrefix: "Vask selv",
     image: "/icons/vaskselvIcon.png",
@@ -121,13 +121,17 @@ export async function fetchLocationEquipment(
   }
 
   const data: unknown = await res.json();
+  if (Array.isArray(data)) {
+    return data as LocationEquipment[];
+  }
+
   if (
     !data ||
     typeof data !== "object" ||
     !("equipment" in data) ||
     !Array.isArray((data as { equipment: unknown }).equipment)
   ) {
-    throw new Error("Uventet svar fra serveren");
+    throw new Error(`Uventet svar fra serveren: ${JSON.stringify(data)}`);
   }
 
   return (data as { equipment: LocationEquipment[] }).equipment;
