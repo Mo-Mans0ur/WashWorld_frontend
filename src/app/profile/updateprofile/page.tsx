@@ -174,7 +174,7 @@ export default function UpdateProfilePage() {
             <button
               type="button"
               onClick={handleSave}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(90deg,#1f8c4e_0%,#2ea55f_100%)] text-[1rem] font-extrabold text-white shadow-[0_10px_20px_rgba(31,140,78,0.22)] [clip-path:polygon(15%_0,100%_0,100%_100%,0%_100%)]"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-(--brand-green-01) text-[1rem] font-extrabold text-white shadow-[0_10px_20px_rgba(31,140,78,0.22)] [clip-path:polygon(15%_0,100%_0,100%_100%,0%_100%)]"
             >
               <Check className="h-4.5 w-4.5" strokeWidth={3} />
               {profileUpdatePageContent.buttons.save}
