@@ -29,9 +29,7 @@ export default function AbonnementPage() {
   }
 
   function handleCreateSubscription() {
-    router.push(
-      `/abonnement/handlesubscription?plan=${selectedPlan.toLowerCase()}`,
-    );
+    router.push(`/abonnement/betaling?plan=${selectedPlan.toLowerCase()}`);
   }
 
   return (

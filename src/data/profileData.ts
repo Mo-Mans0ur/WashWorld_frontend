@@ -32,7 +32,7 @@ export const profilePageNames = {
   title: "Profil",
   memberSinceLabel: "Meldlem siden:",
   editProfile: "Rediger profil",
-  updatedMessage: "User information updated",
+  updatedMessage: "Brugeroplysninger opdateret",
   clipCardTitle: "klippekort",
   clipCardProgress: "3 ud af 5 vaske",
   badgesTitle: "Badges",
