@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
@@ -63,8 +62,7 @@ export default function HandleSubscriptionPage() {
   }
 
   return (
-    <div className="relative flex h-dvh flex-col overflow-hidden">
-      <AppHeader />
+    <div className="relative flex h-full flex-col overflow-hidden">
       <PageInfo
         text={subscriptionPageNames.createTitle}
         userName=""

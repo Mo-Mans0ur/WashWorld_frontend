@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import {
   ArrowLeftIcon,
@@ -43,8 +42,7 @@ export default function VaskehistorikDetaljer() {
   }, [receiptId]);
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
-      <AppHeader />
+    <div className="flex h-full flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
       <PageInfo text={receiptPageNames.detailsTitle} userName={""} />
 
       <div className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">

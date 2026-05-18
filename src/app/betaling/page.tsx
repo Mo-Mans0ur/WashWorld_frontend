@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import PaymentMethodCard from "@/components/PaymentMethodCard";
 import { paymentOptions, paymentPageContent } from "@/data/paymentData";
@@ -62,7 +61,6 @@ export default function BetalingPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <AppHeader />
       <PageInfo
         text={paymentPageContent.pageInfoTitle}
         userName={""}

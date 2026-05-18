@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MapLocation } from "@/data/washworldLocations";
 import { fetchMapLocations } from "@/lib/locationsApi";
-import AppHeader from "@/components/AppHeader";
 import LocationPopupCard from "@/components/LocationPopupCard";
 import { formatKmDa, haversineKm } from "@/lib/locationGeo";
 
@@ -79,7 +78,6 @@ export default function LocationsList() {
 
   return (
     <>
-      <AppHeader />
 
       <header className="px-5 pt-4">
         <h1 className="text-lg font-bold text-black">Vaskehaller</h1>

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import AppHeader from "@/components/AppHeader";
 import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
@@ -62,7 +61,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col">
-      <AppHeader />
 
       <PageInfo userName={dashboardPageNames.userName} />
 

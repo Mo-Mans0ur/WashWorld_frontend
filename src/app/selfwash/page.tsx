@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
 import { AssistanceButton, Button } from "@/components/buttons";
 
 const PRICE_PER_MINUTE = 6;
@@ -29,7 +28,6 @@ export default function ActiveWashPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <AppHeader />
 
       {/* Assistance button */}
       <div className="flex justify-center px-8 pt-8">

@@ -1,6 +1,7 @@
 import "./globals.css";
 import Providers from "@/components/Providers";
 import ScreenLayout from "@/components/ScreenLayout";
+import { VehiclesProvider } from "@/context/VehiclesContext";
 
 
 export const metadata = {
@@ -18,7 +19,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className="h-full antialiased">
       <body className="h-full" suppressHydrationWarning>
         <Providers>
-          <ScreenLayout>{children}</ScreenLayout>
+          <VehiclesProvider>
+            <ScreenLayout>{children}</ScreenLayout>
+          </VehiclesProvider>
         </Providers>
       </body>
     </html>

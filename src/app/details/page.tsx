@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Star, Info } from "lucide-react";
-import AppHeader from "@/components/AppHeader";
 import AngleButton from "@/components/buttons/AngleButton";
 import StartWashButton from "@/components/buttons/StartWashButton";
 import {
@@ -31,8 +30,7 @@ export default function DetailsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
-      <AppHeader />
+    <div className="flex h-full flex-col overflow-hidden">
       <section className="relative h-12">
         <div className="relative inline-flex h-full min-w-45 items-center gap-3 bg-(--brand-green-01) pl-6 pr-10 [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]">
           <p className="whitespace-nowrap text-2xl font-bold text-white">Herlev</p>

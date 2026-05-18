@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import { paymentPageContent } from "@/data/paymentData";
 import { singleWashPageContent, paymentPlans } from "@/data/singleWashData";
@@ -22,13 +21,11 @@ export default function SingleWashPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <AppHeader />
       <PageInfo
         text={singleWashPageContent.pageInfoTitle}
         userName=""
-        className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
-      <main className="flex-1 overflow-y-auto bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)] px-7 pt-6 pb-6 text-center text-white scrollbar-hide">
+      <main className="flex-1 overflow-y-auto px-7 pt-6 pb-6 text-center text-white scrollbar-hide">
         <h2 className="text-[1.9rem] font-bold leading-tight ">
           {singleWashPageContent.pageTitleLineOne}
           <br />

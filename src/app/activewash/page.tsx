@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
 import { AssistanceButton, Button } from "@/components/buttons";
 import { saveLatestSingleWashReceipt } from "@/data/receiptHistory";
 import { paymentPlans } from "@/data/singleWashData";
@@ -875,7 +874,6 @@ export default function ActiveAutoWashPage({
 
   return (
     <div className="flex min-h-full flex-col">
-      <AppHeader />
 
       <div className="flex flex-1 min-h-0 flex-col justify-around px-8 py-6 pb-24">
         <div className="flex flex-col items-center justify-center">

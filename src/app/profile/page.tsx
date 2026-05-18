@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
 import {
@@ -74,8 +73,7 @@ export default function ProfilePage() {
   }, [router, searchParams]);
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]">
-      <AppHeader />
+    <div className="flex h-full flex-col overflow-hidden bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]">
 
       <main className="relative flex flex-1 flex-col overflow-y-auto pb-4 scrollbar-hide">
         {showUpdatedMessage ? (
