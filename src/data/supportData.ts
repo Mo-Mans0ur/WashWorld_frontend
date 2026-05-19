@@ -64,7 +64,7 @@ export const supportFaqItems: SupportFaqItem[] = [
     id: "stop-subscription",
     question: "Hvordan afbryder jeg et abonnement?",
     answer:
-      "Hvis du ønsker at afbryde dit abonnement, skal du trykkre på 'Administrer abonnement' i appen og vælge 'Afbryd abonnement'.",
+      "Hvis du ønsker at afbryde dit abonnement, skal du trykke på 'Administrer abonnement' i appen og vælge 'Afbryd abonnement'.",
   },
   {
     id: "badges",
