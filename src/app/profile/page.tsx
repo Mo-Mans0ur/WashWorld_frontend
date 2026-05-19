@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
@@ -12,6 +12,9 @@ import {
   Ticket,
   Star,
   ChevronRight,
+  MoreVertical,
+  ArrowLeftRight,
+  XCircle,
 } from "lucide-react";
 import {
   profileBadges,
@@ -38,6 +41,23 @@ export default function ProfilePage() {
   const [updatedMessagePhase, setUpdatedMessagePhase] = useState<
     "idle" | "pre-enter" | "enter" | "exit"
   >("idle");
+  const [subscriptionMenuOpen, setSubscriptionMenuOpen] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const subscriptionMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!subscriptionMenuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        subscriptionMenuRef.current &&
+        !subscriptionMenuRef.current.contains(e.target as Node)
+      ) {
+        setSubscriptionMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [subscriptionMenuOpen]);
   const revealBadges = () => setShowBadges(true);
   const badges = profileBadges;
   const activeBadge =
@@ -96,7 +116,7 @@ export default function ProfilePage() {
 
         <section className="space-y-4 p-4 pt-4">
           {/* Abonnement — øverst, ingen titel, alt inde i kortet */}
-          <article className="overflow-hidden rounded bg-(--white-white) shadow-2xl">
+          <article className="relative rounded bg-(--white-white) shadow-2xl">
             <div className="flex items-center justify-between px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-neutral-500">
@@ -111,17 +131,47 @@ export default function ProfilePage() {
                   </p>
                 )}
               </div>
-              <div className="flex flex-col items-end gap-2">
+              <div className="flex items-center gap-2">
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
                   Aktiv
                 </span>
-                <button
-                  type="button"
-                  onClick={() => (window.location.href = "/abonnement")}
-                  className="text-xs font-bold text-(--brand-green-01) underline underline-offset-2"
-                >
-                  Skift plan
-                </button>
+                <div ref={subscriptionMenuRef} className="relative">
+                  <button
+                    type="button"
+                    aria-label="Abonnement muligheder"
+                    onClick={() => setSubscriptionMenuOpen((v) => !v)}
+                    className="flex h-8 w-8 items-center justify-center text-neutral-500"
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+                  {subscriptionMenuOpen && (
+                    <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSubscriptionMenuOpen(false);
+                          router.push("/abonnement");
+                        }}
+                        className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
+                      >
+                        <ArrowLeftRight size={15} className="text-(--brand-green-01)" />
+                        Skift abonnement
+                      </button>
+                      <div className="h-px bg-neutral-200" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSubscriptionMenuOpen(false);
+                          setShowCancelConfirm(true);
+                        }}
+                        className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+                      >
+                        <XCircle size={15} />
+                        Opsig abonnement
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </article>
@@ -311,6 +361,37 @@ export default function ProfilePage() {
           </button>
         </section>
       </main>
+
+      {showCancelConfirm && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 px-6">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-neutral-800">Opsig abonnement?</h2>
+            <p className="mt-2 text-sm font-semibold text-neutral-500">
+              Er du sikker på, at du vil opsige dit abonnement? Det udløber ved
+              næste fornyelsesdato.
+            </p>
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCancelConfirm(false)}
+                className="flex-1 rounded-lg border border-neutral-300 py-2.5 text-sm font-bold text-neutral-700"
+              >
+                Annuller
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCancelConfirm(false);
+                  // TODO: kald API til opsigelse
+                }}
+                className="flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-bold text-white"
+              >
+                Opsig
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
