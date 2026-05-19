@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import { BellRing } from "lucide-react";
 import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
+import { getMissingProfileInfoState } from "@/data/profileData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 import { formatLocationAddress } from "@/lib/locationsApi";
@@ -13,7 +15,12 @@ import { formatLocationAddress } from "@/lib/locationsApi";
 const TEMP_FAVORITE_IDS = ["1048", "1043", "1049", "1011", "1051"];
 
 // Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
-function getDistanceInKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+function getDistanceInKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number {
   const R = 6371; // jordens radius i km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -26,6 +33,8 @@ function getDistanceInKm(lat1: number, lng1: number, lat2: number, lng2: number)
 }
 
 export default function DashboardPage() {
+  const { hasMissingProfileInfo, missingPaymentCard, missingVehicle } =
+    getMissingProfileInfoState();
   // TanStack Query henter alle lokationer fra API'et og cacher dem automatisk.
   // isLoading er true mens det første kald er i gang – bruges til at vise "Henter...".
   // staleTime på 5 minutter betyder at det cachede data genbruges i stedet for at
@@ -39,6 +48,11 @@ export default function DashboardPage() {
   // Lokationer beriget med beregnet afstand til brugeren
   const [nearestLocation, setNearestLocation] = useState<any>(null);
   const [locationsWithDistance, setLocationsWithDistance] = useState<any[]>([]);
+  const [showNotificationToast, setShowNotificationToast] = useState(false);
+  const [notificationToastPhase, setNotificationToastPhase] = useState<
+    "idle" | "pre-enter" | "enter" | "exit"
+  >("idle");
+  const notificationToastTimeoutsRef = useRef<number[]>([]);
 
   // Når lokationer er hentet, beder vi om brugerens GPS-position og beregner
   // afstand til hver lokation. Sorteres nærmest-først, og nærmeste gemmes separat.
@@ -58,122 +72,209 @@ export default function DashboardPage() {
           );
           return { ...loc, distance: `${km.toFixed(1)} km` };
         })
-        .sort((a: any, b: any) => parseFloat(a.distance) - parseFloat(b.distance));
+        .sort(
+          (a: any, b: any) => parseFloat(a.distance) - parseFloat(b.distance),
+        );
 
       setLocationsWithDistance(withDistances);
       setNearestLocation(withDistances[0]);
     });
   }, [locations]);
 
+  function handleNotificationClick() {
+    notificationToastTimeoutsRef.current.forEach((timeoutId) => {
+      window.clearTimeout(timeoutId);
+    });
+
+    setShowNotificationToast(true);
+    setNotificationToastPhase("pre-enter");
+
+    notificationToastTimeoutsRef.current = [
+      window.setTimeout(() => {
+        setNotificationToastPhase("enter");
+      }, 40),
+      window.setTimeout(() => {
+        setNotificationToastPhase("exit");
+      }, 5000),
+      window.setTimeout(() => {
+        setShowNotificationToast(false);
+        setNotificationToastPhase("idle");
+      }, 5500),
+    ];
+  }
+
   // Filtrerer de hentede lokationer ned til kun brugerens favoritter
-  const favoriteLocationsWithDistance = locationsWithDistance.filter(
-    (loc) => TEMP_FAVORITE_IDS.includes(loc.location_id),
+  const favoriteLocationsWithDistance = locationsWithDistance.filter((loc) =>
+    TEMP_FAVORITE_IDS.includes(loc.location_id),
   );
 
+  const notificationToastTitle =
+    missingVehicle && missingPaymentCard
+      ? dashboardPageNames.notificationToastTitleBoth
+      : missingVehicle
+        ? dashboardPageNames.notificationToastTitleVehicle
+        : dashboardPageNames.notificationToastTitleCard;
+
+  const notificationToastMessage =
+    missingVehicle && missingPaymentCard
+      ? dashboardPageNames.notificationToastMessageBoth
+      : missingVehicle
+        ? dashboardPageNames.notificationToastMessageVehicle
+        : dashboardPageNames.notificationToastMessageCard;
+
   return (
-    <div className="flex flex-1 min-h-0 flex-col">
+    <div className="relative flex flex-1 min-h-0 flex-col">
+      {showNotificationToast ? (
+        <div
+          className={`profile-update-toast absolute right-5 top-18 z-30 w-[calc(100%-2.5rem)] max-w-80 rounded-2xl bg-white/96 px-4 py-3 text-left shadow-[0_12px_24px_rgba(0,0,0,0.16)] ${notificationToastPhase === "enter" ? "profile-update-toast-enter" : ""} ${notificationToastPhase === "exit" ? "profile-update-toast-exit" : ""}`}
+        >
+          <p className="text-[0.86rem] font-extrabold text-(--brand-green-01)">
+            {notificationToastTitle}
+          </p>
+          <p className="mt-1 text-[0.78rem] leading-snug text-[#5d645f]">
+            {notificationToastMessage}
+          </p>
+          <div className="mt-3 flex justify-end">
+            <Link
+              href="/profile"
+              className="flex h-11 items-center justify-center bg-(--brand-green-01) pl-5 pr-4 text-[0.92rem] font-extrabold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]"
+            >
+              {dashboardPageNames.notificationToastButton}
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={handleNotificationClick}
+        aria-label="Åbn notifikationer"
+        className={`absolute right-8 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${hasMissingProfileInfo ? "notification-bell-active" : "hover:bg-white/16"}`}
+      >
+        <span className={hasMissingProfileInfo ? "notification-bell-icon" : ""}>
+          <BellRing className="h-6 w-6" strokeWidth={2.3} />
+        </span>
+        <span
+          className={`absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-(--color-secondary) transition ${hasMissingProfileInfo ? "notification-bell-dot" : "opacity-100"}`}
+        />
+      </button>
 
       <PageInfo userName={dashboardPageNames.userName} />
 
-        {/* Nærmeste vaskehal med link til kort */}
-        <section className="px-8 pt-10">
-          <h2 className="mb-5 text-2xl font-bold text-black">
-            {dashboardPageNames.nearbyTitle}
-          </h2>
+      {/* Nærmeste vaskehal med link til kort */}
+      <section className="px-8 pt-10">
+        <h2 className="mb-5 text-2xl font-bold text-black">
+          {dashboardPageNames.nearbyTitle}
+        </h2>
 
-          <div className="flex items-center gap-3">
-            <div className="flex h-20 flex-1 items-center justify-between bg-(--brand-green-01) px-4 shadow-md">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-12 items-center justify-center rounded-full bg-black text-2xl font-bold text-white ring-2 ring-white">
-                  W
-                </div>
-
-                <div>
-                  <p className="text-sm font-bold leading-tight text-white">
-                    {isLoading ? "Henter..." : nearestLocation?.location_name ?? "Finder nærmeste..."}
-                  </p>
-                  <p className="text-sm font-bold leading-tight text-white">
-                    {nearestLocation
-                      ? formatLocationAddress(nearestLocation)
-                      : null}
-                  </p>
-                </div>
+        <div className="flex items-center gap-3">
+          <div className="flex h-20 flex-1 items-center justify-between bg-(--brand-green-01) px-4 shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-12 items-center justify-center rounded-full bg-black text-2xl font-bold text-white ring-2 ring-white">
+                W
               </div>
 
-              <p className="text-sm font-bold text-black">
-                {nearestLocation?.distance ?? "—"}
-              </p>
+              <div>
+                <p className="text-sm font-bold leading-tight text-white">
+                  {isLoading
+                    ? "Henter..."
+                    : (nearestLocation?.location_name ?? "Finder nærmeste...")}
+                </p>
+                <p className="text-sm font-bold leading-tight text-white">
+                  {nearestLocation
+                    ? formatLocationAddress(nearestLocation)
+                    : null}
+                </p>
+              </div>
             </div>
 
-            {/* Bil-knap → navigerer til kortet med rute til nærmeste vaskehal */}
-            <Link
-              href={
-                nearestLocation
-                  ? `/locations/map?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
-                  : "/locations/map"
-              }
-              className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md"
-              title={dashboardPageNames.currentLocationButtonAlt}
-            >
-              <Image
-                src="/Car1.png"
-                alt={dashboardPageNames.currentLocationButtonAlt}
-                className="h-14 w-14 object-contain"
-                width={56}
-                height={56}
-              />
-            </Link>
+            <p className="text-sm font-bold text-black">
+              {nearestLocation?.distance ?? "—"}
+            </p>
           </div>
-        </section>
 
-        {/* Favoritvaskehaller – vandret scrollbar med kort der linker til detaljesiden */}
-        <section className="mt-12">
-          <h2 className="mb-5 px-8 text-2xl font-bold text-black">
-            {dashboardPageNames.favoritesTitle}
-          </h2>
+          {/* Bil-knap → navigerer til kortet med rute til nærmeste vaskehal */}
+          <Link
+            href={
+              nearestLocation
+                ? `/locations/map?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
+                : "/locations/map"
+            }
+            className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md"
+            title={dashboardPageNames.currentLocationButtonAlt}
+          >
+            <Image
+              src="/Car1.png"
+              alt={dashboardPageNames.currentLocationButtonAlt}
+              className="h-14 w-14 object-contain"
+              width={56}
+              height={56}
+            />
+          </Link>
+        </div>
+      </section>
 
-          <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-            {favoriteLocationsWithDistance.map((location: any) => (
-              <FavoriteCard
-                key={location.location_id}
-                locationId={location.location_id}
-                title={location.location_name}
-                address={formatLocationAddress(location)}
-                distance={location.distance}
-              />
-            ))}
-          </div>
-        </section>
+      {/* Favoritvaskehaller – vandret scrollbar med kort der linker til detaljesiden */}
+      <section className="mt-12">
+        <h2 className="mb-5 px-8 text-2xl font-bold text-black">
+          {dashboardPageNames.favoritesTitle}
+        </h2>
 
-        {/* Nyheder og tilbud – statisk indhold fra dashboardData */}
-        <section className="mt-12 pb-8">
-          <h2 className="mb-3 px-8 text-2xl font-bold text-black">
-            {dashboardPageNames.forYouTitle}
-          </h2>
+        <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+          {favoriteLocationsWithDistance.map((location: any) => (
+            <FavoriteCard
+              key={location.location_id}
+              locationId={location.location_id}
+              title={location.location_name}
+              address={formatLocationAddress(location)}
+              distance={location.distance}
+            />
+          ))}
+        </div>
+      </section>
 
-          <h3 className="mb-4 px-8 text-xl font-bold text-black">
-            {dashboardPageNames.newsTitle}
-          </h3>
+      {/* Nyheder og tilbud – statisk indhold fra dashboardData */}
+      <section className="mt-12 pb-8">
+        <h2 className="mb-3 px-8 text-2xl font-bold text-black">
+          {dashboardPageNames.forYouTitle}
+        </h2>
 
-          <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-            {dashboardNewsItems.map((newsItem) => (
-              <NewsCard
-                key={newsItem.id}
-                image={newsItem.image}
-                description={newsItem.description}
-              />
-            ))}
-          </div>
-        </section>
+        <h3 className="mb-4 px-8 text-xl font-bold text-black">
+          {dashboardPageNames.newsTitle}
+        </h3>
+
+        <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+          {dashboardNewsItems.map((newsItem) => (
+            <NewsCard
+              key={newsItem.id}
+              image={newsItem.image}
+              description={newsItem.description}
+            />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
 
 // Kort der viser en favoritlokation med billede, navn, adresse og afstand.
 // Klikkes for at gå til lokationens detaljeside.
-function FavoriteCard({ locationId, title, address, distance }: { locationId: string; title: string; address: string; distance: string | null }) {
+function FavoriteCard({
+  locationId,
+  title,
+  address,
+  distance,
+}: {
+  locationId: string;
+  title: string;
+  address: string;
+  distance: string | null;
+}) {
   return (
-    <Link href={`/details?id=${encodeURIComponent(locationId)}`} className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01) block">
+    <Link
+      href={`/details?id=${encodeURIComponent(locationId)}`}
+      className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01) block"
+    >
       <Image
         src="/locations-pictures/Herlev.jpg"
         alt={title}
@@ -189,9 +290,7 @@ function FavoriteCard({ locationId, title, address, distance }: { locationId: st
           <h3 className="text-sm font-bold leading-tight text-white">
             {title}
           </h3>
-          <p className="text-xs leading-tight text-white/70">
-            {address}
-          </p>
+          <p className="text-xs leading-tight text-white/70">{address}</p>
         </div>
 
         <p className="absolute bottom-1.5 left-2.5 z-10 text-sm font-bold text-(--brand-green-01)">
@@ -209,7 +308,13 @@ function FavoriteCard({ locationId, title, address, distance }: { locationId: st
 }
 
 // Kort der viser en nyhed med billede og beskrivelse
-function NewsCard({ image, description }: { image: string; description: string }) {
+function NewsCard({
+  image,
+  description,
+}: {
+  image: string;
+  description: string;
+}) {
   return (
     <article className="w-46 shrink-0 overflow-hidden border-white/90 bg-white shadow-md">
       <Image

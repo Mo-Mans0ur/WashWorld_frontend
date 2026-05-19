@@ -18,6 +18,18 @@ export type ProfileStamp = {
   filled: boolean;
 };
 
+export type ProfileVehicle = {
+  id: string;
+  plateNumber: string;
+  name: string;
+};
+
+export type ProfilePaymentCard = {
+  id: string;
+  brand: string;
+  last4: string;
+};
+
 // as const fjernet så vi kan tilføje nye felter uden TypeScript-fejl
 export const profileUser = {
   userName: "Jeppe olsen",
@@ -178,3 +190,18 @@ export const profileUpdateInitialValues = {
   newPassword: "",
   confirmPassword: "",
 } as const;
+
+export const profileVehicles: ProfileVehicle[] = [];
+
+export const profilePaymentCards: ProfilePaymentCard[] = [];
+
+export function getMissingProfileInfoState() {
+  const missingVehicle = profileVehicles.length === 0;
+  const missingPaymentCard = profilePaymentCards.length === 0;
+
+  return {
+    missingVehicle,
+    missingPaymentCard,
+    hasMissingProfileInfo: missingVehicle || missingPaymentCard,
+  };
+}

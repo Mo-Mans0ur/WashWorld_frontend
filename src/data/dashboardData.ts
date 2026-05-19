@@ -27,6 +27,16 @@ export const dashboardPageNames = {
   newsTitle: "Nyheder og tilbud",
   currentLocationButtonAlt: "Find vaskehal",
   favoriteCardButton: "Se mere",
+  notificationToastTitleBoth: "Tilføj bil og betalingskort",
+  notificationToastTitleVehicle: "Tilføj biloplysninger",
+  notificationToastTitleCard: "Tilføj betalingskort",
+  notificationToastMessageBoth:
+    "Udfyld dine biloplysninger og dit betalingskort i din profil, så du er klar til næste vask.",
+  notificationToastMessageVehicle:
+    "Tilføj din bil i din profil, så du er klar til næste vask.",
+  notificationToastMessageCard:
+    "Tilføj et betalingskort i din profil, så du er klar til næste vask.",
+  notificationToastButton: "Gå til profil",
 } as const;
 
 export const dashboardFavoriteLocations: DashboardLocation[] = [
