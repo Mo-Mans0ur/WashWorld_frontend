@@ -44,6 +44,7 @@ export const paymentPageContent = {
     cvcHelpText: "CVC er de 3 cifre på bagsiden af dit betalingskort.",
     nameLabel: "Navn på kort",
     namePlaceholder: "Kortholderens navn",
+    rememberCardLabel: "Husk mit kort",
   },
   mobilePay: {
     phoneLabel: "Mobilnummer",

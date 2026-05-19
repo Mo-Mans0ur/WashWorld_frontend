@@ -30,6 +30,8 @@ export type ProfilePaymentCard = {
   last4: string;
 };
 
+export const SAVED_PAYMENT_CARD_STORAGE_KEY = "washworld-saved-payment-card";
+
 // as const fjernet så vi kan tilføje nye felter uden TypeScript-fejl
 export const profileUser = {
   userName: "Jeppe olsen",
@@ -197,7 +199,11 @@ export const profilePaymentCards: ProfilePaymentCard[] = [];
 
 export function getMissingProfileInfoState() {
   const missingVehicle = profileVehicles.length === 0;
-  const missingPaymentCard = profilePaymentCards.length === 0;
+  const hasStoredPaymentCard =
+    typeof window !== "undefined" &&
+    window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY) !== null;
+  const missingPaymentCard =
+    profilePaymentCards.length === 0 && !hasStoredPaymentCard;
 
   return {
     missingVehicle,

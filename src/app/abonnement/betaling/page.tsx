@@ -1,16 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CircleHelp, Lock } from "lucide-react";
 
 import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import { paymentPageContent } from "@/data/paymentData";
+import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPaymentPageContent,
 } from "@/data/subscriptionData";
+
+type StoredPaymentCard = {
+  cardNumber: string;
+  expiry: string;
+  name: string;
+};
+
+function getStoredPaymentCard(): StoredPaymentCard | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawValue = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawValue) as StoredPaymentCard;
+  } catch {
+    window.localStorage.removeItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+    return null;
+  }
+}
 
 function getFirstPaymentAmount(firstMonth: string, fallback: string) {
   const match = firstMonth.match(/(\d+)\s*kr\./i);
@@ -25,7 +51,17 @@ export default function SubscriptionBetalingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPlanSlug = (searchParams.get("plan") ?? "guld").toLowerCase();
+  const storedPaymentCard = getStoredPaymentCard();
   const [showCvcHelp, setShowCvcHelp] = useState(false);
+  const [cardNumber, setCardNumber] = useState(
+    storedPaymentCard?.cardNumber ?? "",
+  );
+  const [expiry, setExpiry] = useState(storedPaymentCard?.expiry ?? "");
+  const [cvc, setCvc] = useState("");
+  const [cardholderName, setCardholderName] = useState(
+    storedPaymentCard?.name ?? "",
+  );
+  const [rememberCard, setRememberCard] = useState(storedPaymentCard !== null);
 
   const activePlan = getSubscriptionPlanBySlug(selectedPlanSlug);
   const firstPaymentAmount = getFirstPaymentAmount(
@@ -34,7 +70,28 @@ export default function SubscriptionBetalingPage() {
   );
   const recurringAmount = activePlan.price.replace("kr./ md.", " kr/md.");
 
+  useEffect(() => {
+    if (!storedPaymentCard) {
+      return;
+    }
+
+    router.replace(`/abonnement/handlesubscription?plan=${selectedPlanSlug}`);
+  }, [router, selectedPlanSlug, storedPaymentCard]);
+
   function handleContinue() {
+    if (rememberCard) {
+      window.localStorage.setItem(
+        SAVED_PAYMENT_CARD_STORAGE_KEY,
+        JSON.stringify({
+          cardNumber,
+          expiry,
+          name: cardholderName,
+        } satisfies StoredPaymentCard),
+      );
+    } else {
+      window.localStorage.removeItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+    }
+
     console.log("create subscription", {
       plan: selectedPlanSlug,
       payment: "card",
@@ -55,8 +112,7 @@ export default function SubscriptionBetalingPage() {
       <section className="flex flex-1 flex-col px-6 pt-8 pb-6">
         <h1 className="mb-4 text-2xl font-bold text-white">
           {subscriptionPaymentPageContent.pageTitle}
-        </h1> 
-        
+        </h1>
 
         <div className="mt-6 rounded-lg bg-black/40 p-4">
           <div className="space-y-3">
@@ -66,6 +122,8 @@ export default function SubscriptionBetalingPage() {
             <input
               type="text"
               placeholder={paymentPageContent.card.cardNumberPlaceholder}
+              value={cardNumber}
+              onChange={(event) => setCardNumber(event.target.value)}
               className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
             />
 
@@ -77,6 +135,8 @@ export default function SubscriptionBetalingPage() {
                 <input
                   type="text"
                   placeholder={paymentPageContent.card.expiryPlaceholder}
+                  value={expiry}
+                  onChange={(event) => setExpiry(event.target.value)}
                   className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                 />
               </div>
@@ -99,6 +159,8 @@ export default function SubscriptionBetalingPage() {
                   <input
                     type="text"
                     placeholder={paymentPageContent.card.cvcPlaceholder}
+                    value={cvc}
+                    onChange={(event) => setCvc(event.target.value)}
                     className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 pr-10 text-white placeholder-white/60"
                   />
                   <button
@@ -119,8 +181,22 @@ export default function SubscriptionBetalingPage() {
             <input
               type="text"
               placeholder={paymentPageContent.card.namePlaceholder}
+              value={cardholderName}
+              onChange={(event) => setCardholderName(event.target.value)}
               className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
             />
+
+            <label className="mt-1 flex items-center gap-3 rounded-lg border border-white/12 bg-white/6 px-3 py-2.5 text-white">
+              <input
+                type="checkbox"
+                checked={rememberCard}
+                onChange={(event) => setRememberCard(event.target.checked)}
+                className="h-4 w-4 rounded border-white/40 accent-(--brand-green-01)"
+              />
+              <span className="text-sm font-bold leading-none">
+                {paymentPageContent.card.rememberCardLabel}
+              </span>
+            </label>
           </div>
         </div>
 

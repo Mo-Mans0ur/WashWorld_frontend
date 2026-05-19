@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { BellRing } from "lucide-react";
+import { BellDot, BellRing } from "lucide-react";
 import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
 import { getMissingProfileInfoState } from "@/data/profileData";
 import PageInfo from "@/components/PageInfo";
@@ -152,7 +152,7 @@ export default function DashboardPage() {
         className={`absolute right-8 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${hasMissingProfileInfo ? "notification-bell-active" : "hover:bg-white/16"}`}
       >
         <span className={hasMissingProfileInfo ? "notification-bell-icon" : ""}>
-          <BellRing className="h-6 w-6" strokeWidth={2.3} />
+          <BellDot className="h-6 w-6" strokeWidth={2.3} />
         </span>
         <span
           className={`absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-(--color-secondary) transition ${hasMissingProfileInfo ? "notification-bell-dot" : "opacity-100"}`}

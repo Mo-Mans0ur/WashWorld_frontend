@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
+import { useVehicles } from "@/context/VehiclesContext";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
@@ -14,6 +16,7 @@ import PageInfo from "@/components/PageInfo";
 export default function HandleSubscriptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { vehicles } = useVehicles();
 
   const planKey = (searchParams.get("plan") || "guld").toLowerCase();
   const activePlan = useMemo(
@@ -21,23 +24,46 @@ export default function HandleSubscriptionPage() {
     [planKey],
   );
 
-  const [vehicle, setVehicle] = useState("");
+  const savedVehicleOptions = useMemo(
+    () =>
+      vehicles.map((vehicle) => ({
+        value: String(vehicle.id),
+        label: `${vehicle.plate} - ${vehicle.name}`,
+      })),
+    [vehicles],
+  );
+  const hasSavedVehicle = savedVehicleOptions.length > 0;
+  const initialVehicleValue =
+    savedVehicleOptions.find(
+      (option) =>
+        option.value ===
+        String(vehicles.find((savedVehicle) => savedVehicle.active)?.id),
+    )?.value ??
+    savedVehicleOptions[0]?.value ??
+    "";
+  const hasSavedPaymentCard =
+    typeof window !== "undefined" &&
+    window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY) !== null;
+  const vehicleOptions = hasSavedVehicle
+    ? savedVehicleOptions
+    : subscriptionVehicles.filter((item) => item.value);
+
+  const [vehicle, setVehicle] = useState(initialVehicleValue);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
+  const selectedVehicleLabel = vehicle
+    ? vehicleOptions.find((option) => option.value === vehicle)?.label
+    : "";
+  const selectedPaymentMethodLabel = paymentMethod
+    ? subscriptionPaymentMethods.find((item) => item.value === paymentMethod)
+        ?.label
+    : "";
 
   const canSubmit = Boolean(vehicle) && Boolean(paymentMethod) && acceptedTerms;
 
   function handleSubmit() {
-    if (!canSubmit) return;
-
-    console.log("create subscription", {
-      plan: planKey,
-      vehicle,
-      paymentMethod,
-      acceptedTerms,
-    });
-
+    if (!vehicle || !paymentMethod || !acceptedTerms) return;
     router.push("/profile");
   }
 
@@ -47,9 +73,7 @@ export default function HandleSubscriptionPage() {
       ? subscriptionPageNames.vehicleSheetTitle
       : subscriptionPageNames.paymentSheetTitle;
   const sheetOptions =
-    activeSheet === "vehicle"
-      ? subscriptionVehicles.filter((item) => item.value)
-      : subscriptionPaymentMethods;
+    activeSheet === "vehicle" ? vehicleOptions : subscriptionPaymentMethods;
 
   function selectFromSheet(value) {
     if (activeSheet === "vehicle") {
@@ -107,11 +131,8 @@ export default function HandleSubscriptionPage() {
                 <CarIcon />
               </span>
               <span className="flex-1 truncate pr-20 text-[1rem] font-semibold text-(--color-grey-01)">
-                {vehicle
-                  ? subscriptionVehicles.find(
-                      (option) => option.value === vehicle,
-                    )?.label
-                  : subscriptionPageNames.vehiclePlaceholder}
+                {selectedVehicleLabel ||
+                  subscriptionPageNames.vehiclePlaceholder}
               </span>
               <button
                 type="button"
@@ -127,11 +148,8 @@ export default function HandleSubscriptionPage() {
                 <CardIcon />
               </span>
               <span className="flex-1 pr-20 text-[1rem] font-semibold text-(--color-grey-01)">
-                {paymentMethod
-                  ? subscriptionPaymentMethods.find(
-                      (item) => item.value === paymentMethod,
-                    )?.label
-                  : subscriptionPageNames.paymentPlaceholder}
+                {selectedPaymentMethodLabel ||
+                  subscriptionPageNames.paymentPlaceholder}
               </span>
               <button
                 type="button"
@@ -169,7 +187,7 @@ export default function HandleSubscriptionPage() {
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!canSubmit}
+              disabled={!vehicle || !paymentMethod || !acceptedTerms}
               className="-ml-3.5 h-8.5 flex-1 bg-(--brand-green-01) text-[1.45rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
             >
               {subscriptionPageNames.submitButton}
