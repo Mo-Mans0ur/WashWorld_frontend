@@ -102,7 +102,6 @@ export default function SubscriptionBetalingPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <AppHeader />
       <PageInfo
         text={subscriptionPaymentPageContent.pageInfoTitle}
         userName=""
