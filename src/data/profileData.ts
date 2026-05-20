@@ -134,15 +134,15 @@ export const profileBadges: ProfileBadge[] = [
 ];
 
 export const profileMenuItems: ProfileMenuItem[] = [
-  { label: "mine biler", href: "mine biler", iconKey: "sparkles" },
-  { label: "vaskehistorik", href: "vaskehistorik", iconKey: "calendar" },
+  { label: "Mine biler", href: "mine biler", iconKey: "sparkles" },
+  { label: "Vaskehistorik", href: "vaskehistorik", iconKey: "calendar" },
   {
-    label: "betaling og kort",
+    label: "Betaling og kort",
     href: "betaling og kort",
     iconKey: "credit-card",
   },
-  { label: "notifikationer", href: "/notifikationer", iconKey: "bell" },
-  { label: "kundeservice", href: "/kundeservice", iconKey: "question-mark" },
+  { label: "Notifikationer", href: "/notifikationer", iconKey: "bell" },
+  { label: "Kundeservice", href: "/kundeservice", iconKey: "question-mark" },
 ];
 
 export const profileUpdatePageContent = {
