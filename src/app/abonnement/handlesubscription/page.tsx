@@ -10,8 +10,8 @@ import {
   subscriptionPaymentMethods,
   subscriptionVehicles,
 } from "@/data/subscriptionData";
-import Page from "@/app/locations/list/page";
 import PageInfo from "@/components/PageInfo";
+import { createSubscription } from "@/lib/subscriptionsApi";
 
 export default function HandleSubscriptionPage() {
   const router = useRouter();
@@ -53,6 +53,8 @@ export default function HandleSubscriptionPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const selectedVehicleLabel = vehicle
     ? vehicleOptions.find((option) => option.value === vehicle)?.label
     : "";
@@ -63,12 +65,41 @@ export default function HandleSubscriptionPage() {
 
   const canSubmit = Boolean(vehicle) && Boolean(paymentMethod) && acceptedTerms;
 
-  function handleSubmit() {
+  function formatDate(d: Date): string {
+    return d.toISOString().slice(0, 19).replace("T", " ");
+  }
+
+  async function handleSubmit() {
     if (!vehicle || !paymentMethod || !acceptedTerms) {
       setAttempted(true);
       return;
     }
-    router.push("/profile");
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const now = new Date();
+    const endDate = new Date(now);
+    endDate.setFullYear(endDate.getFullYear() + 1);
+    const nextBilling = new Date(now);
+    nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+    const priceRaw = parseInt(activePlan.price.replace(/[^0-9]/g, ""), 10);
+
+    try {
+      await createSubscription({
+        subscription_name: activePlan.name,
+        subscription_price: priceRaw,
+        subscription_status: "aktiv",
+        subscription_start_date: formatDate(now),
+        subscription_end_date: formatDate(endDate),
+        subscription_next_billing_date: formatDate(nextBilling),
+      });
+      router.push("/profile");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Kunne ikke oprette abonnement");
+      setIsSubmitting(false);
+    }
   }
 
   const isSheetOpen = activeSheet !== null;
@@ -186,13 +217,20 @@ export default function HandleSubscriptionPage() {
             </span>
           </label>
 
+          {submitError && (
+            <p className="mx-auto mt-3 max-w-72 text-center text-sm font-semibold text-red-400">
+              {submitError}
+            </p>
+          )}
+
           <div className="mx-auto mt-5.5 w-full max-w-69">
             <button
               type="button"
               onClick={handleSubmit}
-              className={`h-8.5 w-full text-[1.45rem] font-semibold text-white [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)] transition-opacity ${canSubmit ? "bg-(--brand-green-01)" : "bg-(--color-grey-01) opacity-60 cursor-not-allowed"}`}
+              disabled={isSubmitting}
+              className={`h-8.5 w-full text-[1.45rem] font-semibold text-white [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)] transition-opacity ${canSubmit && !isSubmitting ? "bg-(--brand-green-01)" : "bg-(--color-grey-01) opacity-60 cursor-not-allowed"}`}
             >
-              {subscriptionPageNames.submitButton}
+              {isSubmitting ? "Opretter..." : subscriptionPageNames.submitButton}
             </button>
           </div>
         </div>

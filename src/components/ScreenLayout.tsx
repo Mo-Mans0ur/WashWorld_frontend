@@ -24,7 +24,7 @@ export default function ScreenLayout({ children }: { children: ReactNode }) {
       <main className="app-shell">
         <section className="app-screen relative flex min-h-0 flex-col overflow-hidden">
           {showNav && <AppHeader />}
-          <div className={`min-h-0 flex-1 overflow-y-auto ${showNav ? "pb-16" : ""}`}>
+          <div className={`min-h-0 flex-1 overflow-y-auto ${showNav ? "pb-22" : ""}`}>
             {children}
           </div>
           {showNav && <AppNav />}

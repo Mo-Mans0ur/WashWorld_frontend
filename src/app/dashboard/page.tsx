@@ -10,9 +10,7 @@ import { getMissingProfileInfoState } from "@/data/profileData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 import { formatLocationAddress } from "@/lib/locationsApi";
-
-// TODO: erstat med brugerens rigtige favorit-IDs fra API'et når auth er implementeret
-const TEMP_FAVORITE_IDS = ["1048", "1043", "1049", "1011", "1051"];
+import { useFavorites } from "@/context/FavoritesContext";
 
 // Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
 function getDistanceInKm(
@@ -35,6 +33,7 @@ function getDistanceInKm(
 export default function DashboardPage() {
   const { hasMissingProfileInfo, missingPaymentCard, missingVehicle } =
     getMissingProfileInfoState();
+  const { favorites } = useFavorites();
   // TanStack Query henter alle lokationer fra API'et og cacher dem automatisk.
   // isLoading er true mens det første kald er i gang – bruges til at vise "Henter...".
   // staleTime på 5 minutter betyder at det cachede data genbruges i stedet for at
@@ -105,7 +104,7 @@ export default function DashboardPage() {
 
   // Filtrerer de hentede lokationer ned til kun brugerens favoritter
   const favoriteLocationsWithDistance = locationsWithDistance.filter((loc) =>
-    TEMP_FAVORITE_IDS.includes(loc.location_id),
+    favorites.includes(loc.location_id),
   );
 
   const notificationToastTitle =

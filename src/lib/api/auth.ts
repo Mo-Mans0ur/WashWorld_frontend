@@ -35,10 +35,20 @@ export async function registerUser(data: {
   return normalizeAuthResponse(response);
 }
 
-/** Henter bruger fra databasen (`GET /api/auth/<user_id>`). */
+export async function updateAuthUser(
+  userId: string,
+  data: { user_firstname: string; user_lastname: string; user_email: string; user_phone: string; user_password?: string },
+): Promise<User> {
+  return apiRequest<User>(`/api/users/${encodeURIComponent(userId)}`, {
+    method: "PUT",
+    body: data,
+  });
+}
+
+/** Henter bruger fra databasen (`GET /api/users/<user_id>`). */
 export async function fetchAuthUser(userId: string): Promise<User> {
   const data = await apiRequest<{ user: User } | User>(
-    `/api/auth/${encodeURIComponent(userId)}`,
+    `/api/users/${encodeURIComponent(userId)}`,
   );
   if (data && typeof data === "object" && "user" in data && data.user) {
     return data.user;

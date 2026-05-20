@@ -14,10 +14,13 @@ import {
   BadgeCheck,
   LifeBuoy,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AppNav() {
   const pathname = usePathname();
+  const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -87,34 +90,45 @@ export default function AppNav() {
             </Link>
           ))}
         </nav>
+
+        {/* Log ud */}
+        <div className="mt-auto px-3 pb-6 border-t border-white/10 pt-4">
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 px-3 py-3.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-white/5 transition-all group"
+          >
+            <LogOut size={18} className="group-hover:text-red-300 transition-colors" />
+            <span className="text-[0.95rem] font-semibold">Log ud</span>
+          </button>
+        </div>
       </div>
 
       {/* Bottom nav — fills the container, no manual centering needed */}
-      <nav className="absolute bottom-0 left-0 right-0 z-30 flex h-16 w-full items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
+      <nav className="absolute bottom-0 left-0 right-0 z-30 flex h-22 w-full items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
         <Link
           href="/dashboard"
-          className="flex flex-col items-center text-white/70 hover:text-white"
+          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
         >
           <Home size={26} />
           <span className="text-xs">Home</span>
         </Link>
         <Link
           href="/locations/map"
-          className="flex flex-col items-center text-white/70 hover:text-white"
+          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
         >
           <MapPin size={26} />
           <span className="text-xs">Kort</span>
         </Link>
         <Link
           href="/profile"
-          className="flex flex-col items-center text-white/70 hover:text-white"
+          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
         >
           <User size={26} />
           <span className="text-xs">Profil</span>
         </Link>
         <button
           onClick={() => setMenuOpen(true)}
-          className="flex flex-col items-center text-white/70 hover:text-white focus:outline-none"
+          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white focus:outline-none"
         >
           <Menu size={26} />
           <span className="text-xs">Menu</span>

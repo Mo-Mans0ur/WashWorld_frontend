@@ -17,6 +17,7 @@ import {
 } from "@/lib/equipmentApi";
 import { fetchLocationById } from "@/lib/locationsApi";
 import { formatOpenHoursDisplay } from "@/lib/locationGeo";
+import { useFavorites } from "@/context/FavoritesContext";
 
 // TODO: erstat med rigtig subscription-check når auth er implementeret
 const HAS_SUBSCRIPTION = true;
@@ -58,7 +59,8 @@ export default function DetailsPage() {
   const router = useRouter();
 
   // Brugerens interaktionstilstande
-  const [liked, setLiked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const liked = locationId ? isFavorite(locationId) : false;
   const [selectedId, setSelectedId] = useState<string | null>(null); // fx "vaskehal-42"
   const [openInfo, setOpenInfo] = useState<string | null>(null); // hvilken sektion der viser dimensionspopup
 
@@ -179,7 +181,7 @@ export default function DetailsPage() {
           </p>
           <button
             type="button"
-            onClick={() => setLiked((prev) => !prev)}
+            onClick={() => locationId && toggleFavorite(locationId)}
             aria-label={liked ? "Fjern fra favoritter" : "Tilføj til favoritter"}
             disabled={loadStatus !== "ready"}
           >

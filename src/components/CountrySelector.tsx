@@ -40,6 +40,15 @@ const EUROPEAN_COUNTRIES: Country[] = [
 
 export { EUROPEAN_COUNTRIES };
 
+export const PHONE_DIAL_CODES: Record<string, string> = {
+  DK: "+45", SE: "+46", NO: "+47", FI: "+358", DE: "+49",
+  NL: "+31", BE: "+32", FR: "+33", ES: "+34", PT: "+351",
+  IT: "+39", AT: "+43", CH: "+41", PL: "+48", CZ: "+420",
+  SK: "+421", HU: "+36", RO: "+40", BG: "+359", HR: "+385",
+  SI: "+386", GR: "+30", IE: "+353", GB: "+44", LU: "+352",
+  EE: "+372", LV: "+371", LT: "+370", MT: "+356", CY: "+357",
+};
+
 export default function CountrySelector({
   value,
   onChange,
