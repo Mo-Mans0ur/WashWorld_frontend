@@ -337,7 +337,7 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  animation: notification-bell-shake 0.72s ease-in-out infinite;
+  animation: notification-bell-shake 10s ease-in-out infinite;
   transform-origin: top center;
   will-change: transform;
 }
