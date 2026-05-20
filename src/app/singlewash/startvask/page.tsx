@@ -34,7 +34,7 @@ export default function SingleWashStartPage() {
       <section className="relative flex flex-1 flex-col px-7 pt-8 pb-24 text-white">
         <SingleWashAdviceInfo />
 
-        <h1 className="mx-auto mt-20 max-w-66 text-[2.1rem] font-extrabold leading-tight">
+        <h1 className="mx-auto mt-20 max-w-66 text-[2.1rem] font-bold leading-tight">
           {pageTitle}
         </h1>
 
@@ -55,12 +55,12 @@ export default function SingleWashStartPage() {
         </div>
 
         <div className="mt-auto flex flex-col items-center pt-14 text-center">
-          <p className="text-[1rem] font-extrabold text-white">
+          <p className="text-[1rem] font-bold text-white">
             {singleWashReadyPageContent.ctaLabel}
           </p>
 
           <div className="mt-3 flex w-full justify-center">
-            <StartWashButton onClick={handleStartWash} />
+            <StartWashButton onClick={handleStartWash} status="ready" />
           </div>
         </div>
       </section>

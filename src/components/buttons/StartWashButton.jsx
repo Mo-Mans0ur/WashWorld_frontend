@@ -33,7 +33,7 @@ export default function StartWashButton({ onClick, status }) {
         className="relative flex h-16 w-full max-w-80 items-center justify-center overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.18)] disabled:opacity-80 disabled:cursor-not-allowed"
       >
         <div className={`absolute inset-0 ${config.gradient}`} />
-        <span className="relative z-10 text-[1.35rem] font-extrabold tracking-tight text-(--color-grey-03)">
+        <span className="relative z-10 text-[1.35rem] font-bold tracking-tight text-(--color-grey-03)">
           {config.label}
         </span>
       </button>

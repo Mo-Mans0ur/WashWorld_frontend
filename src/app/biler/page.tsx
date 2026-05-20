@@ -86,7 +86,7 @@ function VehicleCard({
   }, [menuOpen, onCloseMenu]);
 
   return (
-    <article className="relative overflow-visible rounded-sm bg-(--white-white) shadow-md">
+    <article className="relative overflow-visible rounded-[3px] bg-(--white-white) shadow-md">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-3">
           <Car size={24} className="text-neutral-700" />

@@ -6,7 +6,7 @@ export default function PaymentMethodCard({ method, selected, onClick }) {
   return (
     <button
       type="button"
-      className={`flex w-full items-center gap-3 rounded bg-(--white-white) px-4 py-3 text-left shadow-md transition ${
+      className={`flex w-full items-center gap-3 rounded-[3px] bg-(--white-white) px-4 py-3 text-left shadow-md transition ${
         selected ? "ring-2 ring-(--brand-green-01)" : "ring-2 ring-transparent"
       }`}
       onClick={onClick}

@@ -52,6 +52,7 @@ export default function HandleSubscriptionPage() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
+  const [attempted, setAttempted] = useState(false);
   const selectedVehicleLabel = vehicle
     ? vehicleOptions.find((option) => option.value === vehicle)?.label
     : "";
@@ -63,7 +64,10 @@ export default function HandleSubscriptionPage() {
   const canSubmit = Boolean(vehicle) && Boolean(paymentMethod) && acceptedTerms;
 
   function handleSubmit() {
-    if (!vehicle || !paymentMethod || !acceptedTerms) return;
+    if (!vehicle || !paymentMethod || !acceptedTerms) {
+      setAttempted(true);
+      return;
+    }
     router.push("/profile");
   }
 
@@ -92,9 +96,8 @@ export default function HandleSubscriptionPage() {
       <PageInfo
         text={subscriptionPageNames.createTitle}
         userName=""
-        className="bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)]"
       />
-      <main className="flex-1 overflow-y-auto bg-[linear-gradient(90deg,var(--color-dashboard-gradient-start)_0%,var(--color-dashboard-gradient-end)_100%)] px-6 pt-3.5 pb-4 text-white scrollbar-hide">
+      <main className="flex-1 overflow-y-auto px-6 pt-3.5 pb-4 text-white scrollbar-hide">
         <h1 className="text-center text-[2rem] font-bold leading-tight">
           {subscriptionPageNames.createTitleLineOne}
           <br />
@@ -105,7 +108,7 @@ export default function HandleSubscriptionPage() {
         </p>
 
         <div className="mx-auto mt-3.5 w-full max-w-74 bg-(--brand-green-01) px-4 py-6 text-center shadow-lg">
-          <h2 className="text-[2rem] font-extrabold leading-none">
+          <h2 className="text-[2rem] font-bold leading-none">
             {activePlan.name}
           </h2>
           <p className="mt-1.5 text-[1rem] font-bold leading-none">
@@ -126,38 +129,46 @@ export default function HandleSubscriptionPage() {
           </p>
 
           <div className="mx-auto mt-3.5 flex w-full max-w-72 flex-col gap-1.5">
-            <div className="relative flex h-9.5 items-center overflow border border-(--color-grey-02) bg-(--white-white) text-black">
-              <span className="pl-2 pr-1 text-(--color-grey-01)">
-                <CarIcon />
-              </span>
-              <span className="flex-1 truncate pr-20 text-[1rem] font-semibold text-(--color-grey-01)">
-                {selectedVehicleLabel ||
-                  subscriptionPageNames.vehiclePlaceholder}
-              </span>
-              <button
-                type="button"
-                onClick={() => setActiveSheet("vehicle")}
-                className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
-              >
-                {subscriptionPageNames.selectButton}
-              </button>
+            <div>
+              <div className={`relative flex h-9.5 items-center overflow border bg-(--white-white) ${vehicle ? "border-(--brand-green-01)" : attempted ? "border-red-400" : "border-(--color-grey-02)"}`}>
+                <span className={`pl-2 pr-1 ${vehicle ? "text-(--brand-green-01)" : "text-(--color-grey-01)"}`}>
+                  <CarIcon />
+                </span>
+                <span className={`flex-1 truncate pr-20 text-[1rem] font-semibold ${vehicle ? "text-black" : "text-(--color-grey-01)"}`}>
+                  {selectedVehicleLabel || subscriptionPageNames.vehiclePlaceholder}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveSheet("vehicle")}
+                  className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
+                >
+                  {subscriptionPageNames.selectButton}
+                </button>
+              </div>
+              {attempted && !vehicle && (
+                <p className="mt-1 text-xs font-semibold text-red-400">Vælg venligst et køretøj</p>
+              )}
             </div>
 
-            <div className="relative flex h-9.5 items-center overflow border border-(--color-grey-02) bg-(--white-white) text-black">
-              <span className="pl-2 pr-1 text-(--color-grey-01)">
-                <CardIcon />
-              </span>
-              <span className="flex-1 pr-20 text-[1rem] font-semibold text-(--color-grey-01)">
-                {selectedPaymentMethodLabel ||
-                  subscriptionPageNames.paymentPlaceholder}
-              </span>
-              <button
-                type="button"
-                onClick={() => setActiveSheet("payment")}
-                className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
-              >
-                {subscriptionPageNames.selectButton}
-              </button>
+            <div>
+              <div className={`relative flex h-9.5 items-center overflow border bg-(--white-white) ${paymentMethod ? "border-(--brand-green-01)" : attempted ? "border-red-400" : "border-(--color-grey-02)"}`}>
+                <span className={`pl-2 pr-1 ${paymentMethod ? "text-(--brand-green-01)" : "text-(--color-grey-01)"}`}>
+                  <CardIcon />
+                </span>
+                <span className={`flex-1 pr-20 text-[1rem] font-semibold ${paymentMethod ? "text-black" : "text-(--color-grey-01)"}`}>
+                  {selectedPaymentMethodLabel || subscriptionPageNames.paymentPlaceholder}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveSheet("payment")}
+                  className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
+                >
+                  {subscriptionPageNames.selectButton}
+                </button>
+              </div>
+              {attempted && !paymentMethod && (
+                <p className="mt-1 text-xs font-semibold text-red-400">Vælg venligst en betalingsmetode</p>
+              )}
             </div>
           </div>
           <label className="mx-auto mt-2.5 flex w-full max-w-72 items-center justify-center gap-2 text-[0.95rem] font-semibold text-(--white-white)">
@@ -179,7 +190,7 @@ export default function HandleSubscriptionPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="h-8.5 flex-1 bg-(--color-grey-01) text-[1.45rem] font-extrabold text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
+              className="h-8.5 flex-1 bg-(--color-grey-01) text-[1.45rem] font-semibold text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
             >
               {subscriptionPageNames.backButton}
             </button>
@@ -187,8 +198,7 @@ export default function HandleSubscriptionPage() {
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!vehicle || !paymentMethod || !acceptedTerms}
-              className="-ml-3.5 h-8.5 flex-1 bg-(--brand-green-01) text-[1.45rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+              className={`-ml-3.5 h-8.5 flex-1 text-[1.45rem] font-semibold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)] transition-opacity ${canSubmit ? "bg-(--brand-green-01)" : "bg-(--color-grey-01) opacity-60 cursor-not-allowed"}`}
             >
               {subscriptionPageNames.submitButton}
             </button>

@@ -6,7 +6,7 @@ import PageInfo from "@/components/PageInfo";
 import { useVehicles } from "@/context/VehiclesContext";
 import CountrySelector, { Country, EUROPEAN_COUNTRIES } from "@/components/CountrySelector";
 import { getPlateFormat } from "@/data/plateFormats";
-import { Plus, Zap, ArrowLeft } from "lucide-react";
+import { Plus, Zap } from "lucide-react";
 
 export default function TilfoejBilPage() {
   const router = useRouter();
@@ -46,15 +46,6 @@ export default function TilfoejBilPage() {
       <PageInfo text="Dine køretøjer" />
 
       <main className="flex flex-col gap-4 px-6 pt-6 pb-8">
-        <button
-          type="button"
-          onClick={() => router.push("/biler")}
-          className="flex items-center gap-2 text-white font-semibold w-fit"
-        >
-          <ArrowLeft size={20} />
-          Tilbage
-        </button>
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <div className="flex gap-2">

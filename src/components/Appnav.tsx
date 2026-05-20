@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Home,
   MapPin,
@@ -19,6 +19,10 @@ import {
 export default function AppNav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   const subMenuItems = [
     { label: "Mine Køretøjer", href: "/biler", icon: Car },

@@ -126,9 +126,9 @@ export default function DashboardPage() {
     <div className="relative flex flex-1 min-h-0 flex-col">
       {showNotificationToast ? (
         <div
-          className={`profile-update-toast absolute right-5 top-18 z-30 w-[calc(100%-2.5rem)] max-w-80 rounded-2xl bg-white/96 px-4 py-3 text-left shadow-[0_12px_24px_rgba(0,0,0,0.16)] ${notificationToastPhase === "enter" ? "profile-update-toast-enter" : ""} ${notificationToastPhase === "exit" ? "profile-update-toast-exit" : ""}`}
+          className={`profile-update-toast absolute right-5 top-18 z-30 w-[calc(100%-2.5rem)] max-w-80 rounded-[3px] bg-white/96 px-4 py-3 text-left shadow-[0_12px_24px_rgba(0,0,0,0.16)] ${notificationToastPhase === "enter" ? "profile-update-toast-enter" : ""} ${notificationToastPhase === "exit" ? "profile-update-toast-exit" : ""}`}
         >
-          <p className="text-[0.86rem] font-extrabold text-(--brand-green-01)">
+          <p className="text-[0.86rem] font-bold text-(--brand-green-01)">
             {notificationToastTitle}
           </p>
           <p className="mt-1 text-[0.78rem] leading-snug text-[#5d645f]">
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           <div className="mt-3 flex justify-end">
             <Link
               href="/profile"
-              className="flex h-11 items-center justify-center bg-(--brand-green-01) pl-5 pr-4 text-[0.92rem] font-extrabold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]"
+              className="flex h-11 items-center justify-center bg-(--brand-green-01) pl-5 pr-4 text-[0.92rem] font-bold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]"
             >
               {dashboardPageNames.notificationToastButton}
             </Link>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
         </h2>
 
         <div className="flex items-center gap-3">
-          <div className="flex h-20 flex-1 items-center justify-between bg-(--brand-green-01) px-4 shadow-md">
+          <div className="flex h-20 flex-1 items-center justify-between rounded-[3px] bg-(--brand-green-01) px-4 shadow-md">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-12 items-center justify-center rounded-full bg-black text-2xl font-bold text-white ring-2 ring-white">
                 W
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                 ? `/locations/map?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
                 : "/locations/map"
             }
-            className="flex h-20 w-20 shrink-0 items-center justify-center bg-(--white-white) shadow-md"
+            className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[3px] bg-(--white-white) shadow-md"
             title={dashboardPageNames.currentLocationButtonAlt}
           >
             <Image
@@ -273,7 +273,7 @@ function FavoriteCard({
   return (
     <Link
       href={`/details?id=${encodeURIComponent(locationId)}`}
-      className="relative h-32 w-36 shrink-0 overflow-hidden bg-black shadow-lg border-2 border-(--brand-green-01) block"
+      className="relative h-32 w-36 shrink-0 overflow-hidden rounded-[3px] bg-black shadow-lg border-2 border-(--brand-green-01) block"
     >
       <Image
         src="/locations-pictures/Herlev.jpg"
@@ -316,7 +316,7 @@ function NewsCard({
   description: string;
 }) {
   return (
-    <article className="w-46 shrink-0 overflow-hidden border-white/90 bg-white shadow-md">
+    <article className="w-46 shrink-0 overflow-hidden rounded-[3px] border-white/90 bg-white shadow-md">
       <Image
         src={image}
         alt={description}

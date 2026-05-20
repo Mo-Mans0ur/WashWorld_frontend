@@ -56,7 +56,7 @@ export default function NotifikationerPage() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <h1 className="text-[1.15rem] font-extrabold text-[#101010]">
+              <h1 className="text-[1.15rem] font-bold text-[#101010]">
                 {notificationPageContent.title}
               </h1>
               <p className="mt-1 text-[0.85rem] leading-snug text-[#6c6c6c]">
@@ -67,7 +67,7 @@ export default function NotifikationerPage() {
 
           <div className="mt-4 flex items-center justify-between gap-4 rounded-xl bg-[#f6f8f7] px-4 py-3">
             <div>
-              <p className="text-[0.92rem] font-extrabold text-[#1d1d1d]">
+              <p className="text-[0.92rem] font-bold text-[#1d1d1d]">
                 {notificationPageContent.masterToggleLabel}
               </p>
               <p className="mt-0.5 text-[0.78rem] leading-snug text-[#7a7a7a]">
@@ -95,7 +95,7 @@ export default function NotifikationerPage() {
                 />
 
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-[1rem] font-extrabold text-[#111]">
+                  <h2 className="text-[1rem] font-bold text-[#111]">
                     {item.title}
                   </h2>
                   <p className="mt-1 text-[0.8rem] leading-snug text-[#747474]">
@@ -116,7 +116,7 @@ export default function NotifikationerPage() {
         <button
           type="button"
           onClick={() => router.push("/profile?updated=preferences")}
-          className="mt-5 flex h-11 w-full items-center justify-center gap-2 bg-(--brand-green-01) text-[1rem] font-extrabold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
+          className="mt-5 flex h-11 w-full items-center justify-center gap-2 bg-(--brand-green-01) text-[1rem] font-bold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
         >
           <Check className="h-4.5 w-4.5" strokeWidth={3} />
           {notificationPageContent.saveButton}

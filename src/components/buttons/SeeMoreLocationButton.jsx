@@ -23,7 +23,7 @@ export default function SeeMoreLocationButton({
     <article className="w-full max-w-137.5 bg-(--color-grey-04)">
       <div className="flex flex-col">
         <div className="px-5 pt-4">
-          <h3 className="text-[1.1rem] font-extrabold text-black">
+          <h3 className="text-[1.1rem] font-bold text-black">
             {name}
             <span className="font-medium text-black"> · </span>
             <span className="font-bold text-(--brand-green-01)">
@@ -53,7 +53,7 @@ export default function SeeMoreLocationButton({
             //onClick={onReadMore}
             className="-mb-px flex h-12 min-w-37.5 items-center justify-center bg-(--brand-green-02) px-6 [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]"
           >
-            <span className="text-base font-extrabold text-white">Se mere</span>
+            <span className="text-base font-bold text-white">Se mere</span>
           </button>
         </div>
       </div>

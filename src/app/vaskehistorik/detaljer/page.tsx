@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import {
-  ArrowLeftIcon,
   CalendarDaysIcon,
   ClockIcon,
   CurrencyDollarIcon,
@@ -30,7 +29,6 @@ const receiptActionIcons = {
 };
 
 export default function VaskehistorikDetaljer() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const receiptId = Number(searchParams.get("id"));
   const [receipt, setReceipt] = useState(
@@ -42,21 +40,12 @@ export default function VaskehistorikDetaljer() {
   }, [receiptId]);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
+    <div className="flex h-full flex-col overflow-hidden">
       <PageInfo text={receiptPageNames.detailsTitle} userName={""} />
 
-      <div className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
         <main className="space-y-4 px-5 py-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="inline-flex h-10 items-center gap-2 bg-(--color-grey-01) px-4 text-sm font-bold text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-            Tilbage
-          </button>
-
-          <article className="bg-white px-4 py-4 shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
+          <article className="rounded-[3px] bg-white px-4 py-4 shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
             <div className="flex items-start gap-3">
               <div className="relative h-12 w-12 shrink-0 overflow-hidden border border-neutral-400 bg-white">
                 <Image
@@ -101,7 +90,7 @@ export default function VaskehistorikDetaljer() {
 
             <div className="mt-4 flex h-10 w-fit overflow-hidden border-2 border-neutral-800 bg-white text-neutral-950">
               <span className="flex w-6 items-center justify-center bg-[#327fc2]" />
-              <span className="flex items-center px-3 text-[15px] font-extrabold tracking-[0.08em]">
+              <span className="flex items-center px-3 text-[15px] font-bold tracking-[0.08em]">
                 {receipt.plate}
               </span>
             </div>
@@ -153,7 +142,7 @@ export default function VaskehistorikDetaljer() {
             </div>
           </article>
 
-          <article className="bg-white px-4 py-2 shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
+          <article className="rounded-[3px] bg-white px-4 py-2 shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
             {receiptActionNames.map((action, index) => (
               <button
                 key={action}

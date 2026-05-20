@@ -1,9 +1,19 @@
+"use client";
+
+import { useEffect } from "react";
 import Image from "next/image";
 
 import ErrorPageButton from "../components/ErrorPageButton";
 import { notFoundPageData } from "@/data/errorPagesData";
+import { useNavVisibility } from "@/components/ScreenLayout";
 
 export default function NotFound() {
+  const { setHideNav } = useNavVisibility();
+
+  useEffect(() => {
+    setHideNav(true);
+    return () => setHideNav(false);
+  }, [setHideNav]);
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[linear-gradient(rgba(7,56,31,0.46),rgba(7,56,31,0.46)),url('/background/washworld-background.png')] bg-cover bg-position-[center_bottom] text-white">
       <main className="flex flex-1 flex-col overflow-y-auto px-6 pb-6 pt-8 scrollbar-hide">
@@ -18,12 +28,12 @@ export default function NotFound() {
         />
 
         <div className="relative mt-2 flex flex-1 flex-col items-center">
-          <p className="pointer-events-none absolute inset-x-0 top-40 flex items-center justify-center text-center select-none text-[12rem] leading-none font-extrabold tracking-tight text-white/10">
+          <p className="pointer-events-none absolute inset-x-0 top-40 flex items-center justify-center text-center select-none text-[12rem] leading-none font-bold tracking-tight text-white/10">
             {notFoundPageData.code}
           </p>
 
           <div className="mt-auto max-w-4xl mb-6 text-center">
-            <h1 className="text-base font-extrabold leading-[1.12] text-white/95">
+            <h1 className="text-base font-bold leading-[1.12] text-white/95">
               {notFoundPageData.title}
             </h1>
             <div className="mt-15 text-[1rem] font-semibold text-white">

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Star, Info } from "lucide-react";
+import { Star, Info, ArrowLeft } from "lucide-react";
 import AngleButton from "@/components/buttons/AngleButton";
 import StartWashButton from "@/components/buttons/StartWashButton";
 import type { MapLocation } from "@/data/washworldLocations";
@@ -193,6 +193,14 @@ export default function DetailsPage() {
 
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         <main className="space-y-6 px-6 py-5">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-white font-semibold"
+          >
+            <ArrowLeft size={20} />
+            Tilbage
+          </button>
           {/* Fejlbesked hvis lokationen ikke kunne hentes */}
           {loadStatus === "error" ? (
             <p className="text-center text-sm text-(--color-danger)">
@@ -206,8 +214,8 @@ export default function DetailsPage() {
               <section className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-bold text-neutral-900">{location.address}</p>
-                  <p className="text-sm text-neutral-600">Miljøvenlig bilvask</p>
-                  <p className="text-sm text-neutral-600">ID: {location.id}</p>
+                  <p className="text-sm text-neutral-900">Miljøvenlig bilvask</p>
+                  <p className="text-sm text-neutral-900">ID: {location.id}</p>
                 </div>
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-(--brand-green-01) text-sm font-bold text-neutral-800">
                   {formatOpenHoursDisplay(location.openHours)}
@@ -217,7 +225,7 @@ export default function DetailsPage() {
               {/* Live Status: viser antal ledige maskiner per udstyrstype */}
               <section>
                 <h2 className="mb-2 font-bold text-neutral-900">Live Status</h2>
-                <div className="flex items-center justify-around divide-x divide-neutral-200 rounded bg-white/80 py-3 shadow-sm">
+                <div className="flex items-center justify-around divide-x divide-neutral-200 rounded-[3px] bg-white/80 py-3 shadow-sm">
                   {liveStatusCounts.map((s) => (
                     <div key={s.liveStatusLabel} className="flex flex-1 items-center justify-center gap-2">
                       <Image
@@ -253,7 +261,7 @@ export default function DetailsPage() {
                       </button>
                     </h2>
                     {openInfo === section.type && (
-                      <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded bg-white px-4 py-3 text-sm text-neutral-700 shadow-lg ring-1 ring-black/10">
+                      <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-[3px] bg-white px-4 py-3 text-sm text-neutral-700 shadow-lg ring-1 ring-black/10">
                         <p className="font-semibold mb-1">Maks. køretøjsdimensioner</p>
                         <p>Højde: 2,6 m</p>
                         <p>Sidespejl til sidespejl: 2,58 m</p>
@@ -298,7 +306,7 @@ function MachineCard({ id, image, title, status, selected, onSelect }: MachineCa
   return (
     <button
       onClick={() => onSelect(selected ? null : id)}
-      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden bg-white font-bold shadow-md ring-inset transition-shadow ${selected ? "ring-4 ring-(--brand-green-01)" : ""}`}
+      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden rounded-[3px] bg-white font-bold shadow-md ring-inset transition-shadow ${selected ? "ring-4 ring-(--brand-green-01)" : ""}`}
     >
       <div className="flex flex-1 self-center flex-row items-center justify-start gap-2 p-1">
         <Image

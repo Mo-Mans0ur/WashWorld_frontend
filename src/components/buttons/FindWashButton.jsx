@@ -9,13 +9,13 @@ export default function FindWashButton() {
           <p className="text-[0.72rem] font-bold text-white">8260 Viby</p>
         </div>
 
-        <span className="whitespace-nowrap text-[0.72rem] font-extrabold text-black">
+        <span className="whitespace-nowrap text-[0.72rem] font-bold text-black">
           9.6 km
         </span>
       </div>
 
       <div className="flex h-full w-[44%] items-center justify-center rounded-r-full bg-(--color-surface) pl-6 pr-3.5 [clip-path:polygon(24%_0,100%_0,100%_100%,0_100%)]">
-        <span className="whitespace-nowrap text-[0.95rem] font-extrabold tracking-tight text-black">
+        <span className="whitespace-nowrap text-[0.95rem] font-bold tracking-tight text-black">
           Find vask
         </span>
       </div>

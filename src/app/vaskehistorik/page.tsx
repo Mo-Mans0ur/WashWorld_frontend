@@ -19,15 +19,15 @@ export default function Vaskehistorik() {
   }, []);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
+    <div className="flex h-full flex-col overflow-hidden">
       <PageInfo text={receiptPageNames.historyTitle} userName={""} />
 
-      <div className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
         <main className="space-y-3 px-5 py-4">
           {receipts.map((receipt) => (
             <article
               key={receipt.id}
-              className="relative w-full overflow-hidden bg-white text-left shadow-[0_8px_18px_rgba(0,0,0,0.08)]"
+              className="relative w-full overflow-hidden rounded-[3px] bg-white text-left shadow-[0_8px_18px_rgba(0,0,0,0.08)]"
             >
               <div className="flex items-start gap-3 px-3 pb-2 pt-3">
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden border border-neutral-400 bg-white">
@@ -48,12 +48,12 @@ export default function Vaskehistorik() {
                       </h3>
 
                       <div className="mt-1.5 space-y-0.5">
-                        <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-400">
-                          <MapPinIcon className="h-3 w-3 shrink-0 text-neutral-300" />
+                        <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-600">
+                          <MapPinIcon className="h-3 w-3 shrink-0 text-neutral-500" />
                           <span className="truncate">{receipt.location}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-400">
-                          <CalendarDaysIcon className="h-3 w-3 shrink-0 text-neutral-300" />
+                        <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-600">
+                          <CalendarDaysIcon className="h-3 w-3 shrink-0 text-neutral-500" />
                           <span>
                             {receipt.date} · {receipt.time}
                           </span>
@@ -67,7 +67,7 @@ export default function Vaskehistorik() {
                       >
                         {receipt.status}
                       </span>
-                      <p className="text-[18px] font-extrabold text-neutral-950">
+                      <p className="text-[18px] font-bold text-neutral-950">
                         {receipt.amount}
                       </p>
                     </div>
@@ -80,7 +80,7 @@ export default function Vaskehistorik() {
               <div className="flex items-end justify-between gap-3 px-3 pb-3 pt-3 pr-36">
                 <div className="flex h-10 overflow-hidden border-2 border-neutral-800 bg-white text-neutral-950">
                   <span className="flex w-6 items-center justify-center bg-[#327fc2]" />
-                  <span className="flex items-center px-3 text-[15px] font-extrabold tracking-[0.08em]">
+                  <span className="flex items-center px-3 text-[15px] font-bold tracking-[0.08em]">
                     {receipt.plate}
                   </span>
                 </div>

@@ -76,7 +76,7 @@ export default function AbonnementPage() {
               key={name}
               type="button"
               onClick={() => handleSelectPlan(index)}
-              className={`h-7.5 flex-1 rounded-full text-[0.85rem] font-extrabold text-black transition ${
+              className={`h-7.5 flex-1 rounded-full text-[0.85rem] font-bold text-black transition ${
                 selectedIndex === index
                   ? "bg-(--color-surface)"
                   : "bg-(--color-grey-03) ring-2 ring-(--brand-green-01) opacity-50"
@@ -90,21 +90,21 @@ export default function AbonnementPage() {
         {currentPlan && (
           <div
             key={animKey}
-            className={`mx-auto mt-7 w-[82%] overflow-hidden bg-(--white-white) shadow-lg ${
+            className={`mx-auto mt-7 w-[82%] overflow-hidden rounded-[3px] bg-(--white-white) shadow-lg ${
               slideDirection === "right" ? "slide-right" : "slide-left"
             }`}
           >
             <div className="bg-(--brand-green-01) px-6 py-5 text-center text-white">
-              <h2 className="text-[2rem] font-extrabold leading-none">
+              <h2 className="text-[2rem] font-bold leading-none">
                 {currentPlan.name}
               </h2>
-              <p className="mt-2 text-[1.35rem] font-extrabold">
+              <p className="mt-2 text-[1.35rem] font-bold">
                 {currentPlan.price}
               </p>
             </div>
 
             <div className="px-5 py-4">
-              <h3 className="mb-4 text-center text-[1.15rem] font-extrabold text-black">
+              <h3 className="mb-4 text-center text-[1.15rem] font-bold text-black">
                 {currentPlan.description}
               </h3>
               <div className="grid grid-cols-2 gap-x-5 gap-y-3 text-[0.75rem] font-medium text-black">
@@ -121,7 +121,7 @@ export default function AbonnementPage() {
             <button
               type="button"
               onClick={handleCreateSubscription}
-              className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-extrabold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+              className="ml-auto flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
             >
               {subscriptionPageNames.createButton}
             </button>
@@ -139,7 +139,7 @@ function Feature({ text, level = 0 }) {
   return (
     <div className="flex items-center gap-2">
       <span
-        className={`relative flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full text-[0.75rem] font-extrabold text-white ${
+        className={`relative flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full text-[0.75rem] font-bold text-white ${
           isIncluded ? "bg-(--brand-green-01)" : "bg-(--color-grey-02)"
         }`}
       >

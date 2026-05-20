@@ -17,12 +17,12 @@ export default function UnsupportedPage() {
         />
 
         <div className="relative mt-2 flex flex-1 flex-col items-center">
-          <p className="pointer-events-none absolute inset-x-0 top-40 flex items-center justify-center text-center select-none text-[12rem] leading-none font-extrabold tracking-tight text-white/10">
+          <p className="pointer-events-none absolute inset-x-0 top-40 flex items-center justify-center text-center select-none text-[12rem] leading-none font-bold tracking-tight text-white/10">
             {unsupportedPageData.code}
           </p>
 
           <div className="mt-auto max-w-4xl mb-6 text-center">
-            <h1 className="text-base font-extrabold leading-[1.12] text-white/95">
+            <h1 className="text-base font-bold leading-[1.12] text-white/95">
               {unsupportedPageData.title}
             </h1>
             <div className="mt-15 text-[1rem] font-semibold text-white">

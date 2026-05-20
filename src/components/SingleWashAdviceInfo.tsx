@@ -71,11 +71,11 @@ export default function SingleWashAdviceInfo() {
                   <div className="space-y-0.5 pt-1">
                     <h2
                       id="wash-advice-title"
-                      className="text-[1.05rem] font-extrabold leading-none"
+                      className="text-[1.05rem] font-bold leading-none"
                     >
                       {singleWashAdviceContent.title}
                     </h2>
-                    <p className="text-[1rem] font-extrabold leading-none">
+                    <p className="text-[1rem] font-bold leading-none">
                       {singleWashAdviceContent.rememberLabel}
                     </p>
                   </div>
@@ -91,7 +91,7 @@ export default function SingleWashAdviceInfo() {
                     />
                   </div>
 
-                  <p className="mt-3 text-[0.95rem] font-extrabold leading-tight">
+                  <p className="mt-3 text-[0.95rem] font-bold leading-tight">
                     {activeItem.title}
                   </p>
 
@@ -99,7 +99,7 @@ export default function SingleWashAdviceInfo() {
                     <button
                       type="button"
                       onClick={handleContinue}
-                      className="min-w-31 bg-(--brand-green-01) px-6 py-1.5 text-[1.05rem] font-extrabold text-white shadow-[0_6px_12px_rgba(0,0,0,0.16)] [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+                      className="min-w-31 bg-(--brand-green-01) px-6 py-1.5 text-[1.05rem] font-bold text-white shadow-[0_6px_12px_rgba(0,0,0,0.16)] [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
                     >
                       {isLastItem
                         ? singleWashAdviceContent.closeLabel

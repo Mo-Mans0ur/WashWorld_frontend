@@ -39,10 +39,10 @@ export default function KundeservicePage() {
 
       <main className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)] px-5 pb-6 pt-3">
         <div className="max-w-76 pl-1">
-          <p className="text-[1.05rem] font-extrabold leading-tight text-[#0d2216]">
+          <p className="text-[1.05rem] font-bold leading-tight text-[#0d2216]">
             {supportPageContent.introTitle}
           </p>
-          <p className="text-[1.05rem] font-extrabold leading-tight text-[#0d2216]">
+          <p className="text-[1.05rem] font-bold leading-tight text-[#0d2216]">
             {supportPageContent.introSubtitle}
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function KundeservicePage() {
         </section>
 
         <section className="mt-13">
-          <h2 className="text-[1.15rem] font-extrabold text-[#0d2216]">
+          <h2 className="text-[1.15rem] font-bold text-[#0d2216]">
             {supportPageContent.faqTitle}
           </h2>
 
@@ -123,7 +123,7 @@ function SupportCard({ card }: { card: SupportContactCard }) {
 
         <div className="min-w-0 flex-1 pt-0.5">
           <h3
-            className={`font-extrabold text-[#1b1b1b] ${isUrgent ? "text-[1rem]" : "text-[1.05rem]"}`}
+            className={`font-bold text-[#1b1b1b] ${isUrgent ? "text-[1rem]" : "text-[1.05rem]"}`}
           >
             {card.title}
           </h3>
@@ -145,7 +145,7 @@ function SupportCard({ card }: { card: SupportContactCard }) {
       {isUrgent ? (
         <a
           href={card.href ?? "#"}
-          className="ml-auto flex h-11 w-[74%] items-center justify-center gap-2 bg-[#d91515] text-[1.05rem] font-extrabold text-white [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]"
+          className="ml-auto flex h-11 w-[74%] items-center justify-center gap-2 bg-[#d91515] text-[1.05rem] font-bold text-white [clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]"
         >
           <span>{card.actionLabel}</span>
           <PhoneCall className="h-5 w-5" strokeWidth={2.7} />
@@ -154,7 +154,7 @@ function SupportCard({ card }: { card: SupportContactCard }) {
         <div className="flex justify-end">
           <a
             href={card.href ?? "#"}
-            className="flex h-8.5 w-[28%] items-center justify-center bg-(--brand-green-01) text-[0.9rem] font-extrabold text-white [clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]"
+            className="flex h-8.5 w-[28%] items-center justify-center bg-(--brand-green-01) text-[0.9rem] font-bold text-white [clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]"
           >
             {card.actionLabel}
           </a>

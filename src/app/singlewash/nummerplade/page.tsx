@@ -35,7 +35,7 @@ export default function SingleWashPlatePage() {
           <SingleWashAdviceInfo />
 
           <h1
-            className="mt-20 text-center text-[2.1rem] font-extrabold leading-tight"
+            className="mt-20 text-center text-[2.1rem] font-bold leading-tight"
             aria-label={singleWashPlatePageContent.title}
           >
             {scanningTitle}
@@ -58,7 +58,7 @@ export default function SingleWashPlatePage() {
           </div>
 
           <div className="mx-auto mt-12 w-full max-w-81.5">
-            <label className="mb-2 block text-center text-[1.1rem] font-extrabold text-white">
+            <label className="mb-2 block text-center text-[1.1rem] font-bold text-white">
               {singleWashPlatePageContent.manualLabel}
             </label>
 
@@ -69,7 +69,7 @@ export default function SingleWashPlatePage() {
                 setPlateNumber(event.target.value.toUpperCase())
               }
               placeholder={singleWashPlatePageContent.manualPlaceholder}
-              className="h-14 w-full border-[3px] border-white bg-[#d9ddda]/85 px-4 text-[1.05rem] font-extrabold uppercase tracking-[0.02em] text-[#8d9892] outline-none placeholder:text-[#8d9892]"
+              className="h-14 w-full border-[3px] border-white bg-[#d9ddda]/85 px-4 text-[1.05rem] font-bold uppercase tracking-[0.02em] text-[#8d9892] outline-none placeholder:text-[#8d9892]"
             />
           </div>
 

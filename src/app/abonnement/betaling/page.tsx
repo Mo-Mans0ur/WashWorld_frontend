@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CircleHelp, Lock } from "lucide-react";
 
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import { paymentPageContent } from "@/data/paymentData";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
@@ -147,7 +146,7 @@ export default function SubscriptionBetalingPage() {
                 <div className="relative">
                   {showCvcHelp ? (
                     <div className="absolute -top-20 right-0 z-10 w-48 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(228,236,245,0.92)_100%)] px-3 py-2.5 text-xs font-semibold leading-relaxed text-slate-700 shadow-[0_12px_30px_rgba(0,0,0,0.22)] backdrop-blur-sm">
-                      <div className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-(--brand-green-01)">
+                      <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-green-01)">
                         Kortsikkerhed
                       </div>
                       <p>{paymentPageContent.card.cvcHelpText}</p>
