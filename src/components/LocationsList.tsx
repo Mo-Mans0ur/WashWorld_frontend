@@ -5,6 +5,7 @@ import type { MapLocation } from "@/data/washworldLocations";
 import { fetchMapLocations } from "@/lib/locationsApi";
 import LocationPopupCard from "@/components/LocationPopupCard";
 import { formatKmDa, haversineKm } from "@/lib/locationGeo";
+import ViewToggle from "@/components/ViewToggle";
 
 type LocationWithDistance = MapLocation & { distanceKm: number | null };
 
@@ -80,6 +81,9 @@ export default function LocationsList() {
     <>
 
       <header className="px-5 pt-4">
+        <div className="mb-3">
+          <ViewToggle />
+        </div>
         <h1 className="text-lg font-bold text-black">Vaskehaller</h1>
         <p className="mt-1 text-sm text-black/60">
           {userCoords

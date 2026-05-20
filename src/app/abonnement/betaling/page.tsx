@@ -198,19 +198,11 @@ export default function SubscriptionBetalingPage() {
           </div>
         </div>
 
-        <div className="mt-auto flex pb-5 pt-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex-1 bg-(--color-grey-01) px-4 py-1 font-bold text-2xl text-white [clip-path:polygon(0_0,100%_0,83%_100%,0_100%)]"
-          >
-            {subscriptionPaymentPageContent.buttons.back}
-          </button>
-
+        <div className="mt-auto pb-5 pt-4">
           <button
             type="button"
             onClick={handleContinue}
-            className="flex-1 bg-(--brand-green-01) px-4 py-1 font-bold text-2xl text-white [clip-path:polygon(15%_0,100%_0,100%_100%,0%_100%)]"
+            className="w-full bg-(--brand-green-01) px-4 py-1 font-bold text-2xl text-white [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)]"
           >
             {subscriptionPaymentPageContent.buttons.continue}
           </button>

@@ -76,7 +76,7 @@ export default function AbonnementPage() {
               key={name}
               type="button"
               onClick={() => handleSelectPlan(index)}
-              className={`h-7.5 flex-1 rounded-full text-[0.85rem] font-bold text-black transition ${
+              className={`h-7.5 flex-1 rounded-[3px] text-[0.85rem] font-bold text-black transition ${
                 selectedIndex === index
                   ? "bg-(--color-surface)"
                   : "bg-(--color-grey-03) ring-2 ring-(--brand-green-01) opacity-50"

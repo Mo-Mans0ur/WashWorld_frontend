@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapControls from "./MapControls";
+import ViewToggle from "./ViewToggle";
 import type { MapLocation } from "../data/washworldLocations";
 import { fetchMapLocations } from "../lib/locationsApi";
 import {
@@ -361,6 +362,9 @@ export default function Map() {
 
   return (
     <div style={{ width: "100%", height: "calc(120dvh - 112px)", position: "relative" }}>
+      <div style={{ position: "absolute", top: 12, left: 12, zIndex: 10 }}>
+        <ViewToggle />
+      </div>
       <MapControls
         lightPreset={lightPreset}
         onCycleLightPreset={cycleLightPreset}

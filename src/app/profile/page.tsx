@@ -209,9 +209,7 @@ export default function ProfilePage() {
               </p>
               <button
                 type="button"
-                onClick={() =>
-                  (window.location.href = "/profile/updateprofile")
-                }
+                onClick={() => router.push("/profile/updateprofile")}
                 className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
               >
                 {profilePageNames.editProfile}
@@ -328,7 +326,7 @@ export default function ProfilePage() {
               <button
                 key={index}
                 type="button"
-                onClick={() => (window.location.href = `${item.href}`)}
+                onClick={() => router.push(item.href)}
                 className="flex w-full items-center border-b border-neutral-200 px-4 py-2.5 text-left last:border-b-0"
               >
                 <span className="flex items-center gap-2.5 text-sm font-bold text-neutral-800">
@@ -347,7 +345,7 @@ export default function ProfilePage() {
           {/* Knapper */}
           <button
             type="button"
-            onClick={() => (window.location.href = "/login")}
+            onClick={() => router.push("/login")}
             className="mx-auto block w-[78%] rounded-[3px] bg-white py-2.5 text-xl font-bold text-red-500 shadow-md"
           >
             {profilePageNames.logout}

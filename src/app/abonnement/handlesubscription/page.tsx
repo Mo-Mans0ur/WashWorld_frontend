@@ -186,19 +186,11 @@ export default function HandleSubscriptionPage() {
             </span>
           </label>
 
-          <div className="mx-auto mt-5.5 flex w-full max-w-69 items-center gap-0">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="h-8.5 flex-1 bg-(--color-grey-01) text-[1.45rem] font-semibold text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
-            >
-              {subscriptionPageNames.backButton}
-            </button>
-
+          <div className="mx-auto mt-5.5 w-full max-w-69">
             <button
               type="button"
               onClick={handleSubmit}
-              className={`-ml-3.5 h-8.5 flex-1 text-[1.45rem] font-semibold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)] transition-opacity ${canSubmit ? "bg-(--brand-green-01)" : "bg-(--color-grey-01) opacity-60 cursor-not-allowed"}`}
+              className={`h-8.5 w-full text-[1.45rem] font-semibold text-white [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)] transition-opacity ${canSubmit ? "bg-(--brand-green-01)" : "bg-(--color-grey-01) opacity-60 cursor-not-allowed"}`}
             >
               {subscriptionPageNames.submitButton}
             </button>

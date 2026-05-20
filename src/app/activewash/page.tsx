@@ -145,7 +145,7 @@ function CompletionModal({ onClose, onReceipt }: CompletionModalProps) {
           width: "calc(100% - 40px)",
           maxWidth: 360,
           background: "white",
-          borderRadius: 24,
+          borderRadius: 3,
           padding: "28px 24px 24px",
           zIndex: 50,
           animation: "cardIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards",
@@ -164,7 +164,7 @@ function CompletionModal({ onClose, onReceipt }: CompletionModalProps) {
             letterSpacing: "-0.01em",
           }}
         >
-          Vask Afsluttet
+          Vask afsluttet
         </h2>
 
         {/* Icon area with decorative drops, bubbles and sparkles */}
@@ -341,61 +341,24 @@ function CompletionModal({ onClose, onReceipt }: CompletionModalProps) {
             whiteSpace: "pre-line",
           }}
         >
-          {"du kan finde kvitteringen\ninde på din profil."}
+          {"Du kan finde kvitteringen\ninde på din profil."}
         </p>
 
         {/* Buttons */}
-        <div style={{ display: "flex", gap: 6 }}>
-          {/* Se kvittering — filled green parallelogram */}
+        <div className="flex gap-1.5">
           <button
+            type="button"
             onClick={onReceipt}
-            style={{
-              flex: 1,
-              padding: "14px 10px",
-              background: "var(--color-primary)",
-              border: "2px solid var(--color-primary)",
-              transform: "skewX(-12deg)",
-              cursor: "pointer",
-            }}
+            className="flex flex-1 h-12 items-center justify-center bg-(--brand-green-01) font-bold text-white text-sm [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
           >
-            <span
-              style={{
-                display: "block",
-                transform: "skewX(12deg)", // counter-skew so text stays upright
-                color: "white",
-                fontWeight: 700,
-                fontSize: 14,
-                whiteSpace: "nowrap",
-              }}
-            >
-              Se kvittering
-            </span>
+            Se kvittering
           </button>
-
-          {/* Luk — outlined parallelogram */}
           <button
+            type="button"
             onClick={onClose}
-            style={{
-              flex: 1,
-              padding: "14px 10px",
-              background: "white",
-              border: "2px solid var(--color-primary)",
-              transform: "skewX(-12deg)",
-              cursor: "pointer",
-            }}
+            className="flex flex-1 h-12 items-center justify-center bg-neutral-500 font-bold text-white text-sm [clip-path:polygon(12%_0,100%_0,100%_100%,0%_100%)]"
           >
-            <span
-              style={{
-                display: "block",
-                transform: "skewX(12deg)", // counter-skew so text stays upright
-                color: "#111",
-                fontWeight: 600,
-                fontSize: 14,
-                whiteSpace: "nowrap",
-              }}
-            >
-              Luk
-            </span>
+            Luk
           </button>
         </div>
       </div>
@@ -877,7 +840,7 @@ export default function ActiveAutoWashPage({
 
       <div className="flex flex-1 min-h-0 flex-col justify-around px-8 py-6 pb-24">
         <div className="flex flex-col items-center justify-center">
-          <AssistanceButton />
+          <AssistanceButton washId={washId} />
           <p className="p-3 text-sm text-(--white-white)/60">ID : {washId}</p>
         </div>
 

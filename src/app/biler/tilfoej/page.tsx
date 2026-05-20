@@ -62,7 +62,7 @@ export default function TilfoejBilPage() {
                 placeholder={fmt.placeholder}
                 maxLength={12}
                 required
-                className={`flex-1 rounded-sm border bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01) ${
+                className={`flex-1 rounded-[3px] border bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01) ${
                   plateError ? "border-red-400" : "border-neutral-400"
                 }`}
               />
@@ -77,10 +77,10 @@ export default function TilfoejBilPage() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="Kladenavn (frivilligt)"
-            className="rounded-sm border border-neutral-400 bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01)"
+            className="rounded-[3px] border border-neutral-400 bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01)"
           />
 
-          <div className="flex items-center gap-3 rounded-sm border border-neutral-300 bg-(--white-white) px-4 py-3.5 shadow-sm">
+          <div className="flex items-center gap-3 rounded-[3px] border border-neutral-300 bg-(--white-white) px-4 py-3.5 shadow-sm">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-(--brand-green-01) text-(--brand-green-01)">
               <Zap size={18} strokeWidth={2.5} />
             </div>

@@ -66,14 +66,14 @@ export default function CountrySelector({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 rounded-sm border border-neutral-400 bg-(--white-white) px-3 py-3.5 text-base font-bold text-neutral-700 shadow-sm"
+        className="flex items-center gap-1 rounded-[3px] border border-neutral-400 bg-(--white-white) px-3 py-3.5 text-base font-bold text-neutral-700 shadow-sm"
       >
         {value.code}
         <ChevronDown size={14} className={`text-neutral-500 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-44 overflow-y-auto rounded-md bg-white shadow-xl ring-1 ring-black/10">
+        <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-44 overflow-y-auto rounded-[3px] bg-white shadow-xl ring-1 ring-black/10">
           {EUROPEAN_COUNTRIES.map((country) => (
             <button
               key={country.code}

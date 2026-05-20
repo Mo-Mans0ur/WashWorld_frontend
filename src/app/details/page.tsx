@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Star, Info, ArrowLeft } from "lucide-react";
+import { Star, Info } from "lucide-react";
 import AngleButton from "@/components/buttons/AngleButton";
 import StartWashButton from "@/components/buttons/StartWashButton";
 import type { MapLocation } from "@/data/washworldLocations";
@@ -193,14 +193,6 @@ export default function DetailsPage() {
 
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         <main className="space-y-6 px-6 py-5">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-white font-semibold"
-          >
-            <ArrowLeft size={20} />
-            Tilbage
-          </button>
           {/* Fejlbesked hvis lokationen ikke kunne hentes */}
           {loadStatus === "error" ? (
             <p className="text-center text-sm text-(--color-danger)">
