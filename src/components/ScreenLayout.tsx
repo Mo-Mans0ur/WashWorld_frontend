@@ -7,7 +7,7 @@ import AppHeader from "@/components/AppHeader";
 
 export default function ScreenLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const hideNavRoutes = new Set(["/login", "/signup", "/505", "/not-found"]);
+  const hideNavRoutes = new Set(["/login", "/signup", "/505", "/"]);
   const showNav = !hideNavRoutes.has(pathname);
 
   return (
