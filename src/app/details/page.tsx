@@ -1,5 +1,18 @@
 "use client";
 
+// DetailsPage – viser detaljer om én vaskelokalitet.
+//
+// Siden henter lokationsdata og udstyrsstatus fra API'et via URL-parameteren ?id=.
+// Brugeren kan:
+//   - Se live status på maskiner (ledig / optaget / ud af drift)
+//   - Vælge en specifik maskine og starte en vask
+//   - Tilføje/fjerne lokationen som favorit
+//
+// Navigationslogik ved "Start vask":
+//   - Støvsuger eller vask-selv → /selfwash
+//   - Vaskehal med aktivt abonnement → /activewash
+//   - Vaskehal uden abonnement → /singlewash (vælg vasketype)
+
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -18,10 +31,10 @@ import {
 import { fetchLocationById } from "@/lib/locationsApi";
 import { formatOpenHoursDisplay } from "@/lib/locationGeo";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useAuth } from "@/context/AuthContext";
+import { fetchSubscriptions } from "@/lib/subscriptionsApi";
 
-// TODO: erstat med rigtig subscription-check når auth er implementeret
-const HAS_SUBSCRIPTION = true;
-
+// Props til maskinkortet-komponenten nederst i filen
 interface MachineCardProps {
   id: string;
   image: string;
@@ -58,11 +71,30 @@ export default function DetailsPage() {
   const locationId = searchParams.get("id");
   const router = useRouter();
 
-  // Brugerens interaktionstilstande
+  // Henter den indloggede bruger fra AuthContext
+  const { user } = useAuth();
+
+  // Favorit-håndtering via FavoritesContext (gemmes i localStorage)
   const { isFavorite, toggleFavorite } = useFavorites();
   const liked = locationId ? isFavorite(locationId) : false;
-  const [selectedId, setSelectedId] = useState<string | null>(null); // fx "vaskehal-42"
-  const [openInfo, setOpenInfo] = useState<string | null>(null); // hvilken sektion der viser dimensionspopup
+
+  // selectedId holder styr på hvilken maskine brugeren har valgt, fx "vaskehal-42"
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // openInfo holder styr på hvilken sektion der viser dimensionspopuppen
+  const [openInfo, setOpenInfo] = useState<string | null>(null);
+
+  // hasSubscription sættes til true hvis brugeren har et aktivt abonnement
+  const [hasSubscription, setHasSubscription] = useState(false);
+
+  // Tjekker brugerens abonnementsstatus ved opstart.
+  // Bruger fetchSubscriptions() (ikke fetchUserSubscriptions) fordi den ikke
+  // kræver at brugeren har et køretøj registreret i databasen.
+  useEffect(() => {
+    if (!user) return;
+    fetchSubscriptions()
+      .then((subs) => setHasSubscription(subs.some((s) => s.subscriptions_status === "aktiv")))
+      .catch(() => setHasSubscription(false));
+  }, [user]);
 
   // Data hentet fra API'et
   const [location, setLocation] = useState<MapLocation | null>(null);
@@ -158,11 +190,16 @@ export default function DetailsPage() {
     return null;
   }, [selectedId, equipment]);
 
-  // Sender brugeren videre afhængigt af om de har et abonnement:
-  // - Med abonnement: direkte til aktiv vask med lokation og maskine
-  // - Uden abonnement: til enkeltvaske-flowet hvor de vælger vasketype
+  // Håndterer "Start vask"-knappen afhængigt af valgt maskine og abonnementsstatus:
+  // - Støvsuger eller vask-selv → altid til selvvask-siden
+  // - Vaskehal med aktivt abonnement → direkte til aktiv vask med lokation og maskine
+  // - Vaskehal uden abonnement → til enkeltvaske-flowet hvor brugeren vælger vasketype
   function handleStartWash() {
-    if (HAS_SUBSCRIPTION) {
+    if (selectedId?.startsWith("stovsuger") || selectedId?.startsWith("vask_selv")) {
+      router.push(`/selfwash?location=${locationId ?? ""}&equipment=${selectedId ?? ""}`);
+      return;
+    }
+    if (hasSubscription) {
       router.push(
         `/activewash?subscription=true&location=${locationId ?? ""}&equipment=${selectedId ?? ""}`,
       );
@@ -173,8 +210,10 @@ export default function DetailsPage() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Header med lokationsnavn og favoritknap */}
-      <section className="relative h-12">
+      {/* Titelbar med lokationsnavn og favoritknap.
+          z-10 sikrer at den ligger over det scrollende indhold nedenunder.
+          Baggrunden er transparent så app-gradientet vises bag den skrå kant. */}
+      <section className="relative z-10 h-12">
         <div className="relative inline-flex h-full min-w-45 items-center gap-3 bg-(--brand-green-01) pl-6 pr-10 [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]">
           <p className="whitespace-nowrap text-2xl font-bold text-white">
             {loadStatus === "loading" ? "Henter…" : (location?.name ?? "—")}
@@ -193,6 +232,7 @@ export default function DetailsPage() {
         </div>
       </section>
 
+      {/* Scrollbart indholdsområde – alt nedenfor titelbaren kan scrolles */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         <main className="space-y-6 px-6 py-5">
           {/* Fejlbesked hvis lokationen ikke kunne hentes */}
@@ -211,6 +251,7 @@ export default function DetailsPage() {
                   <p className="text-sm text-neutral-900">Miljøvenlig bilvask</p>
                   <p className="text-sm text-neutral-900">ID: {location.id}</p>
                 </div>
+                {/* Cirkel der viser åbningstider */}
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-(--brand-green-01) text-sm font-bold text-neutral-800">
                   {formatOpenHoursDisplay(location.openHours)}
                 </div>
@@ -245,6 +286,7 @@ export default function DetailsPage() {
                   <div className="relative mb-3">
                     <h2 className="flex items-center gap-1.5 text-xl font-bold text-neutral-900">
                       {section.label}
+                      {/* Info-knap der toggler dimensionspopuppen for denne sektion */}
                       <button
                         type="button"
                         onClick={() => setOpenInfo(openInfo === section.type ? null : section.type)}
@@ -254,6 +296,7 @@ export default function DetailsPage() {
                         <Info size={13} />
                       </button>
                     </h2>
+                    {/* Popup med maks. køretøjsdimensioner – vises kun for den valgte sektion */}
                     {openInfo === section.type && (
                       <div className="absolute left-0 top-full z-20 mt-1 w-56 rounded-[3px] bg-white px-4 py-3 text-sm text-neutral-700 shadow-lg ring-1 ring-black/10">
                         <p className="font-semibold mb-1">Maks. køretøjsdimensioner</p>
@@ -279,8 +322,9 @@ export default function DetailsPage() {
                 </section>
               ))}
 
-              {/* Start vask-knap og navn på valgt maskine */}
+              {/* Start vask-knap – deaktiveret hvis ingen maskine er valgt eller maskinen er optaget */}
               <StartWashButton onClick={handleStartWash} status={selectedItem?.status ?? null} />
+              {/* Viser navnet på den valgte maskine under knappen */}
               {selectedItem && (
                 <p className="text-center text-sm text-white">
                   Valgt: {selectedItem.title}
@@ -312,6 +356,7 @@ function MachineCard({ id, image, title, status, selected, onSelect }: MachineCa
         />
         <span className="text-sm font-bold text-neutral-800">{title}</span>
       </div>
+      {/* Farvekodet statusbadge i hjørnet af kortet */}
       <AngleButton
         text={status}
         className={statusClass[status] ?? "bg-neutral-400"}

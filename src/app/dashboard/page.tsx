@@ -11,6 +11,7 @@ import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 import { formatLocationAddress } from "@/lib/locationsApi";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useAuth } from "@/context/AuthContext";
 
 // Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
 function getDistanceInKm(
@@ -31,6 +32,7 @@ function getDistanceInKm(
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const { hasMissingProfileInfo, missingPaymentCard, missingVehicle } =
     getMissingProfileInfoState();
   const { favorites } = useFavorites();
@@ -158,7 +160,7 @@ export default function DashboardPage() {
         />
       </button>
 
-      <PageInfo userName={dashboardPageNames.userName} />
+      <PageInfo userName={user?.user_firstname ?? ""} />
 
       {/* Nærmeste vaskehal med link til kort */}
       <section className="px-8 pt-10">
