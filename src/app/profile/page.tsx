@@ -1,4 +1,12 @@
 "use client";
+
+// ProfilePage – brugerens profilside.
+// Viser abonnementskort, brugerkort, klippekort, badges og genvejsmenupunkter.
+//
+// Abonnementer hentes fra API'et ved mount (kun aktive vises, eller første hvis ingen er "aktiv").
+// Toast-besked vises kortvarigt når brugeren vender tilbage fra updateprofile med ?updated=1.
+// Opsigelsesbekræftelse håndteres med en inline modal der kalder deleteSubscription().
+
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
@@ -34,11 +42,13 @@ const menuItemIcons = {
   "question-mark": <HelpCircle size={20} />,
 };
 
+// Formaterer en ISO-dato til dansk månedsnavn + årstal, fx "maj 2024"
 function formatMemberSince(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString("da-DK", { month: "long", year: "numeric" });
 }
 
+// Formaterer en ISO-dato til kort dansk datoformat, fx "14.05.2025"
 function formatRenewalDate(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString("da-DK");
@@ -59,6 +69,8 @@ export default function ProfilePage() {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const subscriptionMenuRef = useRef<HTMLDivElement>(null);
 
+  // Hent abonnementer når brugeren er klar. Vi viser det aktive abonnement,
+  // eller det første i listen hvis ingen har status "aktiv".
   useEffect(() => {
     if (!user) return;
     fetchSubscriptions()
@@ -66,6 +78,7 @@ export default function ProfilePage() {
       .catch(() => {});
   }, [user]);
 
+  // Luk abonnements-dropdown-menuen når brugeren klikker uden for den
   useEffect(() => {
     if (!subscriptionMenuOpen) return;
     function handleClickOutside(e: MouseEvent) {
@@ -83,12 +96,16 @@ export default function ProfilePage() {
   const badges = profileBadges;
   const activeBadge =
     badges.find((badge) => badge.id === activeBadgeId) || null;
+  // ?updated=1 sættes af updateprofile-siden efter en vellykket gem.
+  // ?updated=preferences bruges hvis det er præferencer der er opdateret.
   const updatedParam = searchParams.get("updated");
   const updatedMessage =
     updatedParam === "preferences"
       ? profilePageNames.preferencesUpdatedMessage
       : profilePageNames.updatedMessage;
 
+  // Viser en kortvarig toast-besked øverst til højre og fjerner ?updated fra URL'en bagefter
+  // så beskeden ikke dukker op igen ved en genindlæsning.
   useEffect(() => {
     if (updatedParam !== "1" && updatedParam !== "preferences") {
       return;

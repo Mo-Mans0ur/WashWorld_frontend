@@ -1,5 +1,12 @@
 "use client";
 
+// HandleSubscriptionPage – opret et nyt abonnement.
+// Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze.
+// Brugeren vælger køretøj og betalingsmetode via et "bottom sheet" (glider op nedefra).
+// Når formularen sendes, oprettes abonnementet i databasen via createSubscription()
+// og brugeren sendes til /profile. car_id sendes ikke med, da køretøjer endnu
+// ikke er lagret i databasen (ville give FK-fejl).
+
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
@@ -63,14 +70,17 @@ export default function HandleSubscriptionPage() {
         ?.label
     : "";
 
+  // Alle tre betingelser skal være opfyldt for at aktivere send-knappen
   const canSubmit = Boolean(vehicle) && Boolean(paymentMethod) && acceptedTerms;
 
+  // MariaDB forventer datetime i formatet "YYYY-MM-DD HH:MM:SS"
   function formatDate(d: Date): string {
     return d.toISOString().slice(0, 19).replace("T", " ");
   }
 
   async function handleSubmit() {
     if (!vehicle || !paymentMethod || !acceptedTerms) {
+      // Sæt attempted til true for at vise valideringsfejl på tomme felter
       setAttempted(true);
       return;
     }
@@ -78,12 +88,14 @@ export default function HandleSubscriptionPage() {
     setIsSubmitting(true);
     setSubmitError(null);
 
+    // Beregn datoer: start = nu, slut = om 1 år, næste betaling = om 1 måned
     const now = new Date();
     const endDate = new Date(now);
     endDate.setFullYear(endDate.getFullYear() + 1);
     const nextBilling = new Date(now);
     nextBilling.setMonth(nextBilling.getMonth() + 1);
 
+    // Strip alt ikke-numerisk fra prisstreng, fx "139kr./md." → 139
     const priceRaw = parseInt(activePlan.price.replace(/[^0-9]/g, ""), 10);
 
     try {
@@ -102,6 +114,7 @@ export default function HandleSubscriptionPage() {
     }
   }
 
+  // activeSheet styrer hvilket "bottom sheet" der er åbent: "vehicle", "payment" eller null (lukket)
   const isSheetOpen = activeSheet !== null;
   const sheetTitle =
     activeSheet === "vehicle"
@@ -110,6 +123,7 @@ export default function HandleSubscriptionPage() {
   const sheetOptions =
     activeSheet === "vehicle" ? vehicleOptions : subscriptionPaymentMethods;
 
+  // Gemmer den valgte værdi i den korrekte state og lukker sheetet
   function selectFromSheet(value) {
     if (activeSheet === "vehicle") {
       setVehicle(value);

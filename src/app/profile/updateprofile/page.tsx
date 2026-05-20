@@ -1,4 +1,12 @@
 "use client";
+
+// UpdateProfilePage – redigér navn, email, telefonnummer og kodeord.
+// Formularen forudfyldes med data fra AuthContext når siden indlæses.
+// Telefonnummeret splittes i landekode + lokalt nummer (parsePhone) og
+// samles igen til ét felt ("+45 12345678") når der gemmes.
+// Efter en vellykket gem opdateres AuthContext med det nye bruger-objekt
+// og brugeren sendes til /profile?updated=1 som viser en toast-bekræftelse.
+
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -27,6 +35,9 @@ type FormState = {
   confirmPassword: string;
 };
 
+// Splitter et gemt telefonnummer som "+45 12345678" i landekode og lokalnummer.
+// Sorterer koderne længst-først så "+358" matches før "+35" ved overlap.
+// Falder tilbage til +45/dansk nummer hvis ingen kode genkendes.
 function parsePhone(stored: string): { dialCode: string; localPhone: string } {
   const sorted = Object.values(PHONE_DIAL_CODES).sort((a, b) => b.length - a.length);
   for (const code of sorted) {
@@ -37,6 +48,8 @@ function parsePhone(stored: string): { dialCode: string; localPhone: string } {
   return { dialCode: "+45", localPhone: stored.replace(/^\+\d+\s*/, "") };
 }
 
+// Validerer kun selve nummeret uden landekode. Striphenter mellemrum og bindestreger
+// så brugeren frit kan taste "12 34 56 78" eller "12-34-56-78".
 function validateLocalPhone(local: string): string | null {
   const digits = local.replace(/[\s\-]/g, "");
   if (!digits) return "Telefonnummer er påkrævet";
@@ -62,6 +75,8 @@ export default function UpdateProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Forudfyld formularen med brugerens nuværende data fra AuthContext.
+  // Kodeordfelterne efterlades tomme – udfyldes kun hvis brugeren ønsker at skifte kodeord.
   useEffect(() => {
     if (!user) return;
     const { dialCode, localPhone } = parsePhone(user.user_phone ?? "");
@@ -84,6 +99,7 @@ export default function UpdateProfilePage() {
   async function handleSave() {
     if (!user || !token) return;
 
+    // Valider telefonnummer og kodeord lokalt før API-kaldet
     const phoneValidation = validateLocalPhone(formState.localPhone);
     if (phoneValidation) {
       setPhoneError(phoneValidation);
@@ -97,14 +113,17 @@ export default function UpdateProfilePage() {
     setIsSaving(true);
     setError(null);
     try {
+      // Saml landekode og lokalnummer til ét felt uden mellemrum i selve nummeret
       const fullPhone = `${formState.dialCode} ${formState.localPhone.replace(/[\s\-]/g, "")}`;
       const updated = await updateAuthUser(user.user_id, {
         user_firstname: formState.firstName,
         user_lastname: formState.lastName,
         user_email: formState.email,
         user_phone: fullPhone,
+        // Kodeord sendes kun med hvis brugeren har udfyldt feltet
         ...(formState.newPassword ? { user_password: formState.newPassword } : {}),
       });
+      // Opdater AuthContext med de nye brugerdata så resten af appen ser de nye værdier
       login(token, updated);
       router.push("/profile?updated=1");
     } catch (err) {
@@ -234,6 +253,8 @@ export default function UpdateProfilePage() {
   );
 }
 
+// PhoneInput – kombineret landekode-dropdown og telefonnummer-felt med inline fejlbesked.
+// Klikkes der uden for dropdownen lukkes den automatisk via en mousedown-listener.
 function PhoneInput({
   label,
   dialCode,
@@ -333,6 +354,7 @@ type InputFieldProps = {
   hasTrailingIcon?: boolean;
 };
 
+// InputField – generisk inputfelt med label og valgfrit vis/skjul-ikon til kodeordfelter.
 function InputField({
   label,
   type = "text",

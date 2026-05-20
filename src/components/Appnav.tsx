@@ -1,5 +1,10 @@
 "use client";
 
+// AppNav indeholder to navigationselementer:
+//   1. Bundmenu (bottom nav) – altid synlig med links til Home, Kort, Profil og Menu-knap.
+//   2. Sidebar – skubbes ind fra højre når brugeren trykker Menu.
+//      Lukkes automatisk når brugeren navigerer til en ny side (useEffect på pathname).
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -23,10 +28,12 @@ export default function AppNav() {
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Luk sidebaren automatisk når brugeren navigerer til en ny URL
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
+  // Sidebar-menupunkter – tilføj/fjern her for at ændre indholdet af menuen
   const subMenuItems = [
     { label: "Mine Køretøjer", href: "/biler", icon: Car },
     { label: "Betalingsoplysninger", href: "/betaling", icon: CreditCard },
@@ -36,7 +43,8 @@ export default function AppNav() {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Halvgennemsigtig baggrund der dækker indholdet mens sidebaren er åben.
+          pointer-events-none når lukket så klik ikke blokeres. */}
       <div
         onClick={() => setMenuOpen(false)}
         className={`absolute inset-0 z-40 bg-black/40 backdrop-blur-sm transition-all duration-300 ${
@@ -46,13 +54,13 @@ export default function AppNav() {
         }`}
       />
 
-      {/* Sidebar */}
+      {/* Sidebar – translateX skubber den ud af syne til højre når lukket */}
       <div
         className={`absolute inset-y-0 right-0 z-50 w-64 bg-(--color-black) shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Header */}
+        {/* Sidebarens header med luk-knap */}
         <div className="flex items-center justify-between px-5 pt-8 pb-5 border-b border-white/10">
           <span className="text-white/40 text-xs font-mono uppercase tracking-widest">
             Menu
@@ -65,7 +73,7 @@ export default function AppNav() {
           </button>
         </div>
 
-        {/* Menu items */}
+        {/* Menupunkter – animate ind fra højre med en lille forsinkelse per punkt (i * 50ms) */}
         <nav className="flex flex-col px-3 pt-3 gap-0.5">
           {subMenuItems.map(({ label, href, icon: Icon }, i) => (
             <Link
@@ -91,7 +99,7 @@ export default function AppNav() {
           ))}
         </nav>
 
-        {/* Log ud */}
+        {/* Log ud-knap i bunden af sidebaren – kalder logout() fra AuthContext */}
         <div className="mt-auto px-3 pb-6 border-t border-white/10 pt-4">
           <button
             onClick={logout}
@@ -103,7 +111,8 @@ export default function AppNav() {
         </div>
       </div>
 
-      {/* Bottom nav — fills the container, no manual centering needed */}
+      {/* Bundmenu – altid synlig. pb-[env(safe-area-inset-bottom)] håndterer
+          iPhone home-indikatoren så ikoner ikke gemmes bag den. */}
       <nav className="absolute bottom-0 left-0 right-0 z-30 flex h-22 w-full items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
         <Link
           href="/dashboard"

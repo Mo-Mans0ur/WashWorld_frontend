@@ -1,6 +1,11 @@
+// auth.ts indeholder alle API-kald til brugerstyring: login, oprettelse og profilopdatering.
+// Alle kald bruger apiRequest() fra apiClient, som vedhæfter token og håndterer fejl.
+
 import { apiRequest } from "@/lib/apiClient";
 import type { AuthResponse, User } from "@/types/api";
 
+// Validerer at API-svaret har det forventede format (token + user_id).
+// Kaster fejl tidligt frem for at lade tomme felter skabe mystiske fejl længere nede.
 function normalizeAuthResponse(data: AuthResponse): AuthResponse {
   if (!data?.token || !data?.user?.user_id) {
     throw new Error("Uventet svar fra serveren");
@@ -8,6 +13,8 @@ function normalizeAuthResponse(data: AuthResponse): AuthResponse {
   return data;
 }
 
+// Logger brugeren ind og returnerer JWT-token + brugerdata.
+// skipAuthRedirect forhindrer at et forkert kodeord sender brugeren til /login.
 export async function loginUser(
   user_email: string,
   user_password: string,
@@ -20,6 +27,8 @@ export async function loginUser(
   return normalizeAuthResponse(data);
 }
 
+// Opretter en ny bruger og returnerer JWT-token + brugerdata, akkurat som loginUser.
+// user_phone er valgfri – brugeren kan udfylde det senere på profilsiden.
 export async function registerUser(data: {
   user_firstname: string;
   user_lastname: string;
@@ -35,6 +44,8 @@ export async function registerUser(data: {
   return normalizeAuthResponse(response);
 }
 
+// Opdaterer brugerens profil (navn, email, telefon, evt. nyt kodeord).
+// Kræver at brugeren er logget ind – token sendes automatisk med af apiRequest.
 export async function updateAuthUser(
   userId: string,
   data: { user_firstname: string; user_lastname: string; user_email: string; user_phone: string; user_password?: string },
@@ -45,7 +56,9 @@ export async function updateAuthUser(
   });
 }
 
-/** Henter bruger fra databasen (`GET /api/users/<user_id>`). */
+// Henter friske brugerdata fra databasen (`GET /api/users/<user_id>`).
+// Bruges ved opstart i AuthContext til at verificere at det gemte token stadig er gyldigt.
+// Svaret kan komme indpakket i { user: ... } eller direkte som User-objekt afhængigt af API-versionen.
 export async function fetchAuthUser(userId: string): Promise<User> {
   const data = await apiRequest<{ user: User } | User>(
     `/api/users/${encodeURIComponent(userId)}`,

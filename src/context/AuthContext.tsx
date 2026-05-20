@@ -1,5 +1,12 @@
 "use client";
 
+// AuthContext håndterer login-session for hele appen.
+// JWT-token gemmes i localStorage. Når appen starter, forsøger vi at genbruge
+// det gemte token ved at hente friske brugerdata fra API'et – virker det ikke
+// (udløbet token, server nede), logges brugeren ud automatisk.
+//
+// Brug useAuth() hook i en komponent for at tilgå token, user, login og logout.
+
 import {
   createContext,
   useContext,
@@ -14,10 +21,10 @@ import { saveToken, clearToken } from "@/lib/apiClient";
 type AuthContextType = {
   token: string | null;
   user: User | null;
-  isLoading: boolean;
+  isLoading: boolean;        // true mens session verificeres ved opstart
   login: (token: string, user: User) => void;
   logout: () => void;
-  isAuthenticated: boolean;
+  isAuthenticated: boolean;  // bekvem shorthand: token && user er begge sat
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -27,6 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Kører én gang ved opstart og genopretter sessionen fra localStorage.
+  // Vi sætter straks det cachede bruger-objekt (hurtig UI) og henter
+  // derefter friske data fra API'et i baggrunden.
+  // cancelled-flaget forhindrer setState efter komponent er unmountet.
   useEffect(() => {
     let cancelled = false;
 
@@ -43,22 +54,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         storedUser = JSON.parse(storedUserRaw) as User;
       } catch {
+        // Ugyldig JSON i localStorage – ryd op og lad brugeren logge ind igen
         clearToken();
         localStorage.removeItem("auth_user");
         if (!cancelled) setIsLoading(false);
         return;
       }
 
+      // Vis cachede data med det samme mens vi venter på API'et
       setToken(storedToken);
       setUser(storedUser);
 
       try {
+        // Verificer token ved at hente friske brugerdata
         const freshUser = await fetchAuthUser(storedUser.user_id);
         if (!cancelled) {
           setUser(freshUser);
           localStorage.setItem("auth_user", JSON.stringify(freshUser));
         }
       } catch {
+        // Token er udløbet eller ugyldigt – log ud
         if (!cancelled) {
           clearToken();
           localStorage.removeItem("auth_user");
@@ -75,6 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Gemmer token og bruger i localStorage og opdaterer React-state.
+  // Kaldes fra login-siden og signup-siden efter vellykket API-kald.
   function login(newToken: string, newUser: User) {
     saveToken(newToken);
     localStorage.setItem("auth_user", JSON.stringify(newUser));
@@ -83,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }
 
+  // Rydder al session-data og sender brugeren til login-siden.
   function logout() {
     clearToken();
     localStorage.removeItem("auth_user");
@@ -107,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Custom hook – kaster en fejl hvis den bruges uden for AuthProvider.
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth skal bruges inden i AuthProvider");

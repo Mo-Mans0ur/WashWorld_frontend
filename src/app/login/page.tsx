@@ -1,5 +1,10 @@
 "use client";
 
+// LoginPage – appens indgangsside.
+// Brugeren indtaster email og kodeord. Ved succes gemmes token + brugerdata
+// i AuthContext (og localStorage), og brugeren sendes til /dashboard.
+// Fejlbeskeder kommer direkte fra API-svaret og vises under formularen.
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
@@ -10,6 +15,8 @@ import { loginUser } from "@/lib/api/auth";
 const MIN_EMAIL_LENGTH = 5;
 const MIN_PASSWORD_LENGTH = 6;
 
+// Returnerer en Tailwind border-klasse baseret på feltets nuværende længde.
+// Ingen farve mens feltet er tomt, rød hvis for kort, grøn når det ser ud til at være gyldigt.
 function getInputStyle(value: string, minLength: number) {
   if (value.length === 0) return "border-2 border-transparent";
   if (value.length < minLength) return "border-2 border-red-400";
@@ -24,6 +31,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Login-knappen er deaktiveret mens AuthContext stadig tjekker et gemt token (authLoading),
+  // eller mens et login-kald allerede er i gang (isSubmitting).
   const canSubmit =
     email.length >= MIN_EMAIL_LENGTH &&
     password.length >= MIN_PASSWORD_LENGTH &&

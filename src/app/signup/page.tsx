@@ -1,5 +1,10 @@
 "use client";
 
+// SignUpPage – opretter en ny bruger.
+// validate() tjekker alle felter lokalt før API-kaldet sendes.
+// Ved succes returnerer API'et et JWT-token og brugerdata, som gemmes i AuthContext,
+// og brugeren sendes direkte til /dashboard uden at skulle logge ind separat.
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
