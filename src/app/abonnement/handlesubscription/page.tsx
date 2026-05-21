@@ -4,8 +4,7 @@
 // Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze.
 // Brugeren vælger køretøj og betalingsmetode via et "bottom sheet" (glider op nedefra).
 // Når formularen sendes, oprettes abonnementet i databasen via createSubscription()
-// og brugeren sendes til /profile. car_id sendes ikke med, da køretøjer endnu
-// ikke er lagret i databasen (ville give FK-fejl).
+// og brugeren sendes til /profile. car_id knyttes til det valgte køretøj.
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -100,6 +99,7 @@ export default function HandleSubscriptionPage() {
 
     try {
       await createSubscription({
+        car_id: vehicle,
         subscription_name: activePlan.name,
         subscription_price: priceRaw,
         subscription_status: "aktiv",

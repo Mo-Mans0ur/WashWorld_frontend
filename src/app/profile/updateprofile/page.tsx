@@ -210,6 +210,7 @@ export default function UpdateProfilePage() {
               value={formState.newPassword}
               onChange={(value) => handleInputChange("newPassword", value)}
               hasTrailingIcon
+              compact
             />
             <InputField
               label={profileUpdatePageContent.fields.confirmPassword.label}
@@ -218,6 +219,7 @@ export default function UpdateProfilePage() {
               value={formState.confirmPassword}
               onChange={(value) => handleInputChange("confirmPassword", value)}
               hasTrailingIcon
+              compact
             />
           </div>
           <p className="mt-3 text-xs font-semibold text-neutral-500">
@@ -352,6 +354,7 @@ type InputFieldProps = {
   value: string;
   onChange: (value: string) => void;
   hasTrailingIcon?: boolean;
+  compact?: boolean;
 };
 
 // InputField – generisk inputfelt med label og valgfrit vis/skjul-ikon til kodeordfelter.
@@ -362,10 +365,13 @@ function InputField({
   value,
   onChange,
   hasTrailingIcon = false,
+  compact = false,
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordField = type === "password";
   const inputType = hasTrailingIcon && isPasswordField && showPassword ? "text" : type;
+  const inputSizeClass = compact ? "h-9 px-2 pr-8 text-[11px]" : "h-11 px-3 text-sm";
+  const iconSizeClass = compact ? "h-3.5 w-3.5" : "h-4.5 w-4.5";
 
   return (
     <label className="block">
@@ -378,19 +384,19 @@ function InputField({
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="h-11 w-full border border-neutral-300 bg-(--white-white) px-3 text-sm font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01)"
+          className={`w-full border border-neutral-300 bg-(--white-white) font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01) ${inputSizeClass}`}
         />
         {hasTrailingIcon && (
           <button
             type="button"
             onClick={() => setShowPassword((current) => !current)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400"
+            className={`${compact ? "right-2.5" : "right-3"} absolute top-1/2 -translate-y-1/2 text-neutral-400`}
             aria-label={showPassword ? "Skjul adgangskode" : "Vis adgangskode"}
           >
             {showPassword ? (
-              <EyeOff className="h-4.5 w-4.5" strokeWidth={2.2} />
+              <EyeOff className={iconSizeClass} strokeWidth={2.2} />
             ) : (
-              <Eye className="h-4.5 w-4.5" strokeWidth={2.2} />
+              <Eye className={iconSizeClass} strokeWidth={2.2} />
             )}
           </button>
         )}

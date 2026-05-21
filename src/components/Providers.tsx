@@ -9,6 +9,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
+import { VehiclesProvider } from "@/context/VehiclesContext";
 
 // QueryClient caches API-svar (fx lokationer) på tværs af sider.
 // staleTime på den enkelte query styrer hvor længe cachen genbruges.
@@ -22,7 +23,9 @@ export default function Providers({
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <FavoritesProvider>{children}</FavoritesProvider>
+        <VehiclesProvider>
+          <FavoritesProvider>{children}</FavoritesProvider>
+        </VehiclesProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
