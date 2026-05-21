@@ -11,6 +11,7 @@ import {
   getSubscriptionPlanBySlug,
   subscriptionPaymentPageContent,
 } from "@/data/subscriptionData";
+import ContinueButton from "@/components/ContinueButton";
 
 type StoredPaymentCard = {
   cardNumber: string;
@@ -199,13 +200,9 @@ export default function SubscriptionBetalingPage() {
         </div>
 
         <div className="mt-auto pb-5 pt-4">
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="w-full bg-(--brand-green-01) px-4 py-1 font-bold text-2xl text-white [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)]"
-          >
+          <ContinueButton onClick={handleContinue}>
             {subscriptionPaymentPageContent.buttons.continue}
-          </button>
+          </ContinueButton>
         </div>
       </section>
     </div>

@@ -8,7 +8,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { SignUpButton } from "@/components/buttons";
+import { AuthButton } from "@/components/buttons";
 import { registerUser } from "@/lib/api/auth";
 import { useAuth } from "@/context/AuthContext";
 
@@ -177,7 +177,8 @@ export default function SignUpPage() {
             {errors.general ?? ""}
           </p>
 
-          <SignUpButton
+          <AuthButton
+            mode="signup"
             onLoginClick={handleLoginClick}
             onSignupClick={handleSignupClick}
             disabled={isLoading}

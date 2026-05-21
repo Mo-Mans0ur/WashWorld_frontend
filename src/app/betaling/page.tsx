@@ -8,6 +8,7 @@ import PaymentMethodCard from "@/components/PaymentMethodCard";
 import { paymentOptions, paymentPageContent } from "@/data/paymentData";
 import { paymentPlans } from "@/data/singleWashData";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
+import ContinueButton from "@/components/ContinueButton";
 import { CircleAlert, CircleHelp, Lock } from "lucide-react";
 
 type StoredPaymentCard = {
@@ -358,14 +359,9 @@ export default function BetalingPage() {
         )}
 
         <div className="mt-auto pb-5 pt-4">
-          <button
-            type="button"
-            disabled={!hasSelectedRoute}
-            onClick={handleContinue}
-            className="w-full bg-(--brand-green-01) px-4 py-1 font-bold text-2xl text-white transition disabled:cursor-not-allowed disabled:opacity-50 [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)]"
-          >
+          <ContinueButton onClick={handleContinue} disabled={!hasSelectedRoute}>
             {paymentPageContent.buttons.continue}
-          </button>
+          </ContinueButton>
         </div>
       </section>
     </div>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import { paymentPageContent } from "@/data/paymentData";
 import { singleWashPageContent, paymentPlans } from "@/data/singleWashData";
+import ContinueButton from "@/components/ContinueButton";
 
 export default function SingleWashPage() {
   const [selectedPlan, setSelectedPlan] = useState("Guld");
@@ -86,13 +87,9 @@ export default function SingleWashPage() {
             </section>
 
             <div className="mt-18 pb-5">
-              <button
-                type="button"
-                onClick={handleContinue}
-                className="w-full bg-(--brand-green-01) px-4 py-1 font-bold text-2xl text-white transition disabled:cursor-not-allowed disabled:opacity-50 [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)]"
-              >
+              <ContinueButton onClick={handleContinue}>
                 {singleWashPageContent.buttons.continue}
-              </button>
+              </ContinueButton>
             </div>
           </div>
         )}

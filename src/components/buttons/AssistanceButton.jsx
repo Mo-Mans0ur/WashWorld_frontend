@@ -11,7 +11,7 @@ export default function AssistanceButton({ iconColor = "white", washId }) {
       <button
         type="button"
         onClick={() => setShowPopup(true)}
-        className="flex h-11.75 w-full max-w-143.75 items-center justify-center gap-4 bg-(--color-danger) px-8 [clip-path:polygon(10%_0,100%_0,90%_100%,0_100%)]"
+        className="flex h-11.75 w-full max-w-143.75 items-center justify-center gap-4 rounded-[3px] bg-(--color-danger) px-8"
       >
         <span className="text-xl font-bold tracking-widest text-white">
           HJÆLP
@@ -56,13 +56,13 @@ export default function AssistanceButton({ iconColor = "white", washId }) {
               <button
                 type="button"
                 onClick={() => setShowPopup(false)}
-                className="flex flex-1 h-12 items-center justify-center bg-neutral-500 font-bold text-white text-sm [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]"
+                className="flex flex-1 h-12 items-center justify-center rounded-[3px] bg-neutral-500 font-bold text-white text-sm"
               >
                 Annuller
               </button>
               <a
                 href="tel:+4570707070"
-                className="flex flex-1 h-12 items-center justify-center bg-(--color-danger) font-bold text-white text-sm [clip-path:polygon(12%_0,100%_0,100%_100%,0%_100%)]"
+                className="flex flex-1 h-12 items-center justify-center rounded-[3px] bg-(--color-danger) font-bold text-white text-sm"
               >
                 Ring til hjælp
               </a>

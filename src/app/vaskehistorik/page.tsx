@@ -30,7 +30,7 @@ export default function Vaskehistorik() {
               className="relative w-full overflow-hidden rounded-[3px] bg-white text-left shadow-[0_8px_18px_rgba(0,0,0,0.08)]"
             >
               <div className="flex items-start gap-3 px-3 pb-2 pt-3">
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden border border-neutral-400 bg-white">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden bg-white">
                   <Image
                     src={receipt.image}
                     alt={receipt.title}

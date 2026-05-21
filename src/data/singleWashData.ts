@@ -53,7 +53,7 @@ export const singleWashReadyPageContent = {
   infoText:
     "Kør langsomt frem til anlægget og følg vejledningen på skærmen. Når bilen står korrekt, kan du starte vasken.",
   illustrationAlt: "Bil med kørselsinstruktioner",
-  ctaLabel: "Når du klar tryk",
+  ctaLabel: "Tryk start når du er klar",
   startButton: "Start vask",
 } as const;
 

@@ -20,6 +20,8 @@ import {
   LifeBuoy,
   ChevronRight,
   LogOut,
+  History,
+  Bell,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -38,6 +40,8 @@ export default function AppNav() {
     { label: "Mine Køretøjer", href: "/biler", icon: Car },
     { label: "Betalingsoplysninger", href: "/betaling", icon: CreditCard },
     { label: "Abonnement", href: "/abonnement", icon: BadgeCheck },
+    { label: "Forbrug", href: "/vaskehistorik", icon: History },
+    { label: "Notifikationer", href: "/notifikationer", icon: Bell },
     { label: "Hjælp", href: "/hjaelp", icon: LifeBuoy },
   ];
 
@@ -60,16 +64,14 @@ export default function AppNav() {
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Sidebarens header med luk-knap */}
-        <div className="flex items-center justify-between px-5 pt-8 pb-5 border-b border-white/10">
-          <span className="text-white/40 text-xs font-mono uppercase tracking-widest">
-            Menu
-          </span>
+        {/* Log ud-knap øverst i sidebaren */}
+        <div className="px-3 pt-8 pb-3 border-b border-white/10">
           <button
-            onClick={() => setMenuOpen(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/70 hover:text-white hover:border-white/50 transition-all"
+            onClick={logout}
+            className="flex w-full items-center gap-3 px-3 py-3.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-white/5 transition-all group"
           >
-            <X size={14} strokeWidth={2.5} />
+            <LogOut size={18} className="group-hover:text-red-300 transition-colors" />
+            <span className="text-[0.95rem] font-semibold">Log ud</span>
           </button>
         </div>
 
@@ -99,14 +101,14 @@ export default function AppNav() {
           ))}
         </nav>
 
-        {/* Log ud-knap i bunden af sidebaren – kalder logout() fra AuthContext */}
+        {/* Luk-knap i bunden af sidebaren */}
         <div className="mt-auto px-3 pb-6 border-t border-white/10 pt-4">
           <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 px-3 py-3.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-white/5 transition-all group"
+            onClick={() => setMenuOpen(false)}
+            className="flex w-full items-center justify-center gap-3 px-3 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all"
           >
-            <LogOut size={18} className="group-hover:text-red-300 transition-colors" />
-            <span className="text-[0.95rem] font-semibold">Log ud</span>
+            <X size={18} strokeWidth={2.5} />
+            <span className="text-[0.95rem] font-semibold">Luk menu</span>
           </button>
         </div>
       </div>

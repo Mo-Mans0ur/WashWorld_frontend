@@ -12,35 +12,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
 import {
-  Sparkles,
-  Calendar,
-  CreditCard,
-  Bell,
-  HelpCircle,
   Ticket,
   Star,
-  ChevronRight,
   MoreVertical,
   ArrowLeftRight,
   XCircle,
 } from "lucide-react";
 import {
   profileBadges,
-  profileMenuItems,
   profilePageNames,
   profileStamps,
 } from "@/data/profileData";
 import { useAuth } from "@/context/AuthContext";
 import { fetchSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";
-
-const menuItemIcons = {
-  sparkles: <Sparkles size={20} />,
-  calendar: <Calendar size={20} />,
-  "credit-card": <CreditCard size={20} />,
-  bell: <Bell size={20} />,
-  "question-mark": <HelpCircle size={20} />,
-};
 
 // Formaterer en ISO-dato til dansk månedsnavn + årstal, fx "maj 2024"
 function formatMemberSince(dateStr: string): string {
@@ -376,28 +361,6 @@ export default function ProfilePage() {
             </div>
           </article>
 
-          {/* Menu-punkter */}
-          <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-md">
-            {profileMenuItems.map((item, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => router.push(item.href)}
-                className="flex w-full items-center border-b border-neutral-200 px-4 py-2.5 text-left last:border-b-0"
-              >
-                <span className="flex items-center gap-2.5 text-sm font-bold text-neutral-800">
-                  <span className="text-(--brand-green-01)">
-                    {menuItemIcons[item.iconKey]}
-                  </span>
-                  {item.label}
-                </span>
-                <span className="ml-auto text-(--brand-green-01)">
-                  <ChevronRight size={20} />
-                </span>
-              </button>
-            ))}
-          </article>
-
           {/* Knapper */}
           <button
             type="button"
@@ -407,12 +370,7 @@ export default function ProfilePage() {
             {profilePageNames.logout}
           </button>
 
-          <button
-            type="button"
-            className="mx-auto block w-[78%] rounded-[3px] bg-red-600 py-2.5 text-xl font-bold text-white shadow-md"
-          >
-            {profilePageNames.deleteAccount}
-          </button>
+
         </section>
       </main>
 

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import PageInfo from "@/components/PageInfo";
 import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
+import ContinueButton from "@/components/ContinueButton";
 import { singleWashPlatePageContent } from "@/data/singleWashData";
 
 export default function SingleWashPlatePage() {
@@ -74,14 +75,9 @@ export default function SingleWashPlatePage() {
           </div>
 
           <div className="mt-auto pt-12">
-            <button
-              type="button"
-              onClick={handleContinue}
-              disabled={!plateNumber.trim()}
-              className="w-full bg-(--brand-green-01) px-4 py-1 font-bold text-2xl text-white shadow-[0_6px_12px_rgba(0,0,0,0.18)] transition disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.99] [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)]"
-            >
+            <ContinueButton onClick={handleContinue} disabled={!plateNumber.trim()}>
               {singleWashPlatePageContent.buttons.continue}
-            </button>
+            </ContinueButton>
           </div>
         </section>
     </div>

@@ -8,7 +8,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
-import { LoginButton } from "@/components/buttons";
+import { AuthButton } from "@/components/buttons";
 import { useAuth } from "@/context/AuthContext";
 import { loginUser } from "@/lib/api/auth";
 
@@ -129,7 +129,8 @@ export default function LoginPage() {
             {error ? <p className="text-sm text-red-400">{error}</p> : null}
           </div>
 
-          <LoginButton
+          <AuthButton
+            mode="login"
             onLoginClick={() => void handleSubmit()}
             onSignupClick={() => router.push("/signup")}
             disabled={!canSubmit}
