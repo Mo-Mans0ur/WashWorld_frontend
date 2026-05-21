@@ -7,7 +7,7 @@
 // Toast-besked vises kortvarigt når brugeren vender tilbage fra updateprofile med ?updated=1.
 // Opsigelsesbekræftelse håndteres med en inline modal der kalder deleteSubscription().
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
@@ -44,40 +44,30 @@ export default function ProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, logout } = useAuth();
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showBadges, setShowBadges] = useState(false);
   const [activeBadgeId, setActiveBadgeId] = useState<number | null>(null);
   const [showUpdatedMessage, setShowUpdatedMessage] = useState(false);
   const [updatedMessagePhase, setUpdatedMessagePhase] = useState<
     "idle" | "pre-enter" | "enter" | "exit"
   >("idle");
-  const [subscriptionMenuOpen, setSubscriptionMenuOpen] = useState(false);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const subscriptionMenuRef = useRef<HTMLDivElement>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<Subscription | null>(null);
 
-  // Hent abonnementer når brugeren er klar. Vi viser det aktive abonnement,
-  // eller det første i listen hvis ingen har status "aktiv".
   useEffect(() => {
     if (!user) return;
     fetchSubscriptions()
-      .then((subs) => setSubscription(subs.find((s) => s.subscriptions_status === "aktiv") ?? subs[0] ?? null))
+      .then((subs) => setSubscriptions(subs))
       .catch(() => {});
   }, [user]);
 
-  // Luk abonnements-dropdown-menuen når brugeren klikker uden for den
   useEffect(() => {
-    if (!subscriptionMenuOpen) return;
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        subscriptionMenuRef.current &&
-        !subscriptionMenuRef.current.contains(e.target as Node)
-      ) {
-        setSubscriptionMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [subscriptionMenuOpen]);
+    if (!openMenuId) return;
+    function handleClickOutside() { setOpenMenuId(null); }
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [openMenuId]);
+
   const revealBadges = () => setShowBadges(true);
   const badges = profileBadges;
   const activeBadge =
@@ -139,82 +129,72 @@ export default function ProfilePage() {
         />
 
         <section className="space-y-4 p-4 pt-4">
-          {/* Abonnement — øverst, ingen titel, alt inde i kortet */}
+          {/* Abonnementer */}
           <article className="relative rounded-[3px] bg-(--white-white) shadow-2xl">
-            {subscription ? (
-              <div className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm font-semibold text-neutral-600">
-                    Nuværende plan
-                  </p>
-                  <p className="text-lg font-bold text-natural-800">
-                    {subscription.subscriptions_name}
-                  </p>
-                  {subscription.subscriptions_next_billing_date && (
-                    <p className="mt-0.5 text-xs font-semibold text-neutral-600">
-                      Fornyes d. {formatRenewalDate(subscription.subscriptions_next_billing_date)}
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
-                    Aktiv
-                  </span>
-                  <div ref={subscriptionMenuRef} className="relative">
-                    <button
-                      type="button"
-                      aria-label="Abonnement muligheder"
-                      onClick={() => setSubscriptionMenuOpen((v) => !v)}
-                      className="flex h-8 w-8 items-center justify-center text-neutral-500"
-                    >
-                      <MoreVertical size={20} />
-                    </button>
-                    {subscriptionMenuOpen && (
-                      <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSubscriptionMenuOpen(false);
-                            router.push(ROUTES.subscription);
-                          }}
-                          className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
-                        >
-                          <ArrowLeftRight size={15} className="text-(--brand-green-01)" />
-                          Skift abonnement
-                        </button>
-                        <div className="h-px bg-neutral-200" />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSubscriptionMenuOpen(false);
-                            setShowCancelConfirm(true);
-                          }}
-                          className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
-                        >
-                          <XCircle size={15} />
-                          Opsig abonnement
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
+              <p className="text-sm font-semibold text-neutral-600">Abonnementer</p>
+              <button
+                type="button"
+                onClick={() => router.push(ROUTES.subscription)}
+                className="h-8 min-w-24 bg-(--brand-green-01) px-3 text-sm font-bold text-white [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
+              >
+                Tilføj
+              </button>
+            </div>
+
+            {subscriptions.length === 0 ? (
+              <p className="px-4 py-3 text-sm font-semibold text-neutral-400">Intet abonnement</p>
             ) : (
-              <>
-                <div className="px-4 py-3">
-                  <p className="text-sm font-semibold text-neutral-600">Nuværende plan</p>
-                  <p className="text-lg font-bold text-neutral-400">Intet abonnement</p>
-                </div>
-                <div className="flex items-center justify-end border-t border-neutral-200">
-                  <button
-                    type="button"
-                    onClick={() => router.push(ROUTES.subscription)}
-                    className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
-                  >
-                    Tilføj
-                  </button>
-                </div>
-              </>
+              <div className="divide-y divide-neutral-200">
+                {subscriptions.map((sub) => (
+                  <div key={sub.subscription_id} className="flex items-center justify-between px-4 py-3">
+                    <div>
+                      <p className="text-base font-bold text-neutral-800">{sub.subscriptions_name}</p>
+                      {sub.subscriptions_next_billing_date && (
+                        <p className="mt-0.5 text-xs font-semibold text-neutral-500">
+                          Fornyes d. {formatRenewalDate(sub.subscriptions_next_billing_date)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`rounded-full px-3 py-1 text-xs font-bold ${sub.subscriptions_status === "aktiv" ? "bg-emerald-50 text-emerald-600" : "bg-neutral-100 text-neutral-500"}`}>
+                        {sub.subscriptions_status === "aktiv" ? "Aktiv" : sub.subscriptions_status}
+                      </span>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          aria-label="Abonnement muligheder"
+                          onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sub.subscription_id ? null : sub.subscription_id); }}
+                          className="flex h-8 w-8 items-center justify-center text-neutral-500"
+                        >
+                          <MoreVertical size={20} />
+                        </button>
+                        {openMenuId === sub.subscription_id && (
+                          <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
+                            <button
+                              type="button"
+                              onClick={() => { setOpenMenuId(null); router.push(ROUTES.subscription); }}
+                              className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
+                            >
+                              <ArrowLeftRight size={15} className="text-(--brand-green-01)" />
+                              Skift abonnement
+                            </button>
+                            <div className="h-px bg-neutral-200" />
+                            <button
+                              type="button"
+                              onClick={() => { setOpenMenuId(null); setCancelTarget(sub); }}
+                              className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+                            >
+                              <XCircle size={15} />
+                              Opsig abonnement
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </article>
 
@@ -375,18 +355,17 @@ export default function ProfilePage() {
         </section>
       </main>
 
-      {showCancelConfirm && (
+      {cancelTarget && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 px-6">
           <div className="w-full max-w-sm rounded-[3px] bg-white p-6 shadow-2xl">
             <h2 className="text-lg font-bold text-neutral-800">Opsig abonnement?</h2>
             <p className="mt-2 text-sm font-semibold text-neutral-600">
-              Er du sikker på, at du vil opsige dit abonnement? Det udløber ved
-              næste fornyelsesdato.
+              Er du sikker på, at du vil opsige <span className="font-bold text-neutral-800">{cancelTarget.subscriptions_name}</span>? Det udløber ved næste fornyelsesdato.
             </p>
             <div className="mt-5 flex gap-3">
               <button
                 type="button"
-                onClick={() => setShowCancelConfirm(false)}
+                onClick={() => setCancelTarget(null)}
                 className="flex-1 rounded-lg border border-neutral-300 py-2.5 text-sm font-bold text-neutral-700"
               >
                 Annuller
@@ -394,11 +373,9 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={async () => {
-                  if (subscription) {
-                    await deleteSubscription(subscription.subscription_id).catch(() => {});
-                    setSubscription(null);
-                  }
-                  setShowCancelConfirm(false);
+                  await deleteSubscription(cancelTarget.subscription_id).catch(() => {});
+                  setSubscriptions((prev) => prev.filter((s) => s.subscription_id !== cancelTarget.subscription_id));
+                  setCancelTarget(null);
                 }}
                 className="flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-bold text-white"
               >

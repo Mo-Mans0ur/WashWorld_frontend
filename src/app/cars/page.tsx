@@ -4,12 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import { useVehicles } from "@/context/VehiclesContext";
-import { Car, MoreVertical, Plus, Pencil, Trash2, CircleCheck } from "lucide-react";
+import { type ElementType } from "react";
+import { Car, Bike, Truck, Bus, MoreVertical, Plus, Pencil, Trash2, BadgePlus } from "lucide-react";
+import type { VehicleType } from "@/context/VehiclesContext";
+
+const VEHICLE_ICONS: Record<VehicleType, ElementType> = {
+  car: Car,
+  motorcycle: Bike,
+  truck: Truck,
+  bus: Bus,
+};
 import { ROUTES } from "@/lib/routes";
+import { Button } from "@/components/buttons";
 
 export default function BilerPage() {
   const router = useRouter();
-  const { vehicles, isLoading, error, deleteVehicle, setActiveVehicle } = useVehicles();
+  const { vehicles, isLoading, error, deleteVehicle } = useVehicles();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -58,12 +68,12 @@ export default function BilerPage() {
               onMenuToggle={() =>
                 setOpenMenuId(openMenuId === vehicle.id ? null : vehicle.id)
               }
-              onEdit={() => handleEdit(vehicle.id)}
-              onDelete={() => handleDelete(vehicle.id)}
-              onSetActive={() => {
-                setActiveVehicle(vehicle.id);
+              onAddSubscription={() => {
+                router.push(ROUTES.subscriptionForCar(vehicle.id));
                 setOpenMenuId(null);
               }}
+              onEdit={() => handleEdit(vehicle.id)}
+              onDelete={() => handleDelete(vehicle.id)}
               onCloseMenu={() => setOpenMenuId(null)}
             />
           ))}
@@ -74,14 +84,15 @@ export default function BilerPage() {
           </p>
         )}
 
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="lg"
           onClick={() => router.push(ROUTES.addCar)}
-          className="relative mt-2 flex items-center justify-center gap-2 bg-(--brand-green-01) py-4 text-xl font-bold text-white shadow-md active:opacity-80 [clip-path:polygon(6%_0,100%_0,100%_100%,0_100%)]"
+          className="mt-2 flex w-full items-center justify-center gap-2"
         >
           <Plus size={22} strokeWidth={3} />
           Tilføj bil
-        </button>
+        </Button>
       </main>
     </div>
   );
@@ -92,20 +103,21 @@ function VehicleCard({
   menuOpen,
   isDeleting,
   onMenuToggle,
+  onAddSubscription,
   onEdit,
   onDelete,
-  onSetActive,
   onCloseMenu,
 }: {
   vehicle: ReturnType<typeof useVehicles>["vehicles"][number];
   menuOpen: boolean;
   isDeleting: boolean;
   onMenuToggle: () => void;
+  onAddSubscription: () => void;
   onEdit: () => void;
   onDelete: () => void;
-  onSetActive: () => void;
   onCloseMenu: () => void;
 }) {
+  const VehicleIcon = VEHICLE_ICONS[vehicle.vehicleType ?? "car"];
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -123,7 +135,7 @@ function VehicleCard({
     <article className="relative overflow-visible rounded-[3px] bg-(--white-white) shadow-md">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-3">
-          <Car size={24} className="text-neutral-700" />
+          <VehicleIcon size={24} className="text-neutral-700" />
           <span className="text-lg font-bold text-neutral-800">
             {vehicle.name}
           </span>
@@ -141,20 +153,16 @@ function VehicleCard({
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-9 z-50 w-44 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
-              {!vehicle.active && (
-                <>
-                  <button
-                    type="button"
-                    onClick={onSetActive}
-                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
-                  >
-                    <CircleCheck size={15} className="text-(--brand-green-01)" />
-                    Sæt som aktiv
-                  </button>
-                  <div className="h-px bg-neutral-200" />
-                </>
-              )}
+            <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
+              <button
+                type="button"
+                onClick={onAddSubscription}
+                className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
+              >
+                <BadgePlus size={15} className="text-(--brand-green-01)" />
+                Tilføj abonnement
+              </button>
+              <div className="h-px bg-neutral-200" />
               <button
                 type="button"
                 onClick={onEdit}
@@ -206,7 +214,7 @@ function StatusBadge({ active }: { active: boolean }) {
         active ? "bg-(--brand-green-01)" : "bg-neutral-600"
       }`}
     >
-      {active ? "Aktiv" : "Inaktiv"}
+      {active ? "Abonnement" : "Intet abonnement"}
     </span>
   );
 }

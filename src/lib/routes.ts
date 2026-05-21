@@ -41,9 +41,11 @@ export const ROUTES = {
 
   // Subscription flow
   subscription: "/abonnement",
-  subscriptionPayment: (plan: string) => `/abonnement/betaling?plan=${plan}`,
-  subscriptionConfirmation: (plan: string) =>
-    `/abonnement/handlesubscription?plan=${plan}`,
+  subscriptionForCar: (carId: string) => `/abonnement?carId=${encodeURIComponent(carId)}`,
+  subscriptionPayment: (plan: string, carId?: string) =>
+    `/abonnement/betaling?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  subscriptionConfirmation: (plan: string, carId?: string) =>
+    `/abonnement/handlesubscription?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
 
   // Vehicles
   cars: "/cars",

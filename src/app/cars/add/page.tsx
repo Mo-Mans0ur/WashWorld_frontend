@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import { useVehicles } from "@/context/VehiclesContext";
 import CountrySelector, { Country, EUROPEAN_COUNTRIES } from "@/components/CountrySelector";
 import { getPlateFormat } from "@/data/plateFormats";
-import { Plus, Zap } from "lucide-react";
+import { Plus, Zap, Car, Bike, Truck, Bus } from "lucide-react";
 import { ROUTES } from "@/lib/routes";
+import { Button } from "@/components/buttons";
+import type { VehicleType } from "@/context/VehiclesContext";
+
+const VEHICLE_TYPES: { type: VehicleType; label: string; icon: ElementType }[] = [
+  { type: "car", label: "Personbil", icon: Car },
+  { type: "motorcycle", label: "Motorcykel", icon: Bike },
+  { type: "truck", label: "Lastbil", icon: Truck },
+  { type: "bus", label: "Bus", icon: Bus },
+];
 
 export default function TilfoejBilPage() {
   const router = useRouter();
@@ -16,6 +25,7 @@ export default function TilfoejBilPage() {
   const [plate, setPlate] = useState("");
   const [nickname, setNickname] = useState("");
   const [isEV, setIsEV] = useState(false);
+  const [vehicleType, setVehicleType] = useState<VehicleType>("car");
   const [plateError, setPlateError] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +53,7 @@ export default function TilfoejBilPage() {
         plate,
         countryCode: country.code,
         isEV,
+        vehicleType,
       });
       router.push(ROUTES.cars);
     } catch (err) {
@@ -100,6 +111,30 @@ export default function TilfoejBilPage() {
             className="rounded-[3px] border border-neutral-400 bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01) disabled:opacity-60"
           />
 
+          <div className="grid grid-cols-4 gap-2">
+            {VEHICLE_TYPES.map(({ type, label, icon: Icon }) => {
+              const selected = vehicleType === type;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setVehicleType(type)}
+                  disabled={isSubmitting}
+                  className={`flex flex-col items-center gap-1.5 rounded-[3px] border py-3 px-1 transition-colors disabled:opacity-60 ${
+                    selected
+                      ? "border-(--brand-green-01) bg-green-50 text-(--brand-green-01)"
+                      : "border-neutral-300 bg-(--white-white) text-neutral-500"
+                  }`}
+                >
+                  <Icon size={22} strokeWidth={selected ? 2.5 : 1.5} />
+                  <span className={`text-xs font-semibold leading-tight text-center ${selected ? "text-(--brand-green-01)" : "text-neutral-500"}`}>
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
           <div className="flex items-center gap-3 rounded-[3px] border border-neutral-300 bg-(--white-white) px-4 py-3.5 shadow-sm">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-(--brand-green-01) text-(--brand-green-01)">
               <Zap size={18} strokeWidth={2.5} />
@@ -125,14 +160,16 @@ export default function TilfoejBilPage() {
             </button>
           </div>
 
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             type="submit"
             disabled={isSubmitting}
-            className="mt-auto flex items-center justify-center gap-2 bg-(--brand-green-01) py-4 text-xl font-bold text-white shadow-md active:opacity-80 disabled:opacity-60 [clip-path:polygon(6%_0,100%_0,100%_100%,0_100%)]"
+            className="mt-auto flex w-full items-center justify-center gap-2 disabled:opacity-60"
           >
             <Plus size={22} strokeWidth={3} />
             {isSubmitting ? "Gemmer..." : "Tilføj"}
-          </button>
+          </Button>
         </form>
       </main>
     </div>

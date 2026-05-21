@@ -23,9 +23,10 @@ import { ROUTES } from "@/lib/routes";
 export default function HandleSubscriptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { vehicles } = useVehicles();
+  const { vehicles, refreshVehicles } = useVehicles();
 
   const planKey = (searchParams.get("plan") || "guld").toLowerCase();
+  const preselectedCarId = searchParams.get("carId") ?? null;
   const activePlan = useMemo(
     () => getSubscriptionPlanBySlug(planKey),
     [planKey],
@@ -41,6 +42,7 @@ export default function HandleSubscriptionPage() {
   );
   const hasSavedVehicle = savedVehicleOptions.length > 0;
   const initialVehicleValue =
+    (preselectedCarId && savedVehicleOptions.find((o) => o.value === preselectedCarId)?.value) ??
     savedVehicleOptions.find(
       (option) =>
         option.value ===
@@ -108,6 +110,7 @@ export default function HandleSubscriptionPage() {
         subscription_end_date: formatDate(endDate),
         subscription_next_billing_date: formatDate(nextBilling),
       });
+      await refreshVehicles();
       router.push(ROUTES.profile);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Kunne ikke oprette abonnement");
@@ -176,20 +179,22 @@ export default function HandleSubscriptionPage() {
 
           <div className="mx-auto mt-3.5 flex w-full max-w-72 flex-col gap-1.5">
             <div>
-              <div className={`relative flex h-9.5 items-center overflow border bg-(--white-white) ${vehicle ? "border-(--brand-green-01)" : attempted ? "border-red-400" : "border-(--color-grey-02)"}`}>
-                <span className={`pl-2 pr-1 ${vehicle ? "text-(--brand-green-01)" : "text-(--color-grey-01)"}`}>
+              <div className="relative flex h-9.5 items-center overflow border border-(--brand-green-01) bg-(--white-white)">
+                <span className="pl-2 pr-1 text-(--brand-green-01)">
                   <CarIcon />
                 </span>
-                <span className={`flex-1 truncate pr-20 text-[1rem] font-semibold ${vehicle ? "text-black" : "text-(--color-grey-01)"}`}>
+                <span className="flex-1 truncate pr-4 text-[1rem] font-semibold text-black">
                   {selectedVehicleLabel || subscriptionPageNames.vehiclePlaceholder}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setActiveSheet("vehicle")}
-                  className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
-                >
-                  {subscriptionPageNames.selectButton}
-                </button>
+                {!preselectedCarId && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveSheet("vehicle")}
+                    className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
+                  >
+                    {subscriptionPageNames.selectButton}
+                  </button>
+                )}
               </div>
               {attempted && !vehicle && (
                 <p className="mt-1 text-xs font-semibold text-red-400">Vælg venligst et køretøj</p>

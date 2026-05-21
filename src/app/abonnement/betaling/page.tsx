@@ -52,6 +52,7 @@ export default function SubscriptionBetalingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPlanSlug = (searchParams.get("plan") ?? "guld").toLowerCase();
+  const carId = searchParams.get("carId") ?? undefined;
   const storedPaymentCard = getStoredPaymentCard();
   const [showCvcHelp, setShowCvcHelp] = useState(false);
   const [cardNumber, setCardNumber] = useState(
@@ -76,8 +77,8 @@ export default function SubscriptionBetalingPage() {
       return;
     }
 
-    router.replace(ROUTES.subscriptionConfirmation(selectedPlanSlug));
-  }, [router, selectedPlanSlug, storedPaymentCard]);
+    router.replace(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId));
+  }, [router, selectedPlanSlug, carId, storedPaymentCard]);
 
   function handleContinue() {
     if (rememberCard) {
@@ -98,7 +99,7 @@ export default function SubscriptionBetalingPage() {
       payment: "card",
     });
 
-    router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug));
+    router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId));
   }
 
   return (

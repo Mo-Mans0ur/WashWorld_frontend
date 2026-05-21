@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { getMissingProfileInfoState } from "@/data/profileData";
 import {
@@ -24,6 +24,8 @@ export default function AbonnementPage() {
     (plan) => plan.name === selectedPlan,
   );
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const carId = searchParams.get("carId") ?? undefined;
   const { missingPaymentCard } = getMissingProfileInfoState();
 
   function handleSelectPlan(index: number) {
@@ -35,11 +37,11 @@ export default function AbonnementPage() {
 
   function handleCreateSubscription() {
     if (missingPaymentCard) {
-      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase()));
+      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase(), carId));
       return;
     }
 
-    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase()));
+    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase(), carId));
   }
 
   return (
