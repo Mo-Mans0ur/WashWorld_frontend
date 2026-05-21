@@ -7,6 +7,7 @@ import {
   subscriptionPageNames,
   subscriptionPlans,
 } from "@/data/subscriptionData";
+import { ROUTES } from "@/lib/routes";
 import PageInfo from "@/components/PageInfo";
 
 const PLANS = ["Guld", "Premium", "Brilliant"];
@@ -34,13 +35,11 @@ export default function AbonnementPage() {
 
   function handleCreateSubscription() {
     if (missingPaymentCard) {
-      router.push(`/abonnement/betaling?plan=${selectedPlan.toLowerCase()}`);
+      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase()));
       return;
     }
 
-    router.push(
-      `/abonnement/handlesubscription?plan=${selectedPlan.toLowerCase()}`,
-    );
+    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase()));
   }
 
   return (

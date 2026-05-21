@@ -7,6 +7,7 @@ import { useVehicles } from "@/context/VehiclesContext";
 import CountrySelector, { Country, EUROPEAN_COUNTRIES } from "@/components/CountrySelector";
 import { getPlateFormat } from "@/data/plateFormats";
 import { Plus, Zap } from "lucide-react";
+import { ROUTES } from "@/lib/routes";
 
 export default function TilfoejBilPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function TilfoejBilPage() {
         countryCode: country.code,
         isEV,
       });
-      router.push("/cars");
+      router.push(ROUTES.cars);
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Kunne ikke tilføje køretøj",

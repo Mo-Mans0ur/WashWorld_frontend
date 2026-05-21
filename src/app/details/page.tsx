@@ -33,6 +33,7 @@ import { formatOpenHoursDisplay } from "@/lib/locationGeo";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
 import { fetchSubscriptions } from "@/lib/subscriptionsApi";
+import { ROUTES } from "@/lib/routes";
 
 // Props til maskinkortet-komponenten nederst i filen
 interface MachineCardProps {
@@ -196,15 +197,13 @@ export default function DetailsPage() {
   // - Vaskehal uden abonnement → til enkeltvaske-flowet hvor brugeren vælger vasketype
   function handleStartWash() {
     if (selectedId?.startsWith("stovsuger") || selectedId?.startsWith("vask_selv")) {
-      router.push(`/selfwash?location=${locationId ?? ""}&equipment=${selectedId ?? ""}`);
+      router.push(ROUTES.selfWash(locationId ?? "", selectedId ?? ""));
       return;
     }
     if (hasSubscription) {
-      router.push(
-        `/activewash?subscription=true&location=${locationId ?? ""}&equipment=${selectedId ?? ""}`,
-      );
+      router.push(ROUTES.activeWashSubscription(locationId ?? "", selectedId ?? ""));
     } else {
-      router.push("/singlewash");
+      router.push(ROUTES.singlewash);
     }
   }
 

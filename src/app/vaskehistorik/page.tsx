@@ -10,6 +10,7 @@ import {
   receiptHistory,
   receiptPageNames,
 } from "@/data/receiptHistory";
+import { ROUTES } from "@/lib/routes";
 
 export default function Vaskehistorik() {
   const [receipts, setReceipts] = useState(receiptHistory);
@@ -87,7 +88,7 @@ export default function Vaskehistorik() {
               </div>
 
               <Link
-                href={`/vaskehistorik/detaljer?id=${receipt.id}`}
+                href={`${ROUTES.washHistoryDetails}?id=${receipt.id}`}
                 className="absolute bottom-0 right-0 inline-flex h-10 items-center bg-(--brand-green-01) px-4 text-sm font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
               >
                 {receiptPageNames.detailButton}

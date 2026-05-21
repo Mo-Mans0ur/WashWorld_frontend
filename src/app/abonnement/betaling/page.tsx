@@ -12,6 +12,7 @@ import {
   subscriptionPaymentPageContent,
 } from "@/data/subscriptionData";
 import ContinueButton from "@/components/ContinueButton";
+import { ROUTES } from "@/lib/routes";
 
 type StoredPaymentCard = {
   cardNumber: string;
@@ -75,7 +76,7 @@ export default function SubscriptionBetalingPage() {
       return;
     }
 
-    router.replace(`/abonnement/handlesubscription?plan=${selectedPlanSlug}`);
+    router.replace(ROUTES.subscriptionConfirmation(selectedPlanSlug));
   }, [router, selectedPlanSlug, storedPaymentCard]);
 
   function handleContinue() {
@@ -97,7 +98,7 @@ export default function SubscriptionBetalingPage() {
       payment: "card",
     });
 
-    router.push(`/abonnement/handlesubscription?plan=${selectedPlanSlug}`);
+    router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug));
   }
 
   return (

@@ -10,6 +10,7 @@ import { paymentPlans } from "@/data/singleWashData";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
 import ContinueButton from "@/components/ContinueButton";
 import { CircleAlert, CircleHelp, Lock } from "lucide-react";
+import { ROUTES } from "@/lib/routes";
 
 type StoredPaymentCard = {
   cardNumber: string;
@@ -106,9 +107,7 @@ export default function BetalingPage() {
       }
     }
 
-    router.push(
-      `/singlewash/nummerplade?plan=${selectedPlan}&payment=${selectedPayment}`,
-    );
+    router.push(ROUTES.licensePlate(selectedPlan, selectedPayment));
   }
 
   return (

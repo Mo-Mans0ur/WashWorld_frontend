@@ -7,10 +7,11 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useState, useEffect } from "react";
 import { AuthButton } from "@/components/buttons";
 import { useAuth } from "@/context/AuthContext";
 import { loginUser } from "@/lib/api/auth";
+import { ROUTES } from "@/lib/routes";
 
 const MIN_EMAIL_LENGTH = 5;
 const MIN_PASSWORD_LENGTH = 6;
@@ -25,11 +26,17 @@ function getInputStyle(value: string, minLength: number) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading: authLoading } = useAuth();
+  const { login, isLoading: authLoading, isAuthenticated } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace(ROUTES.dashboard);
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   // Login-knappen er deaktiveret mens AuthContext stadig tjekker et gemt token (authLoading),
   // eller mens et login-kald allerede er i gang (isSubmitting).
@@ -52,7 +59,7 @@ export default function LoginPage() {
         password,
       );
       login(token, user);
-      router.push("/dashboard");
+      router.push(ROUTES.dashboard);
     } catch (err) {
       setError(
         err instanceof Error
@@ -132,7 +139,7 @@ export default function LoginPage() {
           <AuthButton
             mode="login"
             onLoginClick={() => void handleSubmit()}
-            onSignupClick={() => router.push("/signup")}
+            onSignupClick={() => router.push(ROUTES.signup)}
             disabled={!canSubmit}
           />
 
@@ -140,7 +147,7 @@ export default function LoginPage() {
             Glemt kodeord?{" "}
             <button
               type="button"
-              onClick={() => router.push("/reset-password")}
+              onClick={() => router.push(ROUTES.resetPassword)}
               className="font-semibold text-(--color-secondary) hover:underline"
             >
               Nulstil det her

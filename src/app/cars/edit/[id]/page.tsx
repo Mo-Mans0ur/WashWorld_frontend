@@ -7,6 +7,7 @@ import { useVehicles } from "@/context/VehiclesContext";
 import CountrySelector, { Country, EUROPEAN_COUNTRIES } from "@/components/CountrySelector";
 import { getPlateFormat } from "@/data/plateFormats";
 import { Check, Zap } from "lucide-react";
+import { ROUTES } from "@/lib/routes";
 
 export default function RedigerBilPage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function RedigerBilPage() {
 
   useEffect(() => {
     if (isLoading) return;
-    if (!vehicle) router.replace("/cars");
+    if (!vehicle) router.replace(ROUTES.cars);
   }, [isLoading, vehicle, router]);
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function RedigerBilPage() {
         countryCode: country.code,
         isEV,
       });
-      router.push("/cars");
+      router.push(ROUTES.cars);
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Kunne ikke opdatere køretøj",
@@ -167,7 +168,7 @@ export default function RedigerBilPage() {
           <div className="flex gap-3 mt-auto">
             <button
               type="button"
-              onClick={() => router.push("/cars")}
+              onClick={() => router.push(ROUTES.cars)}
               disabled={isSubmitting}
               className="flex-1 rounded-sm border-2 border-(--brand-green-01) py-4 text-xl font-bold text-(--brand-green-01) shadow-sm active:opacity-80 disabled:opacity-60"
             >

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import { useVehicles } from "@/context/VehiclesContext";
 import { Car, MoreVertical, Plus, Pencil, Trash2, CircleCheck } from "lucide-react";
+import { ROUTES } from "@/lib/routes";
 
 export default function BilerPage() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function BilerPage() {
 
   function handleEdit(id: string) {
     setOpenMenuId(null);
-    router.push(`/cars/edit/${id}`);
+    router.push(ROUTES.editCar(id));
   }
 
   async function handleDelete(id: string) {
@@ -75,7 +76,7 @@ export default function BilerPage() {
 
         <button
           type="button"
-          onClick={() => router.push("/cars/add")}
+          onClick={() => router.push(ROUTES.addCar)}
           className="relative mt-2 flex items-center justify-center gap-2 bg-(--brand-green-01) py-4 text-xl font-bold text-white shadow-md active:opacity-80 [clip-path:polygon(6%_0,100%_0,100%_100%,0_100%)]"
         >
           <Plus size={22} strokeWidth={3} />

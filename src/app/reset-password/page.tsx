@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { ROUTES } from "@/lib/routes";
 
 const MIN_EMAIL_LENGTH = 5;
 
@@ -69,7 +70,7 @@ export default function ResetPasswordPage() {
             </p>
             <button
               type="button"
-              onClick={() => router.push("/login")}
+              onClick={() => router.push(ROUTES.login)}
               className="h-12 w-full bg-(--brand-green-01) font-bold text-white [clip-path:polygon(0_0,100%_0,96%_100%,0_100%)]"
             >
               Tilbage til login
@@ -113,7 +114,7 @@ export default function ResetPasswordPage() {
 
             <button
               type="button"
-              onClick={() => router.push("/login")}
+              onClick={() => router.push(ROUTES.login)}
               className="mt-3 text-sm text-white/70 hover:text-white"
             >
               Tilbage til login

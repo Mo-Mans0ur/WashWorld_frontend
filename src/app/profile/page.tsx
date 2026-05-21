@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { fetchSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";
+import { ROUTES } from "@/lib/routes";
 
 // Formaterer en ISO-dato til dansk månedsnavn + årstal, fx "maj 2024"
 function formatMemberSince(dateStr: string): string {
@@ -110,7 +111,7 @@ export default function ProfilePage() {
     const clearTimeoutId = window.setTimeout(() => {
       setShowUpdatedMessage(false);
       setUpdatedMessagePhase("idle");
-      router.replace("/profile");
+      router.replace(ROUTES.profile);
     }, 2350);
 
     return () => {
@@ -174,7 +175,7 @@ export default function ProfilePage() {
                           type="button"
                           onClick={() => {
                             setSubscriptionMenuOpen(false);
-                            router.push("/abonnement");
+                            router.push(ROUTES.subscription);
                           }}
                           className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
                         >
@@ -207,7 +208,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-end border-t border-neutral-200">
                   <button
                     type="button"
-                    onClick={() => router.push("/abonnement")}
+                    onClick={() => router.push(ROUTES.subscription)}
                     className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
                   >
                     Tilføj
@@ -250,7 +251,7 @@ export default function ProfilePage() {
               </p>
               <button
                 type="button"
-                onClick={() => router.push("/profile/updateprofile")}
+                onClick={() => router.push(ROUTES.updateProfile)}
                 className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
               >
                 {profilePageNames.editProfile}

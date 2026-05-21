@@ -3,6 +3,7 @@ import {
   formatOpenHoursDisplay,
   locationShortName,
 } from "@/lib/locationGeo";
+import { ROUTES } from "@/lib/routes";
 
 type LocationPopupCardProps = {
   locationId: string;
@@ -33,7 +34,7 @@ export default function LocationPopupCard({
           {formatOpenHoursDisplay(openHours)}
         </p>
         <Link
-          href={`/details?id=${encodeURIComponent(locationId)}`}
+          href={ROUTES.details(locationId)}
           className="washworld-popup-more"
         >
           Se mere

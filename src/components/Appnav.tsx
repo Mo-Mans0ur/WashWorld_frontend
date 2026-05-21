@@ -24,6 +24,7 @@ import {
   Bell,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { ROUTES } from "@/lib/routes";
 
 export default function AppNav() {
   const pathname = usePathname();
@@ -37,12 +38,12 @@ export default function AppNav() {
 
   // Sidebar-menupunkter – tilføj/fjern her for at ændre indholdet af menuen
   const subMenuItems = [
-    { label: "Mine Køretøjer", href: "/biler", icon: Car },
-    { label: "Betalingsoplysninger", href: "/betaling", icon: CreditCard },
-    { label: "Abonnement", href: "/abonnement", icon: BadgeCheck },
-    { label: "Forbrug", href: "/vaskehistorik", icon: History },
-    { label: "Notifikationer", href: "/notifikationer", icon: Bell },
-    { label: "Hjælp", href: "/hjaelp", icon: LifeBuoy },
+    { label: "Mine Køretøjer", href: ROUTES.cars, icon: Car },
+    { label: "Betalingsoplysninger", href: ROUTES.paymentSettings, icon: CreditCard },
+    { label: "Abonnement", href: ROUTES.subscription, icon: BadgeCheck },
+    { label: "Forbrug", href: ROUTES.washHistory, icon: History },
+    { label: "Notifikationer", href: ROUTES.notifications, icon: Bell },
+    { label: "Hjælp", href: ROUTES.customerService, icon: LifeBuoy },
   ];
 
   return (
@@ -117,21 +118,21 @@ export default function AppNav() {
           iPhone home-indikatoren så ikoner ikke gemmes bag den. */}
       <nav className="absolute bottom-0 left-0 right-0 z-30 flex h-22 w-full items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
         <Link
-          href="/dashboard"
+          href={ROUTES.dashboard}
           className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
         >
           <Home size={26} />
           <span className="text-xs">Home</span>
         </Link>
         <Link
-          href="/locations/map"
+          href={ROUTES.map}
           className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
         >
           <MapPin size={26} />
           <span className="text-xs">Kort</span>
         </Link>
         <Link
-          href="/profile"
+          href={ROUTES.profile}
           className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
         >
           <User size={26} />

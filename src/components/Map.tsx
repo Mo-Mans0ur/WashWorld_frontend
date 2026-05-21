@@ -12,6 +12,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapControls from "./MapControls";
 import ViewToggle from "./ViewToggle";
+import { ROUTES } from "@/lib/routes";
 import type { MapLocation } from "../data/washworldLocations";
 import { fetchMapLocations } from "../lib/locationsApi";
 import {
@@ -284,7 +285,7 @@ export default function Map() {
         locations,
         () => userLngLatRef.current,
         (locationId) =>
-          router.push(`/details?id=${encodeURIComponent(locationId)}`),
+          router.push(ROUTES.details(locationId)),
       );
 
       if (userLngLatRef.current) {

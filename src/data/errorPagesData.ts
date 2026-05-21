@@ -10,6 +10,17 @@ export const notFoundPageData = {
   primaryActionHref: "/login",
 } as const;
 
+export const underConstructionPageData = {
+  icon: "🚧",
+  title: "Under Construction",
+  messageLines: [
+    "Vi arbejder på denne side.",
+    "Kom tilbage senere.",
+  ],
+  primaryActionLabel: "Tilbage",
+  primaryActionHref: "/dashboard",
+} as const;
+
 export const unsupportedPageData = {
   code: "505",
   title: "We hit a problem",

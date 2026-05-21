@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AssistanceButton, Button } from "@/components/buttons";
+import { ROUTES } from "@/lib/routes";
 
 const PRICE_PER_MINUTE = 6;
 const START_PRICE = 0;
@@ -85,7 +86,7 @@ export default function ActiveWashPage() {
         <Button
           variant="trapezoid"
           size="lg"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push(ROUTES.dashboard)}
           style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
         >
           Afslut vask

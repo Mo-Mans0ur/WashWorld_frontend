@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import { paymentPageContent } from "@/data/paymentData";
 import { singleWashPageContent, paymentPlans } from "@/data/singleWashData";
+import { ROUTES } from "@/lib/routes";
 import ContinueButton from "@/components/ContinueButton";
 
 export default function SingleWashPage() {
@@ -15,9 +16,7 @@ export default function SingleWashPage() {
   const router = useRouter();
 
   function handleContinue() {
-    router.push(
-      `/betaling?plan=${currentPlan?.slug ?? selectedPlan.toLowerCase()}`,
-    );
+    router.push(ROUTES.payment(currentPlan?.slug ?? selectedPlan.toLowerCase()));
   }
 
   return (

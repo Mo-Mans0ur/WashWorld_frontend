@@ -11,6 +11,7 @@ import { useState } from "react";
 import { AuthButton } from "@/components/buttons";
 import { registerUser } from "@/lib/api/auth";
 import { useAuth } from "@/context/AuthContext";
+import { ROUTES } from "@/lib/routes";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function SignUpPage() {
         user_password: form.password,
       });
       login(token, user);
-      router.push("/dashboard");
+      router.push(ROUTES.dashboard);
     } catch (err) {
       setErrors({ general: err instanceof Error ? err.message : "Noget gik galt. Prøv igen." });
     } finally {
@@ -67,7 +68,7 @@ export default function SignUpPage() {
   };
 
   const handleLoginClick = () => {
-    router.push("/login");
+    router.push(ROUTES.login);
   };
 
   return (
@@ -162,7 +163,7 @@ export default function SignUpPage() {
             <span>
               Jeg accepterer{" "}
               <button
-                onClick={() => router.push("/terms")}
+                onClick={() => router.push(ROUTES.terms)}
                 className="text-(--color-secondary) font-semibold hover:underline"
               >
                 abonnementsvilkår

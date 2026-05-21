@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Check } from "lucide-react";
 
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
+import { Button } from "@/components/buttons";
 import {
   notificationPageContent,
   notificationSettings,
 } from "@/data/notificationData";
+import { ROUTES } from "@/lib/routes";
 
 type SettingsState = Record<string, boolean>;
 
@@ -35,7 +36,6 @@ export default function NotifikationerPage() {
 
   function toggleAll() {
     const nextValue = !allEnabled;
-
     setSettings(
       Object.fromEntries(
         notificationSettings.map((item) => [item.id, nextValue]),
@@ -44,33 +44,32 @@ export default function NotifikationerPage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
-      <AppHeader />
+    <div className="flex h-full flex-col overflow-hidden">
       <PageInfo text={notificationPageContent.pageInfoTitle} userName="" />
 
-      <main className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)] px-5 pb-6 pt-4">
-        <section className="rounded-2xl bg-white px-4 py-4 shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+      <main className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-6 pt-4">
+        <section className="rounded-[3px] bg-(--white-white) px-4 py-4 shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
               <Bell className="h-6 w-6" strokeWidth={2.5} />
             </div>
 
             <div className="min-w-0 flex-1">
-              <h1 className="text-[1.15rem] font-bold text-[#101010]">
+              <h1 className="text-[1.15rem] font-bold text-neutral-900">
                 {notificationPageContent.title}
               </h1>
-              <p className="mt-1 text-[0.85rem] leading-snug text-[#6c6c6c]">
+              <p className="mt-1 text-[0.85rem] leading-snug text-neutral-500">
                 {notificationPageContent.description}
               </p>
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-4 rounded-xl bg-[#f6f8f7] px-4 py-3">
+          <div className="mt-4 flex items-center justify-between gap-4 rounded-[3px] bg-(--color-grey-03) px-4 py-3">
             <div>
-              <p className="text-[0.92rem] font-bold text-[#1d1d1d]">
+              <p className="text-[0.92rem] font-bold text-neutral-900">
                 {notificationPageContent.masterToggleLabel}
               </p>
-              <p className="mt-0.5 text-[0.78rem] leading-snug text-[#7a7a7a]">
+              <p className="mt-0.5 text-[0.78rem] leading-snug text-neutral-500">
                 {notificationPageContent.masterToggleDescription}
               </p>
             </div>
@@ -87,7 +86,7 @@ export default function NotifikationerPage() {
           {notificationSettings.map((item) => (
             <article
               key={item.id}
-              className="rounded-2xl bg-white px-4 py-3 shadow-[0_8px_18px_rgba(0,0,0,0.12)]"
+              className="rounded-[3px] bg-(--white-white) px-4 py-3 shadow-[0_8px_18px_rgba(0,0,0,0.12)]"
             >
               <div className="flex items-start gap-3">
                 <span
@@ -95,10 +94,10 @@ export default function NotifikationerPage() {
                 />
 
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-[1rem] font-bold text-[#111]">
+                  <h2 className="text-[1rem] font-bold text-neutral-900">
                     {item.title}
                   </h2>
-                  <p className="mt-1 text-[0.8rem] leading-snug text-[#747474]">
+                  <p className="mt-1 text-[0.8rem] leading-snug text-neutral-500">
                     {item.description}
                   </p>
                 </div>
@@ -113,14 +112,15 @@ export default function NotifikationerPage() {
           ))}
         </section>
 
-        <button
-          type="button"
-          onClick={() => router.push("/profile?updated=preferences")}
-          className="mt-5 flex h-11 w-full items-center justify-center gap-2 bg-(--brand-green-01) text-[1rem] font-bold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={() => router.push(ROUTES.profileUpdatedPreferences)}
+          className="mt-5 flex w-full items-center justify-center gap-2"
         >
           <Check className="h-4.5 w-4.5" strokeWidth={3} />
           {notificationPageContent.saveButton}
-        </button>
+        </Button>
       </main>
     </div>
   );
@@ -139,7 +139,7 @@ function ToggleSwitch({
     <button
       type="button"
       onClick={onToggle}
-      className={`relative flex h-7 w-12 shrink-0 items-center rounded-full px-1 transition ${enabled ? "bg-(--brand-green-01)" : "bg-[#d0d5d2]"}`}
+      className={`relative flex h-7 w-12 shrink-0 items-center rounded-full px-1 transition ${enabled ? "bg-(--brand-green-01)" : "bg-(--color-grey-02)"}`}
       title={label}
     >
       <span className="sr-only">{label}</span>

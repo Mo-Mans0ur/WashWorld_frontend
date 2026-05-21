@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AssistanceButton, Button } from "@/components/buttons";
 import { saveLatestSingleWashReceipt } from "@/data/receiptHistory";
 import { paymentPlans } from "@/data/singleWashData";
+import { ROUTES } from "@/lib/routes";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SESSION_ID = 1042;
@@ -827,12 +828,12 @@ export default function ActiveAutoWashPage({
   const handleClose = () => {
     setShowModal(false);
     setModalDismissed(true);
-    router.push("/dashboard");
+    router.push(ROUTES.dashboard);
   };
 
   const handleReceipt = () => {
     setShowModal(false);
-    router.push("/profile");
+    router.push(ROUTES.profile);
   };
 
   return (

@@ -18,6 +18,7 @@ import {
 } from "@/data/subscriptionData";
 import PageInfo from "@/components/PageInfo";
 import { createSubscription } from "@/lib/subscriptionsApi";
+import { ROUTES } from "@/lib/routes";
 
 export default function HandleSubscriptionPage() {
   const router = useRouter();
@@ -107,7 +108,7 @@ export default function HandleSubscriptionPage() {
         subscription_end_date: formatDate(endDate),
         subscription_next_billing_date: formatDate(nextBilling),
       });
-      router.push("/profile");
+      router.push(ROUTES.profile);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Kunne ikke oprette abonnement");
       setIsSubmitting(false);

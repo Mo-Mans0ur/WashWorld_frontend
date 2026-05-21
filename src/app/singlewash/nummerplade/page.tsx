@@ -8,6 +8,7 @@ import PageInfo from "@/components/PageInfo";
 import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
 import ContinueButton from "@/components/ContinueButton";
 import { singleWashPlatePageContent } from "@/data/singleWashData";
+import { ROUTES } from "@/lib/routes";
 
 export default function SingleWashPlatePage() {
   const router = useRouter();
@@ -19,9 +20,7 @@ export default function SingleWashPlatePage() {
   const scanningTitle = singleWashPlatePageContent.title.replace(/\.\.\.$/, "");
 
   function handleContinue() {
-    router.push(
-      `/singlewash/startvask?plan=${selectedPlan}&payment=${selectedPayment}&plate=${encodeURIComponent(plateNumber)}`,
-    );
+    router.push(ROUTES.startWash(selectedPlan, selectedPayment, plateNumber));
   }
 
   return (

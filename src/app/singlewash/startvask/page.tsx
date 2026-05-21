@@ -7,6 +7,7 @@ import PageInfo from "@/components/PageInfo";
 import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
 import StartWashButton from "@/components/buttons/StartWashButton";
 import { singleWashReadyPageContent } from "@/data/singleWashData";
+import { ROUTES } from "@/lib/routes";
 
 export default function SingleWashStartPage() {
   const router = useRouter();
@@ -18,9 +19,7 @@ export default function SingleWashStartPage() {
   const pageTitle = singleWashReadyPageContent.title.replace(/\.\.\.$/, "");
 
   function handleStartWash() {
-    router.push(
-      `/activewash?plan=${selectedPlan}&payment=${selectedPayment}&plate=${encodeURIComponent(plateNumber)}`,
-    );
+    router.push(ROUTES.activeWash(selectedPlan, selectedPayment, plateNumber));
   }
 
   return (

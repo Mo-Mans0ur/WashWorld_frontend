@@ -23,6 +23,7 @@ import PageInfo from "@/components/PageInfo";
 import { profileUpdatePageContent } from "@/data/profileData";
 import { useAuth } from "@/context/AuthContext";
 import { updateAuthUser } from "@/lib/api/auth";
+import { ROUTES } from "@/lib/routes";
 import { EUROPEAN_COUNTRIES, PHONE_DIAL_CODES } from "@/components/CountrySelector";
 
 type FormState = {
@@ -125,7 +126,7 @@ export default function UpdateProfilePage() {
       });
       // Opdater AuthContext med de nye brugerdata så resten af appen ser de nye værdier
       login(token, updated);
-      router.push("/profile?updated=1");
+      router.push(ROUTES.profileUpdated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kunne ikke gemme ændringer");
     } finally {

@@ -10,7 +10,6 @@ import {
   Plus,
 } from "lucide-react";
 
-import AppHeader from "@/components/AppHeader";
 import PageInfo from "@/components/PageInfo";
 import {
   supportContactCards,
@@ -33,16 +32,15 @@ export default function KundeservicePage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)]">
-      <AppHeader />
+    <div className="flex h-full flex-col overflow-hidden">
       <PageInfo text={supportPageContent.pageInfoTitle} userName="" />
 
-      <main className="flex-1 overflow-y-auto scrollbar-hide bg-[linear-gradient(135deg,#8ed7bb_0%,#909694_100%)] px-5 pb-6 pt-3">
+      <main className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-6 pt-3">
         <div className="max-w-76 pl-1">
-          <p className="text-[1.05rem] font-bold leading-tight text-[#0d2216]">
+          <p className="text-[1.05rem] font-bold leading-tight text-neutral-800">
             {supportPageContent.introTitle}
           </p>
-          <p className="text-[1.05rem] font-bold leading-tight text-[#0d2216]">
+          <p className="text-[1.05rem] font-bold leading-tight text-neutral-800">
             {supportPageContent.introSubtitle}
           </p>
         </div>
@@ -54,11 +52,11 @@ export default function KundeservicePage() {
         </section>
 
         <section className="mt-13">
-          <h2 className="text-[1.15rem] font-bold text-[#0d2216]">
+          <h2 className="text-[1.15rem] font-bold text-neutral-800">
             {supportPageContent.faqTitle}
           </h2>
 
-          <div className="mt-3 bg-white shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+          <div className="mt-3 rounded-[3px] bg-(--white-white) shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
             {supportFaqItems.map((item, index) => {
               const isOpen = openFaqId === item.id;
 
@@ -108,7 +106,7 @@ function SupportCard({ card }: { card: SupportContactCard }) {
   const isUrgent = card.actionType === "urgent";
 
   return (
-    <article className="overflow-hidden  bg-white shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+    <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
       <div
         className={`flex items-start gap-4 px-4 ${isUrgent ? "pt-4 pb-3" : "py-2"}`}
       >

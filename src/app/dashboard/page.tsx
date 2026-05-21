@@ -13,6 +13,7 @@ import { formatLocationAddress } from "@/lib/locationsApi";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
 import { useVehicles } from "@/context/VehiclesContext";
+import { ROUTES } from "@/lib/routes";
 
 // Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
 function getDistanceInKm(
@@ -140,7 +141,7 @@ export default function DashboardPage() {
           </p>
           <div className="mt-3 flex justify-end">
             <Link
-              href="/profile"
+              href={ROUTES.profile}
               className="flex h-11 items-center justify-center bg-(--brand-green-01) pl-5 pr-4 text-[0.92rem] font-bold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]"
             >
               {dashboardPageNames.notificationToastButton}
@@ -201,8 +202,8 @@ export default function DashboardPage() {
           <Link
             href={
               nearestLocation
-                ? `/locations/map?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
-                : "/locations/map"
+                ? `${ROUTES.map}?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
+                : ROUTES.map
             }
             className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[3px] bg-(--white-white) shadow-md"
             title={dashboardPageNames.currentLocationButtonAlt}
@@ -276,7 +277,7 @@ function FavoriteCard({
 }) {
   return (
     <Link
-      href={`/details?id=${encodeURIComponent(locationId)}`}
+      href={ROUTES.details(locationId)}
       className="relative h-32 w-36 shrink-0 overflow-hidden rounded-[3px] bg-black shadow-lg border-2 border-(--brand-green-01) block"
     >
       <Image
@@ -302,9 +303,9 @@ function FavoriteCard({
         </p>
 
         <div className="absolute -right-px -bottom-px h-6">
-          <button className="flex h-full items-center justify-end rounded-none border-0 bg-(--brand-green-01) pl-6 pr-2 text-xs leading-none font-bold text-white [clip-path:polygon(24%_0,101%_0,101%_101%,0_101%)]">
+          <span className="flex h-full items-center justify-end bg-(--brand-green-01) pl-6 pr-2 text-xs leading-none font-bold text-white [clip-path:polygon(24%_0,101%_0,101%_101%,0_101%)]">
             {dashboardPageNames.favoriteCardButton}
-          </button>
+          </span>
         </div>
       </div>
     </Link>
@@ -320,7 +321,10 @@ function NewsCard({
   description: string;
 }) {
   return (
-    <article className="w-46 shrink-0 overflow-hidden rounded-[3px] border-white/90 bg-white shadow-md">
+    <Link
+      href={ROUTES.underConstruction}
+      className="w-46 shrink-0 overflow-hidden rounded-[3px] border-white/90 bg-white shadow-md block"
+    >
       <Image
         src={image}
         alt={description}
@@ -333,6 +337,6 @@ function NewsCard({
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">
         {description}
       </p>
-    </article>
+    </Link>
   );
 }
