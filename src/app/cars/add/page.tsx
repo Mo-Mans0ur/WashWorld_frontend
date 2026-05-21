@@ -43,7 +43,7 @@ export default function TilfoejBilPage() {
         countryCode: country.code,
         isEV,
       });
-      router.push("/biler");
+      router.push("/cars");
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Kunne ikke tilføje køretøj",

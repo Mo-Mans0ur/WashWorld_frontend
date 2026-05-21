@@ -29,7 +29,7 @@ export default function RedigerBilPage() {
 
   useEffect(() => {
     if (isLoading) return;
-    if (!vehicle) router.replace("/biler");
+    if (!vehicle) router.replace("/cars");
   }, [isLoading, vehicle, router]);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function RedigerBilPage() {
         countryCode: country.code,
         isEV,
       });
-      router.push("/biler");
+      router.push("/cars");
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Kunne ikke opdatere køretøj",
@@ -167,7 +167,7 @@ export default function RedigerBilPage() {
           <div className="flex gap-3 mt-auto">
             <button
               type="button"
-              onClick={() => router.push("/biler")}
+              onClick={() => router.push("/cars")}
               disabled={isSubmitting}
               className="flex-1 rounded-sm border-2 border-(--brand-green-01) py-4 text-xl font-bold text-(--brand-green-01) shadow-sm active:opacity-80 disabled:opacity-60"
             >
