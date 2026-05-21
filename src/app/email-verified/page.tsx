@@ -3,50 +3,48 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+const verificationResults = {
+  success: {
+    title: "Email Bekræftet",
+    message:
+      "Din email er blevet bekræftet. Du kan nu logge ind på din konto.",
+    buttonText: "Gå til login",
+  },
+  "already-verified": {
+    title: "Email Allerede Bekræftet",
+    message:
+      "Denne email er allerede blevet bekræftet. Du kan logge ind på din konto.",
+    buttonText: "Gå til login",
+  },
+  expired: {
+    title: "Linket Er Udløbet",
+    message:
+      "Dit bekræftelseslink er udløbet. Opret en ny konto eller få tilsendt et nyt bekræftelseslink.",
+    buttonText: "Tilbage til login",
+  },
+  invalid: {
+    title: "Ugyldigt Link",
+    message: "Bekræftelseslinket er ugyldigt eller findes ikke.",
+    buttonText: "Tilbage til login",
+  },
+  deleted: {
+    title: "Konto Ikke Tilgængelig",
+    message: "Denne konto er slettet og kan ikke bekræftes.",
+    buttonText: "Tilbage til login",
+  },
+} as const;
+
+type VerificationStatus = keyof typeof verificationResults;
+
 export default function EmailVerifiedPage() {
   const searchParams = useSearchParams();
-  const status = searchParams.get("status");
+  const status = searchParams.get("status") ?? "success";
 
-  // Success is the normal path, so keep it as the default copy.
-  let title = "Email Bekræftet";
-  let message =
-    "Din email er blevet bekræftet. Du kan nu logge ind på din konto.";
-
-  // The API sends a status query param when the confirmation link needs a different message.
-  if (status === "ALREADY_VERIFIED") {
-    title = "Email Allerede Bekræftet";
-    message = "Din email er allerede bekræftet. Du kan logge ind på din konto.";
-  }
-
-  if (status === "INVALID") {
-    title = "Ugyldig Link";
-    message =
-      "Dit link er ugyldigt eller udløbet. Prøv at anmode om en ny bekræftelsesemail.";
-  }
-
-  if (status === "MISSING_KEY") {
-    title = "Manglende Nøgle";
-    message =
-      "Der mangler en nøgle i dit link. Prøv at anmode om en ny bekræftelsesemail.";
-  }
-
-  if (status === "DELETED") {
-    title = "Konto Slettet";
-    message =
-      "Din konto er blevet slettet. Hvis dette var en fejl, kontakt venligst support.";
-  }
-
-  if (status === "EXPIRED") {
-    title = "Link Udløbet";
-    message =
-      "Dit link er udløbet. Prøv at anmode om en ny bekræftelsesemail.";
-  }
-
-  if (status === "ERROR") {
-    title = "Fejl";
-    message =
-      "Der opstod en fejl under bekræftelsen. Prøv igen senere eller kontakt support.";
-  }
+  // Unknown statuses should not accidentally show a success message.
+  const result =
+    status in verificationResults
+      ? verificationResults[status as VerificationStatus]
+      : verificationResults.invalid;
 
   return (
     <div className="flex min-h-full flex-col">
@@ -54,18 +52,18 @@ export default function EmailVerifiedPage() {
       <section className="flex flex-1 flex-col items-center justify-center px-7 pb-10 pt-6 text-center">
         <article className="mx-auto w-[82%] rounded-[3px] bg-(--white-white) px-5 py-7 shadow-lg">
           <h1 className="text-[1.7rem] font-bold leading-tight text-black">
-            {title}
+            {result.title}
           </h1>
 
           <p className="mx-auto mt-5 max-w-67.5 text-[0.9rem] font-bold leading-tight text-neutral-600">
-            {message}
+            {result.message}
           </p>
 
           <Link
             href="/login"
             className="mx-auto mt-7 flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-bold text-white transition hover:bg-(--brand-green-02)"
           >
-            Gå til login
+            {result.buttonText}
           </Link>
         </article>
       </section>
