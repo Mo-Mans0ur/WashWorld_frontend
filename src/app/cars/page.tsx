@@ -16,6 +16,7 @@ const VEHICLE_ICONS: Record<VehicleType, ElementType> = {
 };
 import { ROUTES } from "@/lib/routes";
 import { Button } from "@/components/buttons";
+import { capitalizeName } from "@/lib/formatName";
 
 export default function BilerPage() {
   const router = useRouter();
@@ -188,7 +189,7 @@ function VehicleCard({
 
       <div className="flex items-center justify-between px-4 pb-3">
         <LicensePlate plate={vehicle.plate} countryCode={vehicle.countryCode} />
-        <StatusBadge active={vehicle.active} />
+        <StatusBadge subscriptionName={vehicle.subscriptionName} />
       </div>
     </article>
   );
@@ -207,14 +208,20 @@ function LicensePlate({ plate, countryCode }: { plate: string; countryCode: stri
   );
 }
 
-function StatusBadge({ active }: { active: boolean }) {
+function StatusBadge({ subscriptionName }: { subscriptionName: string | null }) {
+  const hasSubscription = Boolean(subscriptionName);
+  const label = hasSubscription
+    ? capitalizeName(subscriptionName!)
+    : "Intet abonnement";
+
   return (
     <span
-      className={`rounded-sm px-3 py-1 text-sm font-bold text-white ${
-        active ? "bg-(--brand-green-01)" : "bg-neutral-600"
+      className={`inline-flex h-7 w-20 shrink-0 items-center justify-center truncate rounded-sm px-2 text-center text-sm font-bold text-white ${
+        hasSubscription ? "bg-(--brand-green-01)" : "bg-neutral-600"
       }`}
+      title={label}
     >
-      {active ? "Abonnement" : "Intet abonnement"}
+      {label}
     </span>
   );
 }

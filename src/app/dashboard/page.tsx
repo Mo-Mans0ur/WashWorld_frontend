@@ -34,7 +34,7 @@ function getDistanceInKm(
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { displayFirstName } = useAuth();
   const { vehicles, isLoading: vehiclesLoading } = useVehicles();
   const { missingPaymentCard } = getMissingProfileInfoState();
   const missingVehicle = !vehiclesLoading && vehicles.length === 0;
@@ -164,7 +164,7 @@ export default function DashboardPage() {
         />
       </button>
 
-      <PageInfo userName={user?.user_firstname ?? ""} />
+      <PageInfo userName={displayFirstName} />
 
       {/* Nærmeste vaskehal med link til kort */}
       <section className="px-8 pt-10">

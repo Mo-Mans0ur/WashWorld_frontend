@@ -12,11 +12,14 @@ export type User = {
   user_verified_at: string | null;
 };
 
-// `cars` tabellen — country_code, nickname, is_ev, is_active er ikke i DB endnu
 export type Car = {
   car_id: string;             // char(32) UUID
   user_id: string;
   car_license_plate: string;
+  car_name: string | null;
+  car_is_ev: boolean | number;
+  car_country_code: string;
+  car_vehicle_type: string;
 };
 
 export type Product = {

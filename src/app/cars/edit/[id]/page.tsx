@@ -67,6 +67,7 @@ export default function RedigerBilPage() {
         plate,
         countryCode: country.code,
         isEV,
+        vehicleType: vehicle.vehicleType,
       });
       router.push(ROUTES.cars);
     } catch (err) {

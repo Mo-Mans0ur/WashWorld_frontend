@@ -62,7 +62,7 @@ function validateLocalPhone(local: string): string | null {
 
 export default function UpdateProfilePage() {
   const router = useRouter();
-  const { user, login, logout, token } = useAuth();
+  const { user, login, logout, token, displayFullName } = useAuth();
   const [formState, setFormState] = useState<FormState>({
     firstName: "",
     lastName: "",
@@ -138,7 +138,7 @@ export default function UpdateProfilePage() {
     <div className="min-h-full">
       <PageInfo
         text={profileUpdatePageContent.pageInfoTitle}
-        userName={user ? `${user.user_firstname} ${user.user_lastname}` : ""}
+        userName={displayFullName}
       />
 
       <section className="space-y-4 px-4 pb-6 pt-3">
@@ -241,15 +241,7 @@ export default function UpdateProfilePage() {
             <Check className="h-4.5 w-4.5" strokeWidth={2.5} />
             {isSaving ? "Gemmer..." : profileUpdatePageContent.buttons.save}
           </button>
-
-          <button
-            type="button"
-            onClick={logout}
-            className="flex h-12 w-full items-center justify-center gap-2 bg-red-600 font-semibold text-white [clip-path:polygon(0_0,100%_0,96%_100%,0_100%)]"
-          >
-            <LogOut className="h-4.5 w-4.5" strokeWidth={2.5} />
-            {profileUpdatePageContent.buttons.logout}
-          </button>
+          
         </div>
       </section>
     </div>

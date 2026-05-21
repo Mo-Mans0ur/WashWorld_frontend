@@ -8,13 +8,17 @@ export async function fetchUserCars(userId: string): Promise<Car[]> {
   return data.cars;
 }
 
-export type CreateCarInput = {
+export type CarWriteInput = {
   car_license_plate: string;
+  car_name?: string;
+  car_is_ev?: boolean;
+  car_country_code?: string;
+  car_vehicle_type?: string;
 };
 
 export async function createCar(
   userId: string,
-  input: CreateCarInput,
+  input: CarWriteInput,
 ): Promise<{ message: string; car: Car }> {
   return apiRequest(`/api/users/${encodeURIComponent(userId)}/cars`, {
     method: "POST",
@@ -22,14 +26,10 @@ export async function createCar(
   });
 }
 
-export type UpdateCarInput = {
-  car_license_plate: string;
-};
-
 export async function updateCar(
   userId: string,
   carId: string,
-  input: UpdateCarInput,
+  input: CarWriteInput,
 ): Promise<{ message: string }> {
   return apiRequest(
     `/api/users/${encodeURIComponent(userId)}/cars/${encodeURIComponent(carId)}`,

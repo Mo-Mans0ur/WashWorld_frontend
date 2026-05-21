@@ -44,11 +44,11 @@ export const profileUser = {
 
 export const profilePageNames = {
   title: "Profil",
-  memberSinceLabel: "Meldlem siden:",
+  memberSinceLabel: "Medlem siden:",
   editProfile: "Rediger profil",
   updatedMessage: "Brugeroplysninger opdateret",
   preferencesUpdatedMessage: "Bruger præferencer ændret",
-  clipCardTitle: "klippekort",
+  clipCardTitle: "Klippekort",
   clipCardProgress: "3 ud af 5 vaske",
   badgesTitle: "Badges",
   badgesSubtitle: "Dine optjente badges",

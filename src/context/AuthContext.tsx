@@ -17,10 +17,16 @@ import {
 import type { User } from "@/types/api";
 import { fetchAuthUser } from "@/lib/api/auth";
 import { saveToken, clearToken } from "@/lib/apiClient";
+import {
+  getUserDisplayFirstName,
+  getUserDisplayFullName,
+} from "@/lib/formatName";
 
 type AuthContextType = {
   token: string | null;
   user: User | null;
+  displayFirstName: string;
+  displayFullName: string;
   isLoading: boolean;        // true mens session verificeres ved opstart
   login: (token: string, user: User) => void;
   logout: () => void;
@@ -114,6 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         token,
         user,
+        displayFirstName: getUserDisplayFirstName(user),
+        displayFullName: getUserDisplayFullName(user),
         isLoading,
         login,
         logout,

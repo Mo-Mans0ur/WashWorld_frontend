@@ -1,3 +1,5 @@
+import { formatDisplayName } from "@/lib/formatName";
+
 interface PageInfoProps {
   text?: string;
   userName?: string;
@@ -5,7 +7,8 @@ interface PageInfoProps {
 }
 
 export default function PageInfo({ text = "", userName, className = "" }: PageInfoProps) {
-  const content = text || (userName ? `Hej ${userName}` : "");
+  const formattedUserName = userName ? formatDisplayName(userName) : "";
+  const content = text || (formattedUserName ? `Hej ${formattedUserName}` : "");
 
   return (
     <section className={`relative h-12 ${className}`}>

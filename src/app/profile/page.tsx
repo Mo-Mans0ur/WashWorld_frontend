@@ -43,7 +43,7 @@ function formatRenewalDate(dateStr: string): string {
 export default function ProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, logout } = useAuth();
+  const { user, logout, displayFullName } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showBadges, setShowBadges] = useState(false);
   const [activeBadgeId, setActiveBadgeId] = useState<number | null>(null);
@@ -125,7 +125,7 @@ export default function ProfilePage() {
 
         <PageInfo
           text={profilePageNames.title}
-          userName={user ? `${user.user_firstname} ${user.user_lastname}` : ""}
+          userName={displayFullName}
         />
 
         <section className="space-y-4 p-4 pt-4">
@@ -214,7 +214,7 @@ export default function ProfilePage() {
 
               <div className="min-w-0 flex-1">
                 <h2 className="truncate text-2xl font-bold text-natural-800">
-                  {user ? `${user.user_firstname} ${user.user_lastname}` : "—"}
+                  {user ? displayFullName : "—"}
                 </h2>
                 <p className="mt-0.5 text-sm font-semibold text-neutral-600">
                   {user?.user_email ?? "—"}

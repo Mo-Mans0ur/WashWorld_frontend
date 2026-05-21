@@ -15,19 +15,19 @@ import {
   fetchUserCars,
   updateCar,
 } from "@/lib/carsApi";
-import { fetchSubscriptions } from "@/lib/subscriptionsApi";
+import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
 import type { Car, Subscription } from "@/types/api";
-
-const CAR_META_KEY = "washworld-car-meta";
 
 export type VehicleType = "car" | "motorcycle" | "truck" | "bus";
 
-type CarMeta = {
-  name?: string;
-  countryCode?: string;
-  isEV?: boolean;
-  vehicleType?: VehicleType;
-};
+const VEHICLE_TYPES: VehicleType[] = ["car", "motorcycle", "truck", "bus"];
+
+function normalizeVehicleType(value: string | undefined): VehicleType {
+  if (value && VEHICLE_TYPES.includes(value as VehicleType)) {
+    return value as VehicleType;
+  }
+  return "car";
+}
 
 export type Vehicle = {
   id: string;
@@ -35,6 +35,7 @@ export type Vehicle = {
   plate: string;
   countryCode: string;
   active: boolean;
+  subscriptionName: string | null;
   isEV: boolean;
   vehicleType: VehicleType;
 };
@@ -44,46 +45,47 @@ type VehiclesContextType = {
   isLoading: boolean;
   error: string | null;
   refreshVehicles: () => Promise<void>;
-  addVehicle: (v: Omit<Vehicle, "id" | "active">) => Promise<void>;
-  updateVehicle: (id: string, v: Omit<Vehicle, "id" | "active">) => Promise<void>;
+  addVehicle: (v: Omit<Vehicle, "id" | "active" | "subscriptionName">) => Promise<void>;
+  updateVehicle: (
+    id: string,
+    v: Omit<Vehicle, "id" | "active" | "subscriptionName">,
+  ) => Promise<void>;
   deleteVehicle: (id: string) => Promise<void>;
 };
 
 const VehiclesContext = createContext<VehiclesContextType | null>(null);
 
-function loadMeta(): Record<string, CarMeta> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(CAR_META_KEY);
-    return raw ? (JSON.parse(raw) as Record<string, CarMeta>) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveMeta(meta: Record<string, CarMeta>) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(CAR_META_KEY, JSON.stringify(meta));
+function toCarPayload(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
+  return {
+    car_license_plate: v.plate,
+    car_name: v.name.trim() || undefined,
+    car_is_ev: v.isEV,
+    car_country_code: v.countryCode,
+    car_vehicle_type: v.vehicleType,
+  };
 }
 
 function mapCarsToVehicles(
   cars: Car[],
-  meta: Record<string, CarMeta>,
   subscriptions: Subscription[],
 ): Vehicle[] {
   return cars.map((car, index) => {
-    const m = meta[car.car_id] ?? {};
-    const active = subscriptions.some(
+    const activeSubscription = subscriptions.find(
       (s) => s.car_id === car.car_id && s.subscriptions_status === "aktiv",
     );
+    const displayName =
+      car.car_name?.trim() ||
+      (index === 0 ? "Primær" : `Bil ${index + 1}`);
+
     return {
       id: car.car_id,
-      name: m.name ?? (index === 0 ? "Primær" : `Bil ${index + 1}`),
+      name: displayName,
       plate: car.car_license_plate,
-      countryCode: m.countryCode ?? "DK",
-      active,
-      isEV: m.isEV ?? false,
-      vehicleType: m.vehicleType ?? "car",
+      countryCode: car.car_country_code || "DK",
+      active: Boolean(activeSubscription),
+      subscriptionName: activeSubscription?.subscriptions_name ?? null,
+      isEV: Boolean(car.car_is_ev),
+      vehicleType: normalizeVehicleType(car.car_vehicle_type),
     };
   });
 }
@@ -106,9 +108,9 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
     try {
       const [cars, subscriptions] = await Promise.all([
         fetchUserCars(user.user_id),
-        fetchSubscriptions().catch(() => [] as Subscription[]),
+        fetchUserSubscriptions(user.user_id).catch(() => [] as Subscription[]),
       ]);
-      setVehicles(mapCarsToVehicles(cars, loadMeta(), subscriptions));
+      setVehicles(mapCarsToVehicles(cars, subscriptions));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Kunne ikke hente køretøjer");
       setVehicles([]);
@@ -122,37 +124,20 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
     refreshVehicles();
   }, [authLoading, refreshVehicles]);
 
-  async function addVehicle(v: Omit<Vehicle, "id" | "active">) {
+  async function addVehicle(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
     if (!user) throw new Error("Ikke logget ind");
 
-    const { car } = await createCar(user.user_id, {
-      car_license_plate: v.plate,
-    });
-
-    const meta = loadMeta();
-    meta[car.car_id] = {
-      name: v.name,
-      countryCode: v.countryCode,
-      isEV: v.isEV,
-      vehicleType: v.vehicleType,
-    };
-    saveMeta(meta);
+    await createCar(user.user_id, toCarPayload(v));
     await refreshVehicles();
   }
 
-  async function updateVehicle(id: string, v: Omit<Vehicle, "id" | "active">) {
+  async function updateVehicle(
+    id: string,
+    v: Omit<Vehicle, "id" | "active" | "subscriptionName">,
+  ) {
     if (!user) throw new Error("Ikke logget ind");
 
-    await updateCar(user.user_id, id, { car_license_plate: v.plate });
-
-    const meta = loadMeta();
-    meta[id] = {
-      name: v.name,
-      countryCode: v.countryCode,
-      isEV: v.isEV,
-      vehicleType: v.vehicleType,
-    };
-    saveMeta(meta);
+    await updateCar(user.user_id, id, toCarPayload(v));
     await refreshVehicles();
   }
 
@@ -160,11 +145,6 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
     if (!user) throw new Error("Ikke logget ind");
 
     await deleteCar(user.user_id, id);
-
-    const meta = loadMeta();
-    delete meta[id];
-    saveMeta(meta);
-
     await refreshVehicles();
   }
 
