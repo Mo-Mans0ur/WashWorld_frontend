@@ -20,8 +20,7 @@ export async function fetchUserSubscriptions(userId: string): Promise<Subscripti
 }
 
 // Dataform til oprettelse af et nyt abonnement.
-// product_id og car_id er valgfrie – car_id udelades pt. fordi køretøjer
-// ikke er gemt som rigtige rækker i databasen (ville ellers give FK-fejl).
+// product_id og car_id er valgfrie – car_id skal matche en række i cars-tabellen.
 export type CreateSubscriptionInput = {
   product_id?: string;
   car_id?: string;

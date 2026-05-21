@@ -8,12 +8,25 @@ import { Car, MoreVertical, Plus, Pencil, Trash2, CircleCheck } from "lucide-rea
 
 export default function BilerPage() {
   const router = useRouter();
-  const { vehicles, deleteVehicle, setActiveVehicle } = useVehicles();
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const { vehicles, isLoading, error, deleteVehicle, setActiveVehicle } = useVehicles();
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  function handleEdit(id: number) {
+  function handleEdit(id: string) {
     setOpenMenuId(null);
     router.push(`/biler/rediger/${id}`);
+  }
+
+  async function handleDelete(id: string) {
+    setDeletingId(id);
+    try {
+      await deleteVehicle(id);
+      setOpenMenuId(null);
+    } catch {
+      // Fejl vises via error-state fra context ved næste refresh
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   return (
@@ -21,26 +34,44 @@ export default function BilerPage() {
       <PageInfo text="Dine køretøjer" />
 
       <main className="flex flex-col gap-4 px-6 pt-6 pb-8">
-        {vehicles.map((vehicle) => (
-          <VehicleCard
-            key={vehicle.id}
-            vehicle={vehicle}
-            menuOpen={openMenuId === vehicle.id}
-            onMenuToggle={() =>
-              setOpenMenuId(openMenuId === vehicle.id ? null : vehicle.id)
-            }
-            onEdit={() => handleEdit(vehicle.id)}
-            onDelete={() => {
-              deleteVehicle(vehicle.id);
-              setOpenMenuId(null);
-            }}
-            onSetActive={() => {
-              setActiveVehicle(vehicle.id);
-              setOpenMenuId(null);
-            }}
-            onCloseMenu={() => setOpenMenuId(null)}
-          />
-        ))}
+        {isLoading && (
+          <p className="text-center text-sm font-semibold text-neutral-500">
+            Henter køretøjer...
+          </p>
+        )}
+
+        {error && (
+          <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+            {error}
+          </p>
+        )}
+
+        {!isLoading &&
+          !error &&
+          vehicles.map((vehicle) => (
+            <VehicleCard
+              key={vehicle.id}
+              vehicle={vehicle}
+              menuOpen={openMenuId === vehicle.id}
+              isDeleting={deletingId === vehicle.id}
+              onMenuToggle={() =>
+                setOpenMenuId(openMenuId === vehicle.id ? null : vehicle.id)
+              }
+              onEdit={() => handleEdit(vehicle.id)}
+              onDelete={() => handleDelete(vehicle.id)}
+              onSetActive={() => {
+                setActiveVehicle(vehicle.id);
+                setOpenMenuId(null);
+              }}
+              onCloseMenu={() => setOpenMenuId(null)}
+            />
+          ))}
+
+        {!isLoading && !error && vehicles.length === 0 && (
+          <p className="text-center text-sm font-semibold text-neutral-500">
+            Du har ingen køretøjer endnu.
+          </p>
+        )}
 
         <button
           type="button"
@@ -58,6 +89,7 @@ export default function BilerPage() {
 function VehicleCard({
   vehicle,
   menuOpen,
+  isDeleting,
   onMenuToggle,
   onEdit,
   onDelete,
@@ -66,6 +98,7 @@ function VehicleCard({
 }: {
   vehicle: ReturnType<typeof useVehicles>["vehicles"][number];
   menuOpen: boolean;
+  isDeleting: boolean;
   onMenuToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -100,7 +133,8 @@ function VehicleCard({
             type="button"
             aria-label="Muligheder"
             onClick={onMenuToggle}
-            className="flex h-8 w-8 items-center justify-center text-neutral-500"
+            disabled={isDeleting}
+            className="flex h-8 w-8 items-center justify-center text-neutral-500 disabled:opacity-50"
           >
             <MoreVertical size={20} />
           </button>
@@ -132,10 +166,11 @@ function VehicleCard({
               <button
                 type="button"
                 onClick={onDelete}
-                className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+                disabled={isDeleting}
+                className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
               >
                 <Trash2 size={15} />
-                Slet
+                {isDeleting ? "Sletter..." : "Slet"}
               </button>
             </div>
           )}

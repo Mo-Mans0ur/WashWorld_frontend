@@ -16,6 +16,8 @@ export default function TilfoejBilPage() {
   const [nickname, setNickname] = useState("");
   const [isEV, setIsEV] = useState(false);
   const [plateError, setPlateError] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fmt = getPlateFormat(country.code);
 
@@ -28,17 +30,26 @@ export default function TilfoejBilPage() {
     return true;
   }
 
-  function handleSubmit(e: { preventDefault: () => void }) {
+  async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
     if (!validatePlate(plate)) return;
-    addVehicle({
-      name: nickname.trim() || plate,
-      plate,
-      countryCode: country.code,
-      active: false,
-      isEV,
-    });
-    router.push("/biler");
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await addVehicle({
+        name: nickname.trim() || plate,
+        plate,
+        countryCode: country.code,
+        isEV,
+      });
+      router.push("/biler");
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Kunne ikke tilføje køretøj",
+      );
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -47,6 +58,12 @@ export default function TilfoejBilPage() {
 
       <main className="flex flex-col gap-4 px-6 pt-6 pb-8">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {submitError && (
+            <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+              {submitError}
+            </p>
+          )}
+
           <div className="flex flex-col gap-1">
             <div className="flex gap-2">
               <CountrySelector value={country} onChange={(c) => { setCountry(c); setPlate(""); setPlateError(""); }} />
@@ -62,7 +79,8 @@ export default function TilfoejBilPage() {
                 placeholder={fmt.placeholder}
                 maxLength={12}
                 required
-                className={`flex-1 rounded-[3px] border bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01) ${
+                disabled={isSubmitting}
+                className={`flex-1 rounded-[3px] border bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01) disabled:opacity-60 ${
                   plateError ? "border-red-400" : "border-neutral-400"
                 }`}
               />
@@ -77,7 +95,8 @@ export default function TilfoejBilPage() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="Kladenavn (frivilligt)"
-            className="rounded-[3px] border border-neutral-400 bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01)"
+            disabled={isSubmitting}
+            className="rounded-[3px] border border-neutral-400 bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01) disabled:opacity-60"
           />
 
           <div className="flex items-center gap-3 rounded-[3px] border border-neutral-300 bg-(--white-white) px-4 py-3.5 shadow-sm">
@@ -92,7 +111,8 @@ export default function TilfoejBilPage() {
               role="switch"
               aria-checked={isEV}
               onClick={() => setIsEV((v) => !v)}
-              className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+              disabled={isSubmitting}
+              className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-60 ${
                 isEV ? "bg-(--brand-green-01)" : "bg-neutral-400"
               }`}
             >
@@ -106,10 +126,11 @@ export default function TilfoejBilPage() {
 
           <button
             type="submit"
-            className="mt-auto flex items-center justify-center gap-2 bg-(--brand-green-01) py-4 text-xl font-bold text-white shadow-md active:opacity-80 [clip-path:polygon(6%_0,100%_0,100%_100%,0_100%)]"
+            disabled={isSubmitting}
+            className="mt-auto flex items-center justify-center gap-2 bg-(--brand-green-01) py-4 text-xl font-bold text-white shadow-md active:opacity-80 disabled:opacity-60 [clip-path:polygon(6%_0,100%_0,100%_100%,0_100%)]"
           >
             <Plus size={22} strokeWidth={3} />
-            Tilføj
+            {isSubmitting ? "Gemmer..." : "Tilføj"}
           </button>
         </form>
       </main>

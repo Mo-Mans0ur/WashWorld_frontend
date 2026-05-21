@@ -12,6 +12,7 @@ import { fetchLocations } from "@/lib/Api";
 import { formatLocationAddress } from "@/lib/locationsApi";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
+import { useVehicles } from "@/context/VehiclesContext";
 
 // Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
 function getDistanceInKm(
@@ -33,8 +34,10 @@ function getDistanceInKm(
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { hasMissingProfileInfo, missingPaymentCard, missingVehicle } =
-    getMissingProfileInfoState();
+  const { vehicles, isLoading: vehiclesLoading } = useVehicles();
+  const { missingPaymentCard } = getMissingProfileInfoState();
+  const missingVehicle = !vehiclesLoading && vehicles.length === 0;
+  const hasMissingProfileInfo = missingVehicle || missingPaymentCard;
   const { favorites } = useFavorites();
   // TanStack Query henter alle lokationer fra API'et og cacher dem automatisk.
   // isLoading er true mens det første kald er i gang – bruges til at vise "Henter...".

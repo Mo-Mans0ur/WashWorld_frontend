@@ -134,7 +134,7 @@ export const profileBadges: ProfileBadge[] = [
 ];
 
 export const profileMenuItems: ProfileMenuItem[] = [
-  { label: "Mine biler", href: "mine biler", iconKey: "sparkles" },
+  { label: "Mine biler", href: "cars", iconKey: "sparkles" },
   { label: "Vaskehistorik", href: "vaskehistorik", iconKey: "calendar" },
   {
     label: "Betaling og kort",
