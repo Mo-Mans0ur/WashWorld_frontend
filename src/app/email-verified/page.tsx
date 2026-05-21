@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-import PageInfo from "@/components/PageInfo";
-
 export default function EmailVerifiedPage() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
 
+  // Success is the normal path, so keep it as the default copy.
   let title = "Email Bekræftet";
   let message =
     "Din email er blevet bekræftet. Du kan nu logge ind på din konto.";
 
+  // The API sends a status query param when the confirmation link needs a different message.
   if (status === "ALREADY_VERIFIED") {
     title = "Email Allerede Bekræftet";
     message = "Din email er allerede bekræftet. Du kan logge ind på din konto.";
@@ -50,8 +50,7 @@ export default function EmailVerifiedPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      
-
+      {/* Uses the same centered card feel as the other app screens, just without extra page chrome. */}
       <section className="flex flex-1 flex-col items-center justify-center px-7 pb-10 pt-6 text-center">
         <article className="mx-auto w-[82%] rounded-[3px] bg-(--white-white) px-5 py-7 shadow-lg">
           <h1 className="text-[1.7rem] font-bold leading-tight text-black">
