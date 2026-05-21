@@ -23,7 +23,7 @@ import {
   History,
   Bell,
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
 
 export default function AppNav() {

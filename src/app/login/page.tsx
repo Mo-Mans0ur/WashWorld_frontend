@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState, useEffect } from "react";
 import { AuthButton } from "@/components/buttons";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks";
 import { loginUser } from "@/lib/api/auth";
 import { ROUTES } from "@/lib/routes";
 

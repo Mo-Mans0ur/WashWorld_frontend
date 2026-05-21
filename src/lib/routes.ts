@@ -25,15 +25,16 @@ export const ROUTES = {
   // Single wash flow
   singlewash: "/singlewash",
   paymentSettings: "/betaling",
-  payment: (plan: string) => `/betaling?plan=${plan}`,
-  licensePlate: (plan: string, payment: string) =>
-    `/singlewash/nummerplade?plan=${plan}&payment=${payment}`,
-  startWash: (plan: string, payment: string, plate: string) =>
-    `/singlewash/startvask?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}`,
-  activeWash: (plan: string, payment: string, plate: string) =>
-    `/activewash?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}`,
-  activeWashSubscription: (location: string, equipment: string) =>
-    `/activewash?subscription=true&location=${location}&equipment=${equipment}`,
+  payment: (plan: string, plate?: string, carId?: string) =>
+    `/betaling?plan=${plan}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  licensePlate: (plan: string, payment: string, plate?: string, carId?: string) =>
+    `/singlewash/nummerplade?plan=${plan}&payment=${payment}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  startWash: (plan: string, payment: string, plate: string, carId?: string) =>
+    `/singlewash/startvask?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  activeWash: (plan: string, payment: string, plate: string, carId?: string) =>
+    `/activewash?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  activeWashSubscription: (location: string, equipment: string, carId?: string) =>
+    `/activewash?subscription=true&location=${location}&equipment=${equipment}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
 
   // Self wash
   selfWash: (location: string, equipment: string) =>

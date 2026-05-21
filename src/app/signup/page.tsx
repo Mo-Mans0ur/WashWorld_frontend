@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthButton } from "@/components/buttons";
 import { registerUser } from "@/lib/api/auth";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
 
 export default function SignUpPage() {

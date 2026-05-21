@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AssistanceButton, Button } from "@/components/buttons";
 import { saveLatestSingleWashReceipt } from "@/data/receiptHistory";
 import { paymentPlans } from "@/data/singleWashData";
+import { subscriptionPlans } from "@/data/subscriptionData";
+import { createWashLog } from "@/lib/washLogApi";
 import { ROUTES } from "@/lib/routes";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -773,9 +775,16 @@ export default function ActiveAutoWashPage({
   const selectedPlanSlug = searchParams.get("plan") ?? "";
   const selectedPayment = searchParams.get("payment") ?? "card";
   const plate = searchParams.get("plate") ?? "DB 43 234";
+  const carId = searchParams.get("carId") ?? "";
+  const isSubscription = searchParams.get("subscription") === "true";
+  const locationParam = searchParams.get("location") ?? "";
+  const equipmentParam = searchParams.get("equipment") ?? "";
+  const equipmentId = equipmentParam.split("-").pop();
+  const displayId = equipmentId ?? SESSION_ID;
   const selectedPlan = paymentPlans.find(
     (plan) => plan.slug === selectedPlanSlug,
   );
+  const washLogCreated = useRef(false);
 
   // ─── Progress driver ───────────────────────────────────────────────────────
   // FIX: stop at 100 instead of cycling — without this the modal timeout gets
@@ -805,6 +814,20 @@ export default function ActiveAutoWashPage({
       return () => clearTimeout(t);
     }
   }, [progress, modalDismissed]);
+
+  // ─── Create wash_log entry once on completion ──────────────────────────────
+  useEffect(() => {
+    if (progress < 100 || washLogCreated.current || !carId) return;
+    washLogCreated.current = true;
+    const productId = isSubscription
+      ? undefined
+      : subscriptionPlans.find((p) => p.slug === selectedPlanSlug)?.productId;
+    createWashLog({
+      car_id: carId,
+      product_id: productId,
+      location_id: locationParam || undefined,
+    }).catch(() => {});
+  }, [progress, carId, isSubscription, locationParam, selectedPlanSlug]);
 
   useEffect(() => {
     if (!selectedPlan) return;
@@ -842,7 +865,7 @@ export default function ActiveAutoWashPage({
       <div className="flex flex-1 min-h-0 flex-col justify-around px-8 py-6 pb-24">
         <div className="flex flex-col items-center justify-center">
           <AssistanceButton washId={washId} />
-          <p className="p-3 text-sm text-(--white-white)/60">ID : {washId}</p>
+          <p className="p-3 text-sm text-(--white-white)/60">ID : {displayId}</p>
         </div>
 
         <div className="px-2">

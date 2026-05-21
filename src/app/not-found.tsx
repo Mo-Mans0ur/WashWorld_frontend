@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import ErrorPageButton from "../components/ErrorPageButton";
 import { notFoundPageData } from "@/data/errorPagesData";
-import { useNavVisibility } from "@/components/ScreenLayout";
+import { useNavVisibility } from "@/hooks";
 
 export default function NotFound() {
   const { setHideNav } = useNavVisibility();

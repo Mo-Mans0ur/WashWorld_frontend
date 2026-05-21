@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
-import { useVehicles } from "@/context/VehiclesContext";
+import { useVehicles } from "@/hooks";
 import CountrySelector, { Country, EUROPEAN_COUNTRIES } from "@/components/CountrySelector";
 import { getPlateFormat } from "@/data/plateFormats";
 import { Check, Zap } from "lucide-react";

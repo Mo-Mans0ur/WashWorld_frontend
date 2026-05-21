@@ -20,9 +20,10 @@ import {
 } from "lucide-react";
 
 import PageInfo from "@/components/PageInfo";
+import { Button } from "@/components/buttons";
 import { profileUpdatePageContent } from "@/data/profileData";
-import { useAuth } from "@/context/AuthContext";
-import { updateAuthUser } from "@/lib/api/auth";
+import { useAuth } from "@/hooks";
+import { updateAuthUser, deleteAuthUser } from "@/lib/api/auth";
 import { ROUTES } from "@/lib/routes";
 import { EUROPEAN_COUNTRIES, PHONE_DIAL_CODES } from "@/components/CountrySelector";
 
@@ -75,6 +76,8 @@ export default function UpdateProfilePage() {
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Forudfyld formularen med brugerens nuværende data fra AuthContext.
   // Kodeordfelterne efterlades tomme – udfyldes kun hvis brugeren ønsker at skifte kodeord.
@@ -131,6 +134,22 @@ export default function UpdateProfilePage() {
       setError(err instanceof Error ? err.message : "Kunne ikke gemme ændringer");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (!user || !token) return;
+    setIsDeleting(true);
+    setError(null);
+    try {
+      await deleteAuthUser(user.user_id);
+      logout();
+      router.push(ROUTES.login);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kunne ikke slette konto");
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -232,16 +251,58 @@ export default function UpdateProfilePage() {
           {error && (
             <p className="text-center text-sm font-semibold text-red-500">{error}</p>
           )}
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="flex h-12 w-full items-center justify-center gap-2 bg-(--brand-green-01) font-semibold text-white [clip-path:polygon(0_0,100%_0,96%_100%,0_100%)] disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 font-semibold disabled:opacity-60"
           >
             <Check className="h-4.5 w-4.5" strokeWidth={2.5} />
             {isSaving ? "Gemmer..." : profileUpdatePageContent.buttons.save}
-          </button>
-          
+          </Button>
+
+          {!showDeleteConfirm ? (
+            <Button
+              variant="danger"
+              size="lg"
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={isSaving}
+              className="flex w-full items-center justify-center gap-2 font-semibold disabled:opacity-60"
+            >
+              Slet konto
+            </Button>
+          ) : (
+            <div className="rounded-[3px] border border-red-200 bg-red-50 p-4 space-y-3">
+              <p className="text-sm font-semibold text-red-700 text-center">
+                Er du sikker? Denne handling kan ikke fortrydes.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="flex-1 font-semibold disabled:opacity-60"
+                >
+                  Annuller
+                </Button>
+                <Button
+                  variant="danger"
+                  size="md"
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                  className="flex-1 font-semibold disabled:opacity-60"
+                >
+                  {isDeleting ? "Sletter..." : "Ja, slet konto"}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

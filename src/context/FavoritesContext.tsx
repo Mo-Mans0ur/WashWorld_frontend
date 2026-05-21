@@ -15,7 +15,7 @@ type FavoritesContextType = {
   toggleFavorite: (id: string) => void; // tilføjer eller fjerner en lokation
 };
 
-const FavoritesContext = createContext<FavoritesContextType | null>(null);
+export const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -48,10 +48,3 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Custom hook – kaster en fejl hvis den bruges uden for FavoritesProvider,
-// så man opdager konfigurationsfejl tidligt under udvikling.
-export function useFavorites() {
-  const ctx = useContext(FavoritesContext);
-  if (!ctx) throw new Error("useFavorites skal bruges inden i FavoritesProvider");
-  return ctx;
-}

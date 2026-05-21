@@ -56,6 +56,13 @@ export async function updateAuthUser(
   });
 }
 
+// Sletter brugerens konto (soft delete — sætter user_deleted_at i databasen).
+export async function deleteAuthUser(userId: string): Promise<void> {
+  await apiRequest(`/api/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+  });
+}
+
 // Henter friske brugerdata fra databasen (`GET /api/users/<user_id>`).
 // Bruges ved opstart i AuthContext til at verificere at det gemte token stadig er gyldigt.
 // Svaret kan komme indpakket i { user: ... } eller direkte som User-objekt afhængigt af API-versionen.

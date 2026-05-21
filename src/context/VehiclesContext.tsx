@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks";
 import {
   createCar,
   deleteCar,
@@ -53,7 +53,7 @@ type VehiclesContextType = {
   deleteVehicle: (id: string) => Promise<void>;
 };
 
-const VehiclesContext = createContext<VehiclesContextType | null>(null);
+export const VehiclesContext = createContext<VehiclesContextType | null>(null);
 
 function toCarPayload(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
   return {
@@ -165,8 +165,3 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useVehicles() {
-  const ctx = useContext(VehiclesContext);
-  if (!ctx) throw new Error("useVehicles must be used within VehiclesProvider");
-  return ctx;
-}

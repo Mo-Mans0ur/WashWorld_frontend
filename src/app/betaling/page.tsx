@@ -71,6 +71,8 @@ export default function BetalingPage() {
   );
   const [rememberCard, setRememberCard] = useState(storedPaymentCard !== null);
   const selectedPlan = searchParams.get("plan") ?? "guld";
+  const prefilledPlate = searchParams.get("plate") ?? undefined;
+  const carId = searchParams.get("carId") ?? undefined;
   const selectedPlanDetails =
     paymentPlans.find((plan) => plan.slug === selectedPlan) ?? paymentPlans[0];
   const selectedPlanAmount = selectedPlanDetails.price.replace("kr.", " kr");
@@ -107,7 +109,7 @@ export default function BetalingPage() {
       }
     }
 
-    router.push(ROUTES.licensePlate(selectedPlan, selectedPayment));
+    router.push(ROUTES.licensePlate(selectedPlan, selectedPayment, prefilledPlate, carId));
   }
 
   return (

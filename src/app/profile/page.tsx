@@ -23,7 +23,7 @@ import {
   profilePageNames,
   profileStamps,
 } from "@/data/profileData";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks";
 import { fetchSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";
 import { ROUTES } from "@/lib/routes";

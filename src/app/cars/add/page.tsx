@@ -3,7 +3,7 @@
 import { useState, type ElementType } from "react";
 import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
-import { useVehicles } from "@/context/VehiclesContext";
+import { useVehicles } from "@/hooks";
 import CountrySelector, { Country, EUROPEAN_COUNTRIES } from "@/components/CountrySelector";
 import { getPlateFormat } from "@/data/plateFormats";
 import { Plus, Zap, Car, Bike, Truck, Bus } from "lucide-react";

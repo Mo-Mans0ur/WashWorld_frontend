@@ -30,6 +30,12 @@
   color: white;
 }
 
+/* Danger */
+.btn--danger {
+  background: #dc2626;
+  color: white;
+}
+
 /* Secondary */
 .btn--secondary {
   background: transparent;

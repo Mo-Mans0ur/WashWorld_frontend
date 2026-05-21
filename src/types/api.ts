@@ -49,6 +49,20 @@ export type WashLog = {
   wash_log_start_time: string;
 };
 
+export type WashLogEntry = {
+  wash_log_id: string;
+  wash_log_start_time: string;
+  car_id: string;
+  car_license_plate: string;
+  product_id: string | null;
+  product_name: string | null;
+  product_price: number | null;
+  location_id: string | null;
+  location_name: string | null;
+  location_address: string | null;
+  location_zipcode: string | null;
+};
+
 export type Location = {
   location_id: string;
   location_name: string;

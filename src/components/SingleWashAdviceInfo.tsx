@@ -39,7 +39,7 @@ export default function SingleWashAdviceInfo() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={singleWashAdviceContent.openLabel}
-        className="absolute right-7 top-9 text-black transition active:scale-95"
+        className="text-black transition active:scale-95"
       >
         <Info size={20} />
       </button>

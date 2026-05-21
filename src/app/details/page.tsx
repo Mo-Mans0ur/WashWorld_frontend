@@ -30,9 +30,11 @@ import {
 } from "@/lib/equipmentApi";
 import { fetchLocationById } from "@/lib/locationsApi";
 import { formatOpenHoursDisplay } from "@/lib/locationGeo";
-import { useFavorites } from "@/context/FavoritesContext";
-import { useAuth } from "@/context/AuthContext";
-import { fetchSubscriptions } from "@/lib/subscriptionsApi";
+import { useFavorites, useAuth } from "@/hooks";
+import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
+import { fetchUserCars } from "@/lib/carsApi";
+import CarPickerSheet from "@/components/CarPickerSheet";
+import type { Car, Subscription } from "@/types/api";
 import { ROUTES } from "@/lib/routes";
 
 // Props til maskinkortet-komponenten nederst i filen
@@ -84,16 +86,22 @@ export default function DetailsPage() {
   // openInfo holder styr på hvilken sektion der viser dimensionspopuppen
   const [openInfo, setOpenInfo] = useState<string | null>(null);
 
-  // hasSubscription sættes til true hvis brugeren har et aktivt abonnement
   const [hasSubscription, setHasSubscription] = useState(false);
+  const [showCarPicker, setShowCarPicker] = useState(false);
+  const [cars, setCars] = useState<Car[]>([]);
+  const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>([]);
 
-  // Tjekker brugerens abonnementsstatus ved opstart.
-  // Bruger fetchSubscriptions() (ikke fetchUserSubscriptions) fordi den ikke
-  // kræver at brugeren har et køretøj registreret i databasen.
   useEffect(() => {
     if (!user) return;
-    fetchSubscriptions()
-      .then((subs) => setHasSubscription(subs.some((s) => s.subscriptions_status === "aktiv")))
+    Promise.all([
+      fetchUserSubscriptions(user.user_id),
+      fetchUserCars(user.user_id),
+    ])
+      .then(([subs, fetchedCars]) => {
+        setUserSubscriptions(subs);
+        setCars(fetchedCars);
+        setHasSubscription(subs.some((s) => s.subscriptions_status === "aktiv"));
+      })
       .catch(() => setHasSubscription(false));
   }, [user]);
 
@@ -191,24 +199,32 @@ export default function DetailsPage() {
     return null;
   }, [selectedId, equipment]);
 
-  // Håndterer "Start vask"-knappen afhængigt af valgt maskine og abonnementsstatus:
-  // - Støvsuger eller vask-selv → altid til selvvask-siden
-  // - Vaskehal med aktivt abonnement → direkte til aktiv vask med lokation og maskine
-  // - Vaskehal uden abonnement → til enkeltvaske-flowet hvor brugeren vælger vasketype
   function handleStartWash() {
-    if (selectedId?.startsWith("stovsuger") || selectedId?.startsWith("vask_selv")) {
-      router.push(ROUTES.selfWash(locationId ?? "", selectedId ?? ""));
+    setShowCarPicker(true);
+  }
+
+  function handleCarSelected(car: Car) {
+    setShowCarPicker(false);
+    const isSelfService =
+      selectedId?.startsWith("stovsuger") || selectedId?.startsWith("vask_selv");
+    if (isSelfService) {
+      router.push(
+        `${ROUTES.selfWash(locationId ?? "", selectedId ?? "")}&carId=${encodeURIComponent(car.car_id)}`,
+      );
       return;
     }
-    if (hasSubscription) {
-      router.push(ROUTES.activeWashSubscription(locationId ?? "", selectedId ?? ""));
+    const carSub = userSubscriptions.find(
+      (s) => s.car_id === car.car_id && s.subscriptions_status === "aktiv",
+    );
+    if (carSub) {
+      router.push(ROUTES.activeWashSubscription(locationId ?? "", selectedId ?? "", car.car_id));
     } else {
-      router.push(ROUTES.singlewash);
+      router.push(`${ROUTES.singlewash}?plate=${encodeURIComponent(car.car_license_plate)}&carId=${encodeURIComponent(car.car_id)}`);
     }
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="relative flex h-full flex-col overflow-hidden">
       {/* Titelbar med lokationsnavn og favoritknap.
           z-10 sikrer at den ligger over det scrollende indhold nedenunder.
           Baggrunden er transparent så app-gradientet vises bag den skrå kant. */}
@@ -230,6 +246,14 @@ export default function DetailsPage() {
           </button>
         </div>
       </section>
+
+      <CarPickerSheet
+        isOpen={showCarPicker}
+        cars={cars}
+        subscriptions={userSubscriptions}
+        onSelect={handleCarSelected}
+        onClose={() => setShowCarPicker(false)}
+      />
 
       {/* Scrollbart indholdsområde – alt nedenfor titelbaren kan scrolles */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">

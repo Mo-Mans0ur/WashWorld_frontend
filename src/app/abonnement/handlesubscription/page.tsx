@@ -9,7 +9,7 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
-import { useVehicles } from "@/context/VehiclesContext";
+import { useVehicles } from "@/hooks";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
@@ -17,6 +17,7 @@ import {
   subscriptionVehicles,
 } from "@/data/subscriptionData";
 import PageInfo from "@/components/PageInfo";
+import BottomSheet from "@/components/BottomSheet";
 import { createSubscription } from "@/lib/subscriptionsApi";
 import { ROUTES } from "@/lib/routes";
 
@@ -256,42 +257,18 @@ export default function HandleSubscriptionPage() {
         </div>
       </main>
 
-      <div
-        className={`absolute inset-0 z-40 transition ${
-          isSheetOpen ? "pointer-events-auto" : "pointer-events-none"
-        }`}
-      >
-        <button
-          type="button"
-          aria-label="Luk vælger"
-          onClick={() => setActiveSheet(null)}
-          className={`absolute inset-0 bg-(--color-overlay-dark-45) transition-opacity ${
-            isSheetOpen ? "opacity-100" : "opacity-0"
-          }`}
-        />
-
-        <div
-          className={`absolute right-0 bottom-0 left-0 rounded-t-3xl bg-(--white-white) px-5 pt-4 pb-6 text-black shadow-2xl transition-transform duration-300 ease-out ${
-            isSheetOpen ? "translate-y-0" : "translate-y-full"
-          }`}
-        >
-          <div className="mx-auto mb-4 h-1.5 w-16 rounded-full bg-(--color-grey-02)" />
-          <h3 className="text-[1.15rem] font-bold">{sheetTitle}</h3>
-
-          <div className="mt-4 space-y-2">
-            {sheetOptions.map((item) => (
-              <button
-                key={item.value}
-                type="button"
-                onClick={() => selectFromSheet(item.value)}
-                className="w-full rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left text-[1rem] font-semibold"
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <BottomSheet isOpen={isSheetOpen} title={sheetTitle} onClose={() => setActiveSheet(null)}>
+        {sheetOptions.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => selectFromSheet(item.value)}
+            className="w-full rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left text-[1rem] font-semibold"
+          >
+            {item.label}
+          </button>
+        ))}
+      </BottomSheet>
     </div>
   );
 }

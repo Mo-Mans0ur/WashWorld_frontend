@@ -10,9 +10,7 @@ import { getMissingProfileInfoState } from "@/data/profileData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 import { formatLocationAddress } from "@/lib/locationsApi";
-import { useFavorites } from "@/context/FavoritesContext";
-import { useAuth } from "@/context/AuthContext";
-import { useVehicles } from "@/context/VehiclesContext";
+import { useFavorites, useAuth, useVehicles } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
 
 // Haversine-formel: beregner afstanden i km mellem to GPS-koordinater

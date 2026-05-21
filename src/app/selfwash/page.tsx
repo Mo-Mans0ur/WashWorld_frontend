@@ -1,17 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AssistanceButton, Button } from "@/components/buttons";
+import { createWashLog } from "@/lib/washLogApi";
 import { ROUTES } from "@/lib/routes";
 
 const PRICE_PER_MINUTE = 6;
 const START_PRICE = 0;
 const SESSION_ID = 1043;
 
+// Product IDs matching the database
+const PRODUCT_ID_VASK_SELV = "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1";
+const PRODUCT_ID_STOEVSUGER = "e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2";
+
 export default function ActiveWashPage() {
   const [totalSeconds, setTotalSeconds] = useState(0);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const carId = searchParams.get("carId") ?? "";
+  const locationParam = searchParams.get("location") ?? "";
+  const equipment = searchParams.get("equipment") ?? "";
+  const equipmentId = equipment.split("-").pop() ?? SESSION_ID;
+  const washLogCreated = useRef(false);
 
   useEffect(() => {
     const interval = setInterval(() => setTotalSeconds((s) => s + 1), 1000);
@@ -37,7 +48,7 @@ export default function ActiveWashPage() {
 
       {/* Session info */}
       <div className="mt-5 flex flex-col items-center gap-1 px-8">
-        <p className="text-sm text-(--white-white)/60">ID : {SESSION_ID}</p>
+        <p className="text-sm text-(--white-white)/60">ID : {equipmentId}</p>
         <p className="text-sm font-bold text-(--white-white)">
           {PRICE_PER_MINUTE} kr / min
         </p>
@@ -84,10 +95,23 @@ export default function ActiveWashPage() {
       {/* End wash button */}
       <div className="mt-8 flex justify-center px-8">
         <Button
-          variant="trapezoid"
+          variant="primary"
           size="lg"
-          onClick={() => router.push(ROUTES.dashboard)}
-          style={{ filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))" }}
+          onClick={() => {
+            if (carId && !washLogCreated.current) {
+              washLogCreated.current = true;
+              const productId = equipment.startsWith("stovsuger")
+                ? PRODUCT_ID_STOEVSUGER
+                : PRODUCT_ID_VASK_SELV;
+              createWashLog({
+                car_id: carId,
+                product_id: productId,
+                location_id: locationParam || undefined,
+                wash_log_price: currentPrice,
+              }).catch(() => {});
+            }
+            router.push(ROUTES.dashboard);
+          }}
         >
           Afslut vask
         </Button>

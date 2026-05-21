@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
-import { useVehicles } from "@/context/VehiclesContext";
+import { useVehicles } from "@/hooks";
 import { type ElementType } from "react";
 import { Car, Bike, Truck, Bus, MoreVertical, Plus, Pencil, Trash2, BadgePlus } from "lucide-react";
 import type { VehicleType } from "@/context/VehiclesContext";
@@ -216,10 +216,9 @@ function StatusBadge({ subscriptionName }: { subscriptionName: string | null }) 
 
   return (
     <span
-      className={`inline-flex h-7 w-20 shrink-0 items-center justify-center truncate rounded-sm px-2 text-center text-sm font-bold text-white ${
+      className={`inline-flex h-7 shrink-0 items-center justify-center whitespace-nowrap rounded-sm px-2 text-center text-sm font-bold text-white ${
         hasSubscription ? "bg-(--brand-green-01)" : "bg-neutral-600"
       }`}
-      title={label}
     >
       {label}
     </span>

@@ -13,14 +13,16 @@ import { ROUTES } from "@/lib/routes";
 export default function SingleWashPlatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [plateNumber, setPlateNumber] = useState("DB 43 234");
+  const prefilledPlate = searchParams.get("plate") ?? "";
+  const [plateNumber, setPlateNumber] = useState(prefilledPlate || "DB 43 234");
 
   const selectedPlan = searchParams.get("plan") ?? "guld";
   const selectedPayment = searchParams.get("payment") ?? "card";
+  const carId = searchParams.get("carId") ?? undefined;
   const scanningTitle = singleWashPlatePageContent.title.replace(/\.\.\.$/, "");
 
   function handleContinue() {
-    router.push(ROUTES.startWash(selectedPlan, selectedPayment, plateNumber));
+    router.push(ROUTES.startWash(selectedPlan, selectedPayment, plateNumber, carId));
   }
 
   return (
@@ -32,8 +34,6 @@ export default function SingleWashPlatePage() {
       />
 
       <section className="relative flex flex-1 flex-col px-7 pt-8 pb-5 text-white">
-          <SingleWashAdviceInfo />
-
           <h1
             className="mt-20 text-center text-[2.1rem] font-bold leading-tight"
             aria-label={singleWashPlatePageContent.title}
@@ -58,9 +58,12 @@ export default function SingleWashPlatePage() {
           </div>
 
           <div className="mx-auto mt-12 w-full max-w-81.5">
-            <label className="mb-2 block text-center text-[1.1rem] font-bold text-white">
-              {singleWashPlatePageContent.manualLabel}
-            </label>
+            <div className="mb-2 flex items-center justify-center gap-2">
+              <label className="text-[1.1rem] font-bold text-white">
+                {singleWashPlatePageContent.manualLabel}
+              </label>
+              <SingleWashAdviceInfo />
+            </div>
 
             <input
               type="text"

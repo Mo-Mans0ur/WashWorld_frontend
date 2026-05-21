@@ -1,7 +1,7 @@
 import './Button.css';
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'trapezoid';
+type ButtonVariant = 'primary' | 'secondary' | 'trapezoid' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = {
