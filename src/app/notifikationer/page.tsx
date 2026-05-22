@@ -112,7 +112,7 @@ export default function NotifikationerPage() {
 
         <Link
           href={ROUTES.profileUpdatedPreferences}
-          className="btn btn--primary btn--lg mt-5 flex w-full items-center justify-center gap-2"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-[3px] bg-(--brand-green-01) py-3 text-2xl font-bold text-white"
         >
           <Check className="h-4.5 w-4.5" strokeWidth={3} />
           {notificationPageContent.saveButton}

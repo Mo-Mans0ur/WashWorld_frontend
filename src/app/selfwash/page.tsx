@@ -7,7 +7,6 @@ import { createWashLog } from "@/lib/washLogApi";
 import { ROUTES } from "@/lib/routes";
 
 const PRICE_PER_MINUTE = 6;
-const START_PRICE = 0;
 const SESSION_ID = 1043;
 
 // Product IDs matching the database
@@ -33,7 +32,7 @@ export default function ActiveWashPage() {
   const seconds = totalSeconds % 60;
   const secsIntoMin = totalSeconds % 60;
   const secsUntilNext = secsIntoMin === 0 ? 60 : 60 - secsIntoMin;
-  const currentPrice = START_PRICE + minutes * PRICE_PER_MINUTE;
+  const currentPrice = (minutes + 1) * PRICE_PER_MINUTE;
   const progressPercent = (secsIntoMin / 60) * 100;
 
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -79,7 +78,7 @@ export default function ActiveWashPage() {
       {/* Next increase + progress bar */}
       <div className="mt-3 flex flex-col items-center gap-2 px-8">
         <p className="text-sm text-(--white-white)/60">
-          {secsIntoMin === 0
+          {totalSeconds > 0 && secsIntoMin === 0
             ? "Prisen steg netop nu!"
             : `næste stigning om ${secsUntilNext} sek`}
         </p>

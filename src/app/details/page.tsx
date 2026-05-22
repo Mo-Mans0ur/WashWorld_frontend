@@ -44,6 +44,7 @@ interface MachineCardProps {
   title: string;
   status: string;
   selected: boolean;
+  faded: boolean;
   onSelect: (id: string | null) => void;
 }
 
@@ -146,7 +147,22 @@ export default function DetailsPage() {
 
         try {
           const equipmentData = await fetchLocationEquipment(locationId);
-          if (!cancelled) setEquipment(equipmentData);
+          if (!cancelled) {
+            setEquipment(equipmentData);
+            const first = equipmentData.find(
+              (e) =>
+                e.location_equipment_type === "vaskehal" &&
+                normalizeStatus(e.location_equipment_status) === "Ledig",
+            ) ?? equipmentData.find((e) => e.location_equipment_type === "vaskehal");
+            if (first) {
+              const section = EQUIPMENT_SECTIONS.find(
+                (s) => s.type === first.location_equipment_type,
+              );
+              if (section) {
+                setSelectedId(`${section.type}-${first.location_equipment_id}`);
+              }
+            }
+          }
         } catch {
           if (!cancelled) setEquipment([]);
         }
@@ -283,7 +299,7 @@ export default function DetailsPage() {
               {/* Live Status: viser antal ledige maskiner per udstyrstype */}
               <section>
                 <h2 className="mb-2 font-bold text-neutral-900">Live Status</h2>
-                <div className="flex items-center justify-around divide-x divide-neutral-200 rounded-[3px] bg-white/80 py-3 shadow-sm">
+                <div className="flex items-center justify-around divide-x divide-neutral-200 rounded-[3px] bg-white py-3 shadow-sm">
                   {liveStatusCounts.map((s) => (
                     <div key={s.liveStatusLabel} className="flex flex-1 items-center justify-center gap-2">
                       <Image
@@ -330,17 +346,23 @@ export default function DetailsPage() {
                   </div>
                   {/* Vandret scrollbar med maskinekort – sorteret efter nummer fra API'et */}
                   <div className="carousel-scroll flex gap-3 overflow-x-auto pb-2 -mx-6 px-6">
-                    {equipmentByType(equipment, section.type).map((item, idx) => (
-                      <MachineCard
-                        key={item.location_equipment_id}
-                        id={`${section.type}-${item.location_equipment_id}`}
-                        image={section.image}
-                        title={formatEquipmentTitle(section.titlePrefix, idx + 1)}
-                        status={normalizeStatus(item.location_equipment_status)}
-                        selected={selectedId === `${section.type}-${item.location_equipment_id}`}
-                        onSelect={setSelectedId}
-                      />
-                    ))}
+                    {equipmentByType(equipment, section.type).map((item, idx) => {
+                      const cardId = `${section.type}-${item.location_equipment_id}`;
+                      const isSelected = selectedId === cardId;
+                      const isFaded = selectedId !== null && !isSelected;
+                      return (
+                        <MachineCard
+                          key={item.location_equipment_id}
+                          id={cardId}
+                          image={section.image}
+                          title={formatEquipmentTitle(section.titlePrefix, idx + 1)}
+                          status={normalizeStatus(item.location_equipment_status)}
+                          selected={isSelected}
+                          faded={isFaded}
+                          onSelect={setSelectedId}
+                        />
+                      );
+                    })}
                   </div>
                 </section>
               ))}
@@ -363,11 +385,11 @@ export default function DetailsPage() {
 
 // Kort der repræsenterer én maskine. Klikkes for at vælge/fravælge maskinen.
 // Viser status (ledig/optaget/ud af drift) med farvekodet badge i hjørnet.
-function MachineCard({ id, image, title, status, selected, onSelect }: MachineCardProps) {
+function MachineCard({ id, image, title, status, selected, faded, onSelect }: MachineCardProps) {
   return (
     <button
       onClick={() => onSelect(selected ? null : id)}
-      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden rounded-[3px] bg-white font-bold shadow-md ring-inset transition-shadow ${selected ? "ring-4 ring-(--brand-green-01)" : ""}`}
+      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden rounded-[3px] bg-white font-bold shadow-md ring-inset transition-all ${selected ? "ring-4 ring-(--brand-green-01)" : ""} ${faded ? "opacity-40" : ""}`}
     >
       <div className="flex flex-1 self-center flex-row items-center justify-start gap-2 p-1">
         <Image
