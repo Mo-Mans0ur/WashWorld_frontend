@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
-import { getMissingProfileInfoState } from "@/data/profileData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 import { formatLocationAddress } from "@/lib/locationsApi";
@@ -34,7 +33,10 @@ function getDistanceInKm(
 export default function DashboardPage() {
   const { displayFirstName } = useAuth();
   const { vehicles, isLoading: vehiclesLoading } = useVehicles();
-  const { missingPaymentCard } = getMissingProfileInfoState();
+  const [missingPaymentCard] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("washworld-saved-payment-card") === null;
+  });
   const missingVehicle = !vehiclesLoading && vehicles.length === 0;
   const hasMissingProfileInfo = missingVehicle || missingPaymentCard;
   const { favorites } = useFavorites();
@@ -148,19 +150,19 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
-      <button
-        type="button"
-        onClick={handleNotificationClick}
-        aria-label="Åbn notifikationer"
-        className={`absolute right-8 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${hasMissingProfileInfo ? "notification-bell-active" : "hover:bg-white/16"}`}
-      >
-        <span className={hasMissingProfileInfo ? "notification-bell-icon" : ""}>
-          <Bell className="h-6 w-6" strokeWidth={2.3} />
-        </span>
-        <span
-          className={`absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-(--color-secondary) transition ${hasMissingProfileInfo ? "notification-bell-dot" : "opacity-100"}`}
-        />
-      </button>
+      {hasMissingProfileInfo && (
+        <button
+          type="button"
+          onClick={handleNotificationClick}
+          aria-label="Åbn notifikationer"
+          className="notification-bell-active absolute right-8 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition"
+        >
+          <span className="notification-bell-icon">
+            <Bell className="h-6 w-6" strokeWidth={2.3} />
+          </span>
+          <span className="notification-bell-dot absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-(--color-secondary)" />
+        </button>
+      )}
 
       <PageInfo userName={displayFirstName} />
 
