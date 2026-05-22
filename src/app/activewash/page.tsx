@@ -864,7 +864,7 @@ export default function ActiveAutoWashPage({
 
       <div className="flex flex-1 min-h-0 flex-col justify-around px-8 py-6 pb-24">
         <div className="flex flex-col items-center justify-center">
-          <AssistanceButton washId={washId} />
+          <AssistanceButton washId={displayId} />
           <p className="p-3 text-sm text-(--white-white)/60">ID : {displayId}</p>
         </div>
 
