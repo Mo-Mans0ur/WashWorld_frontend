@@ -16,8 +16,7 @@ export default function AuthButton({
   return (
     <div className="flex w-full max-w-60.5">
       <button
-        type="button"
-        onClick={isPrimaryLogin ? onLoginClick : onSignupClick}
+        type="submit"
         disabled={disabled}
         className="z-10 flex h-12.5 flex-[1.02] items-center justify-center bg-(--brand-green-01) [clip-path:polygon(0_0,100%_0,83%_100%,0_100%)] disabled:cursor-not-allowed disabled:opacity-60"
       >

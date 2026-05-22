@@ -27,21 +27,20 @@ export async function loginUser(
   return normalizeAuthResponse(data);
 }
 
-// Opretter en ny bruger og returnerer JWT-token + brugerdata, akkurat som loginUser.
-// user_phone er valgfri – brugeren kan udfylde det senere på profilsiden.
+// Opretter en ny bruger. Backend sender en verificeringsmail og kræver at brugeren
+// bekræfter sin email inden login. Returnerer en besked om at tjekke email.
 export async function registerUser(data: {
   user_firstname: string;
   user_lastname: string;
   user_email: string;
   user_password: string;
   user_phone?: string;
-}): Promise<AuthResponse> {
-  const response = await apiRequest<AuthResponse>("/api/auth/register", {
+}): Promise<{ message: string; user_id: string }> {
+  return apiRequest<{ message: string; user_id: string }>("/api/auth/register", {
     method: "POST",
     body: data,
     skipAuthRedirect: true,
   });
-  return normalizeAuthResponse(response);
 }
 
 // Opdaterer brugerens profil (navn, email, telefon, evt. nyt kodeord).

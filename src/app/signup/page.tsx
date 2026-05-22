@@ -10,13 +10,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthButton } from "@/components/buttons";
 import { registerUser } from "@/lib/api/auth";
-import { useAuth } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { login } = useAuth();
-
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -27,6 +24,7 @@ export default function SignUpPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -38,7 +36,7 @@ export default function SignUpPage() {
     if (!form.firstName) newErrors.firstName = "Fornavn er påkrævet";
     if (!form.lastName) newErrors.lastName = "Efternavn er påkrævet";
     if (!form.email.includes("@")) newErrors.email = "Ugyldig email";
-    if (form.password.length < 6) newErrors.password = "Min. 6 tegn";
+    if (form.password.length < 8) newErrors.password = "Min. 8 tegn";
     if (form.password !== form.confirmPassword)
       newErrors.confirmPassword = "Kodeord matcher ikke";
     if (!acceptedTerms) newErrors.terms = "Du skal acceptere vilkårene";
@@ -52,14 +50,13 @@ export default function SignUpPage() {
 
     setIsLoading(true);
     try {
-      const { token, user } = await registerUser({
+      await registerUser({
         user_firstname: form.firstName,
         user_lastname: form.lastName,
         user_email: form.email,
         user_password: form.password,
       });
-      login(token, user);
-      router.push(ROUTES.dashboard);
+      setRegistered(true);
     } catch (err) {
       setErrors({ general: err instanceof Error ? err.message : "Noget gik galt. Prøv igen." });
     } finally {
@@ -78,11 +75,40 @@ export default function SignUpPage() {
           src="/background/washworld-background.png"
           alt="Baggrund"
           fill
+          sizes="100vw"
           priority
         />
 
         <div className="absolute inset-0 bg-(--color-overlay-dark-40) z-20" />
-        <div className="relative z-20 flex flex-col items-center justify-center h-full gap-4">
+        {registered ? (
+          <div className="relative z-20 flex flex-col items-center justify-center h-full gap-4 text-center px-8">
+            <Image
+              src="/logos/washworld-white.png"
+              alt="Wash World logo"
+              width={234}
+              height={102}
+              priority
+              style={{ width: "auto" }}
+              className="mb-6"
+            />
+            <h2 className="text-2xl font-bold text-white">Tjek din email</h2>
+            <p className="text-white/80 text-sm max-w-xs">
+              Vi har sendt en bekræftelsesmail. Klik på linket i mailen for at aktivere din konto.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push(ROUTES.login)}
+              className="mt-4 text-sm font-semibold text-(--color-secondary) hover:underline"
+            >
+              Gå til login
+            </button>
+          </div>
+        ) : (
+        <form
+          onSubmit={(e) => { e.preventDefault(); void handleSignupClick(); }}
+          noValidate
+          className="relative z-20 flex flex-col items-center justify-center h-full gap-4"
+        >
           <h2 className="-mt-4 text-white text-3xl font-bold">Velkommen til</h2>
 
           <Image
@@ -163,6 +189,7 @@ export default function SignUpPage() {
             <span>
               Jeg accepterer{" "}
               <button
+                type="button"
                 onClick={() => router.push(ROUTES.terms)}
                 className="text-(--color-secondary) font-semibold hover:underline"
               >
@@ -184,7 +211,8 @@ export default function SignUpPage() {
             onSignupClick={handleSignupClick}
             disabled={isLoading}
           />
-        </div>
+        </form>
+        )}
       </div>
     </>
   );

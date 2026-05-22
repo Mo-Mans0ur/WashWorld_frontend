@@ -14,7 +14,7 @@ import { loginUser } from "@/lib/api/auth";
 import { ROUTES } from "@/lib/routes";
 
 const MIN_EMAIL_LENGTH = 5;
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 
 // Returnerer en Tailwind border-klasse baseret på feltets nuværende længde.
 // Ingen farve mens feltet er tomt, rød hvis for kort, grøn når det ser ud til at være gyldigt.
@@ -78,6 +78,7 @@ export default function LoginPage() {
           src="/background/washworld-background.png"
           alt="Baggrund"
           fill
+          sizes="100vw"
           priority
         />
 

@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import { useVehicles } from "@/hooks";
 import { type ElementType } from "react";
-import { Car, Bike, Truck, Bus, MoreVertical, Plus, Pencil, Trash2, BadgePlus } from "lucide-react";
+import { Car, Motorbike, Truck, Bus, MoreVertical, Plus, Pencil, Trash2, BadgePlus } from "lucide-react";
 import type { VehicleType } from "@/context/VehiclesContext";
 
 const VEHICLE_ICONS: Record<VehicleType, ElementType> = {
   car: Car,
-  motorcycle: Bike,
+  motorcycle: Motorbike,
   truck: Truck,
   bus: Bus,
 };

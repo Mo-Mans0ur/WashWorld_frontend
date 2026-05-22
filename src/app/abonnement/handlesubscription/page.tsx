@@ -14,10 +14,10 @@ import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
   subscriptionPaymentMethods,
-  subscriptionVehicles,
 } from "@/data/subscriptionData";
 import PageInfo from "@/components/PageInfo";
 import BottomSheet from "@/components/BottomSheet";
+import { Button } from "@/components/buttons";
 import { createSubscription } from "@/lib/subscriptionsApi";
 import { ROUTES } from "@/lib/routes";
 
@@ -54,9 +54,7 @@ export default function HandleSubscriptionPage() {
   const hasSavedPaymentCard =
     typeof window !== "undefined" &&
     window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY) !== null;
-  const vehicleOptions = hasSavedVehicle
-    ? savedVehicleOptions
-    : subscriptionVehicles.filter((item) => item.value);
+  const vehicleOptions = savedVehicleOptions;
 
   const [vehicle, setVehicle] = useState(initialVehicleValue);
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -125,8 +123,6 @@ export default function HandleSubscriptionPage() {
     activeSheet === "vehicle"
       ? subscriptionPageNames.vehicleSheetTitle
       : subscriptionPageNames.paymentSheetTitle;
-  const sheetOptions =
-    activeSheet === "vehicle" ? vehicleOptions : subscriptionPaymentMethods;
 
   // Gemmer den valgte værdi i den korrekte state og lukker sheetet
   function selectFromSheet(value) {
@@ -180,14 +176,14 @@ export default function HandleSubscriptionPage() {
 
           <div className="mx-auto mt-3.5 flex w-full max-w-72 flex-col gap-1.5">
             <div>
-              <div className="relative flex h-9.5 items-center overflow border border-(--brand-green-01) bg-(--white-white)">
-                <span className="pl-2 pr-1 text-(--brand-green-01)">
-                  <CarIcon />
-                </span>
-                <span className="flex-1 truncate pr-4 text-[1rem] font-semibold text-black">
-                  {selectedVehicleLabel || subscriptionPageNames.vehiclePlaceholder}
-                </span>
-                {!preselectedCarId && (
+              {hasSavedVehicle ? (
+                <div className="relative flex h-9.5 items-center overflow border border-(--brand-green-01) bg-(--white-white)">
+                  <span className="pl-2 pr-1 text-(--brand-green-01)">
+                    <CarIcon />
+                  </span>
+                  <span className="flex-1 truncate pr-4 text-[1rem] font-semibold text-black">
+                    {selectedVehicleLabel || subscriptionPageNames.vehiclePlaceholder}
+                  </span>
                   <button
                     type="button"
                     onClick={() => setActiveSheet("vehicle")}
@@ -195,8 +191,24 @@ export default function HandleSubscriptionPage() {
                   >
                     {subscriptionPageNames.selectButton}
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="relative flex h-9.5 items-center overflow border border-(--color-grey-02) bg-(--white-white)">
+                  <span className="pl-2 pr-1 text-(--color-grey-01)">
+                    <CarIcon />
+                  </span>
+                  <span className="flex-1 pr-4 text-[1rem] font-semibold text-(--color-grey-01)">
+                    Ingen køretøjer tilknyttet
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => router.push(ROUTES.addCar)}
+                    className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
+                  >
+                    + Tilføj
+                  </button>
+                </div>
+              )}
               {attempted && !vehicle && (
                 <p className="mt-1 text-xs font-semibold text-red-400">Vælg venligst et køretøj</p>
               )}
@@ -245,29 +257,59 @@ export default function HandleSubscriptionPage() {
           )}
 
           <div className="mx-auto mt-5.5 w-full max-w-69">
-            <button
+            <Button
+              variant="primary"
+              size="lg"
               type="button"
               onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`h-8.5 w-full text-[1.45rem] font-semibold text-white [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)] transition-opacity ${canSubmit && !isSubmitting ? "bg-(--brand-green-01)" : "bg-(--color-grey-01) opacity-60 cursor-not-allowed"}`}
+              disabled={!canSubmit || isSubmitting}
+              className="w-full"
             >
               {isSubmitting ? "Opretter..." : subscriptionPageNames.submitButton}
-            </button>
+            </Button>
           </div>
         </div>
       </main>
 
       <BottomSheet isOpen={isSheetOpen} title={sheetTitle} onClose={() => setActiveSheet(null)}>
-        {sheetOptions.map((item) => (
-          <button
-            key={item.value}
-            type="button"
-            onClick={() => selectFromSheet(item.value)}
-            className="w-full rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left text-[1rem] font-semibold"
-          >
-            {item.label}
-          </button>
-        ))}
+        {activeSheet === "vehicle" ? (
+          vehicles.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => selectFromSheet(String(v.id))}
+              className="flex w-full items-center gap-3 rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left active:bg-neutral-100"
+            >
+              <div className="flex h-8 shrink-0 overflow-hidden border-2 border-neutral-800 bg-white text-neutral-950">
+                <span className="flex w-5 items-center justify-center bg-[#327fc2]" />
+                <span className="flex items-center px-2.5 text-[13px] font-bold tracking-[0.08em]">
+                  {v.plate}
+                </span>
+              </div>
+              {v.name && v.name !== v.plate && (
+                <span className="flex-1 truncate text-sm font-semibold text-neutral-600">
+                  {v.name}
+                </span>
+              )}
+              <span className={`ml-auto shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                v.subscriptionName ? "bg-emerald-400 text-emerald-900" : "bg-neutral-300 text-neutral-600"
+              }`}>
+                {v.subscriptionName ?? "Ingen abonnement"}
+              </span>
+            </button>
+          ))
+        ) : (
+          subscriptionPaymentMethods.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => selectFromSheet(item.value)}
+              className="w-full rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left text-[1rem] font-semibold"
+            >
+              {item.label}
+            </button>
+          ))
+        )}
       </BottomSheet>
     </div>
   );

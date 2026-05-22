@@ -6,14 +6,14 @@ import PageInfo from "@/components/PageInfo";
 import { useVehicles } from "@/hooks";
 import CountrySelector, { Country, EUROPEAN_COUNTRIES } from "@/components/CountrySelector";
 import { getPlateFormat } from "@/data/plateFormats";
-import { Plus, Zap, Car, Bike, Truck, Bus } from "lucide-react";
+import { Plus, Zap, Car, Motorbike, Truck, Bus } from "lucide-react";
 import { ROUTES } from "@/lib/routes";
 import { Button } from "@/components/buttons";
 import type { VehicleType } from "@/context/VehiclesContext";
 
 const VEHICLE_TYPES: { type: VehicleType; label: string; icon: ElementType }[] = [
   { type: "car", label: "Personbil", icon: Car },
-  { type: "motorcycle", label: "Motorcykel", icon: Bike },
+  { type: "motorcycle", label: "Motorcykel", icon: Motorbike },
   { type: "truck", label: "Lastbil", icon: Truck },
   { type: "bus", label: "Bus", icon: Bus },
 ];
@@ -84,12 +84,14 @@ export default function TilfoejBilPage() {
                 type="text"
                 value={plate}
                 onChange={(e) => {
-                  setPlate(e.target.value.toUpperCase());
-                  if (plateError) validatePlate(e.target.value.toUpperCase());
+                  const raw = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                  const formatted = fmt.mask(raw);
+                  setPlate(formatted);
+                  if (plateError) validatePlate(formatted);
                 }}
                 onBlur={() => plate && validatePlate(plate)}
                 placeholder={fmt.placeholder}
-                maxLength={12}
+                maxLength={15}
                 required
                 disabled={isSubmitting}
                 className={`flex-1 rounded-[3px] border bg-(--white-white) px-4 py-3.5 text-base font-semibold text-neutral-700 placeholder-neutral-400 shadow-sm outline-none focus:border-(--brand-green-01) disabled:opacity-60 ${

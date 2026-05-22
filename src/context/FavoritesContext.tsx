@@ -1,50 +1,76 @@
 "use client";
 
-// FavoritesContext giver hele appen adgang til brugerens favoritvaskehaller.
-// Favoritter gemmes i localStorage så de overlever en side-genindlæsning uden login.
-// Brug useFavorites() hook i en komponent for at læse eller ændre favoritter.
-
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-
-// Nøgle brugt til at gemme favoritter i localStorage
-const STORAGE_KEY = "washworld-favorites";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { apiRequest } from "@/lib/apiClient";
 
 type FavoritesContextType = {
-  favorites: string[];                  // liste af location_id strenge
-  isFavorite: (id: string) => boolean; // tjekker om en lokation er i favoritter
-  toggleFavorite: (id: string) => void; // tilføjer eller fjerner en lokation
+  favorites: string[];
+  isFavorite: (id: string) => boolean;
+  toggleFavorite: (id: string) => Promise<void>;
 };
 
 export const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const auth = useContext(AuthContext);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const loadedForRef = useRef<string | null>(null);
 
-  // Indlæs gemte favoritter fra localStorage når appen starter.
-  // Kører kun én gang (tom afhængighedsarray), og fejler lydstille hvis
-  // localStorage indeholder ugyldig JSON.
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setFavorites(JSON.parse(stored));
-    } catch {}
-  }, []);
+    const userId = auth?.user?.user_id ?? null;
 
-  // Tilføjer id'et hvis det ikke allerede er der, ellers fjernes det.
-  // Opdaterer både React-state og localStorage atomisk via setState-callback,
-  // så vi altid skriver den nyeste version og ikke en forældet snapshot.
-  function toggleFavorite(id: string) {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
+    if (!userId || !auth?.token) {
+      setFavorites([]);
+      loadedForRef.current = null;
+      return;
+    }
+
+    if (loadedForRef.current === userId) return;
+    loadedForRef.current = userId;
+
+    apiRequest<{ favorites: string[] }>(`/api/users/${userId}/favorites`)
+      .then((data) => setFavorites(data.favorites))
+      .catch(() => setFavorites([]));
+  }, [auth?.user?.user_id, auth?.token]);
+
+  async function toggleFavorite(id: string) {
+    const userId = auth?.user?.user_id;
+    if (!userId) return;
+
+    const isCurrentlyFav = favorites.includes(id);
+
+    // Optimistic update
+    setFavorites((prev) =>
+      isCurrentlyFav ? prev.filter((f) => f !== id) : [...prev, id],
+    );
+
+    try {
+      if (isCurrentlyFav) {
+        await apiRequest(`/api/users/${userId}/favorites/${id}`, { method: "DELETE" });
+      } else {
+        await apiRequest(`/api/users/${userId}/favorites`, {
+          method: "POST",
+          body: { location_id: id },
+        });
+      }
+    } catch {
+      // Roll back on failure
+      setFavorites((prev) =>
+        isCurrentlyFav ? [...prev, id] : prev.filter((f) => f !== id),
+      );
+    }
   }
 
   return (
-    <FavoritesContext.Provider value={{ favorites, isFavorite: (id) => favorites.includes(id), toggleFavorite }}>
+    <FavoritesContext.Provider
+      value={{
+        favorites,
+        isFavorite: (id) => favorites.includes(id),
+        toggleFavorite,
+      }}
+    >
       {children}
     </FavoritesContext.Provider>
   );
 }
-
