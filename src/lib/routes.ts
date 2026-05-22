@@ -6,6 +6,7 @@ export const ROUTES = {
   login: "/login",
   signup: "/signup",
   resetPassword: "/reset-password",
+  resetPasswordConfirm: (key: string) => `/reset-password/confirm?key=${encodeURIComponent(key)}`,
   terms: "/terms",
 
   // Main

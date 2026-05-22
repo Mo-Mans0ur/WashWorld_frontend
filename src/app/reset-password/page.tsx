@@ -5,6 +5,7 @@ import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { Button } from "@/components/buttons";
 import { ROUTES } from "@/lib/routes";
+import { apiRequest } from "@/lib/apiClient";
 
 const MIN_EMAIL_LENGTH = 5;
 
@@ -30,8 +31,10 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      // TODO: kald API endpoint til password reset når det er klar
-      await new Promise((r) => setTimeout(r, 800));
+      await apiRequest("/api/auth/forgot-password", {
+        method: "POST",
+        body: { user_email: email },
+      });
       setSubmitted(true);
     } catch {
       setError("Noget gik galt. Prøv igen.");

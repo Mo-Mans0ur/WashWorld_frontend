@@ -12,12 +12,10 @@ import { useRouter } from "next/navigation";
 import {
   Check,
   ChevronDown,
-  Eye,
-  EyeOff,
-  Lock,
-  LogOut,
+  KeyRound,
   UserRound,
 } from "lucide-react";
+import Link from "next/link";
 
 import PageInfo from "@/components/PageInfo";
 import { Button } from "@/components/buttons";
@@ -33,8 +31,6 @@ type FormState = {
   email: string;
   dialCode: string;
   localPhone: string;
-  newPassword: string;
-  confirmPassword: string;
 };
 
 // Splitter et gemt telefonnummer som "+45 12345678" i landekode og lokalnummer.
@@ -95,8 +91,6 @@ export default function UpdateProfilePage() {
     email: "",
     dialCode: "+45",
     localPhone: "",
-    newPassword: "",
-    confirmPassword: "",
   });
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -115,8 +109,6 @@ export default function UpdateProfilePage() {
       email: user.user_email,
       dialCode,
       localPhone,
-      newPassword: "",
-      confirmPassword: "",
     });
   }, [user]);
 
@@ -128,29 +120,21 @@ export default function UpdateProfilePage() {
   async function handleSave() {
     if (!user || !token) return;
 
-    // Valider telefonnummer og kodeord lokalt før API-kaldet
     const phoneValidation = validateLocalPhone(formState.localPhone, formState.dialCode);
     if (phoneValidation) {
       setPhoneError(phoneValidation);
-      return;
-    }
-    if (formState.newPassword && formState.newPassword !== formState.confirmPassword) {
-      setError("Kodeordene matcher ikke");
       return;
     }
 
     setIsSaving(true);
     setError(null);
     try {
-      // Saml landekode og lokalnummer til ét felt uden mellemrum i selve nummeret
       const fullPhone = `${formState.dialCode} ${formState.localPhone.replace(/[\s\-]/g, "")}`;
       const updated = await updateAuthUser(user.user_id, {
         user_firstname: formState.firstName,
         user_lastname: formState.lastName,
         user_email: formState.email,
         user_phone: fullPhone,
-        // Kodeord sendes kun med hvis brugeren har udfyldt feltet
-        ...(formState.newPassword ? { user_password: formState.newPassword } : {}),
       });
       // Opdater AuthContext med de nye brugerdata så resten af appen ser de nye værdier
       login(token, updated);
@@ -243,32 +227,19 @@ export default function UpdateProfilePage() {
 
         <article className="rounded-[3px] bg-(--white-white) shadow-2xl p-5">
           <SectionTitle
-            icon={<Lock className="h-4 w-4" strokeWidth={2.4} />}
+            icon={<KeyRound className="h-4 w-4" strokeWidth={2.4} />}
             title={profileUpdatePageContent.passwordSectionTitle}
           />
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <InputField
-              label={profileUpdatePageContent.fields.newPassword.label}
-              type="password"
-              placeholder={profileUpdatePageContent.fields.newPassword.placeholder}
-              value={formState.newPassword}
-              onChange={(value) => handleInputChange("newPassword", value)}
-              hasTrailingIcon
-              compact
-            />
-            <InputField
-              label={profileUpdatePageContent.fields.confirmPassword.label}
-              type="password"
-              placeholder={profileUpdatePageContent.fields.confirmPassword.placeholder}
-              value={formState.confirmPassword}
-              onChange={(value) => handleInputChange("confirmPassword", value)}
-              hasTrailingIcon
-              compact
-            />
-          </div>
-          <p className="mt-3 text-xs font-semibold text-neutral-500">
-            {profileUpdatePageContent.passwordHint}
+          <p className="mt-3 text-sm text-neutral-500">
+            Vi sender et link til din email, som du kan bruge til at vælge en ny adgangskode.
+          </p>
+          <p className="mt-2 text-sm text-neutral-500">
+            <Link
+              href={ROUTES.resetPassword}
+              className="font-semibold text-(--color-secondary) hover:underline"
+            >
+              Nulstil din adgangskode her
+            </Link>
           </p>
         </article>
 
@@ -428,58 +399,25 @@ function SectionTitle({ icon, title }: { icon: ReactNode; title: string }) {
 
 type InputFieldProps = {
   label: string;
-  type?: "text" | "email" | "tel" | "password";
+  type?: "text" | "email" | "tel";
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
-  hasTrailingIcon?: boolean;
-  compact?: boolean;
 };
 
-// InputField – generisk inputfelt med label og valgfrit vis/skjul-ikon til kodeordfelter.
-function InputField({
-  label,
-  type = "text",
-  placeholder,
-  value,
-  onChange,
-  hasTrailingIcon = false,
-  compact = false,
-}: InputFieldProps) {
-  const [showPassword, setShowPassword] = useState(false);
-  const isPasswordField = type === "password";
-  const inputType = hasTrailingIcon && isPasswordField && showPassword ? "text" : type;
-  const inputSizeClass = compact ? "h-9 px-2 pr-8 text-[11px]" : "h-11 px-3 text-sm";
-  const iconSizeClass = compact ? "h-3.5 w-3.5" : "h-4.5 w-4.5";
-
+function InputField({ label, type = "text", placeholder, value, onChange }: InputFieldProps) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-semibold text-neutral-600">
         {label}
       </span>
-      <div className="relative">
-        <input
-          type={inputType}
-          placeholder={placeholder}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className={`w-full border border-neutral-300 bg-(--white-white) font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01) ${inputSizeClass}`}
-        />
-        {hasTrailingIcon && (
-          <button
-            type="button"
-            onClick={() => setShowPassword((current) => !current)}
-            className={`${compact ? "right-2.5" : "right-3"} absolute top-1/2 -translate-y-1/2 text-neutral-400`}
-            aria-label={showPassword ? "Skjul adgangskode" : "Vis adgangskode"}
-          >
-            {showPassword ? (
-              <EyeOff className={iconSizeClass} strokeWidth={2.2} />
-            ) : (
-              <Eye className={iconSizeClass} strokeWidth={2.2} />
-            )}
-          </button>
-        )}
-      </div>
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-11 w-full border border-neutral-300 bg-(--white-white) px-3 text-sm font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01)"
+      />
     </label>
   );
 }

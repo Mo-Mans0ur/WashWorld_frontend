@@ -148,7 +148,7 @@ export const profileMenuItems: ProfileMenuItem[] = [
 export const profileUpdatePageContent = {
   pageInfoTitle: "Profil",
   profileSectionTitle: "Profil",
-  passwordSectionTitle: "Adgangskode",
+  passwordSectionTitle: "Nulstil din adgangskode",
   memberSinceLabel: "Medlem siden",
   fields: {
     firstName: {
