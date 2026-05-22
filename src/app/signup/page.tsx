@@ -6,14 +6,14 @@
 // og brugeren sendes direkte til /dashboard uden at skulle logge ind separat.
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { AuthButton } from "@/components/buttons";
 import { registerUser } from "@/lib/api/auth";
 import { ROUTES } from "@/lib/routes";
 
 export default function SignUpPage() {
-  const router = useRouter();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -21,6 +21,8 @@ export default function SignUpPage() {
     password: "",
     confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -64,10 +66,6 @@ export default function SignUpPage() {
     }
   };
 
-  const handleLoginClick = () => {
-    router.push(ROUTES.login);
-  };
-
   return (
     <>
       <div className="absolute inset-0 w-full h-full overflow-hidden z-10">
@@ -95,13 +93,12 @@ export default function SignUpPage() {
             <p className="text-white/80 text-sm max-w-xs">
               Vi har sendt en bekræftelsesmail. Klik på linket i mailen for at aktivere din konto.
             </p>
-            <button
-              type="button"
-              onClick={() => router.push(ROUTES.login)}
+            <Link
+              href={ROUTES.login}
               className="mt-4 text-sm font-semibold text-(--color-secondary) hover:underline"
             >
               Gå til login
-            </button>
+            </Link>
           </div>
         ) : (
         <form
@@ -155,26 +152,46 @@ export default function SignUpPage() {
             {errors.email ?? ""}
           </p>
 
-          <input
-            name="password"
-            placeholder="Kodeord"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            className="w-72 p-3 bg-(--color-surface)"
-          />
+          <div className="relative w-72">
+            <input
+              name="password"
+              placeholder="Kodeord"
+              type={showPassword ? "text" : "password"}
+              value={form.password}
+              onChange={handleChange}
+              className="w-full p-3 pr-11 bg-(--color-surface)"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Skjul kodeord" : "Vis kodeord"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           <p className="min-h-4 text-red-400 text-xs -mt-3">
             {errors.password ?? ""}
           </p>
 
-          <input
-            name="confirmPassword"
-            placeholder="Gentag kodeord"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            className="w-72 p-3 bg-(--color-surface)"
-          />
+          <div className="relative w-72">
+            <input
+              name="confirmPassword"
+              placeholder="Gentag kodeord"
+              type={showConfirmPassword ? "text" : "password"}
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className="w-full p-3 pr-11 bg-(--color-surface)"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              aria-label={showConfirmPassword ? "Skjul kodeord" : "Vis kodeord"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+            >
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           <p className="min-h-4 text-red-400 text-xs -mt-3">
             {errors.confirmPassword ?? ""}
           </p>
@@ -188,13 +205,12 @@ export default function SignUpPage() {
             />
             <span>
               Jeg accepterer{" "}
-              <button
-                type="button"
-                onClick={() => router.push(ROUTES.terms)}
+              <Link
+                href={ROUTES.terms}
                 className="text-(--color-secondary) font-semibold hover:underline"
               >
                 abonnementsvilkår
-              </button>
+              </Link>
             </span>
           </label>
           <p className="min-h-4 text-red-400 text-xs -mt-3">
@@ -207,9 +223,9 @@ export default function SignUpPage() {
 
           <AuthButton
             mode="signup"
-            onLoginClick={handleLoginClick}
-            onSignupClick={handleSignupClick}
+            secondaryHref={ROUTES.login}
             disabled={isLoading}
+            isLoading={isLoading}
           />
         </form>
         )}

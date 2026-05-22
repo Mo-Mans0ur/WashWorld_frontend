@@ -81,7 +81,7 @@ export default function DashboardPage() {
 
       setLocationsWithDistance(withDistances);
       setNearestLocation(withDistances[0]);
-    });
+    }, undefined, { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 });
   }, [locations]);
 
   function handleNotificationClick() {

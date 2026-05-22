@@ -1,11 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Bell, Check } from "lucide-react";
 
 import PageInfo from "@/components/PageInfo";
-import { Button } from "@/components/buttons";
 import {
   notificationPageContent,
   notificationSettings,
@@ -15,7 +14,6 @@ import { ROUTES } from "@/lib/routes";
 type SettingsState = Record<string, boolean>;
 
 export default function NotifikationerPage() {
-  const router = useRouter();
   const [settings, setSettings] = useState<SettingsState>(() =>
     Object.fromEntries(
       notificationSettings.map((item) => [item.id, item.enabled]),
@@ -112,15 +110,13 @@ export default function NotifikationerPage() {
           ))}
         </section>
 
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={() => router.push(ROUTES.profileUpdatedPreferences)}
-          className="mt-5 flex w-full items-center justify-center gap-2"
+        <Link
+          href={ROUTES.profileUpdatedPreferences}
+          className="btn btn--primary btn--lg mt-5 flex w-full items-center justify-center gap-2"
         >
           <Check className="h-4.5 w-4.5" strokeWidth={3} />
           {notificationPageContent.saveButton}
-        </Button>
+        </Link>
       </main>
     </div>
   );

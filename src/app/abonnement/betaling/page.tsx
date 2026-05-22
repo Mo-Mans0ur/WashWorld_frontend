@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CircleHelp, Lock } from "lucide-react";
+import Image from "next/image";
+import { CircleHelp, CreditCard, Lock, Plus } from "lucide-react";
 
 import PageInfo from "@/components/PageInfo";
-import { paymentPageContent } from "@/data/paymentData";
+import PaymentMethodCard from "@/components/PaymentMethodCard";
+import { paymentOptions, paymentPageContent } from "@/data/paymentData";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
 import {
   getSubscriptionPlanBySlug,
@@ -14,91 +16,88 @@ import {
 import ContinueButton from "@/components/ContinueButton";
 import { ROUTES } from "@/lib/routes";
 
-type StoredPaymentCard = {
-  cardNumber: string;
-  expiry: string;
-  name: string;
-};
+type StoredPaymentCard = { cardNumber: string; expiry: string; name: string };
 
-function getStoredPaymentCard(): StoredPaymentCard | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const rawValue = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
-
-  if (!rawValue) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawValue) as StoredPaymentCard;
-  } catch {
-    window.localStorage.removeItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
-    return null;
-  }
+function getPaymentId(title: string) {
+  const n = title.toLowerCase();
+  if (n.includes("mobilepay")) return "mobilepay";
+  if (n.includes("wallet") || n.includes("apple pay")) return "wallet";
+  if (n.includes("kontakt")) return "contactless";
+  return "card";
 }
+
+const paymentMethods = paymentOptions
+  .filter((o) => !o.title.toLowerCase().includes("kontakt"))
+  .map((o, i) => ({
+    id: getPaymentId(o.title),
+    title: o.title,
+    description: o.description,
+    image: o.icon || `/payment/${i}.png`,
+  }));
 
 function getFirstPaymentAmount(firstMonth: string, fallback: string) {
   const match = firstMonth.match(/(\d+)\s*kr\./i);
-
-  if (!match) {
-    return fallback.replace("kr./ md.", " kr");
-  }
-
+  if (!match) return fallback.replace("kr./ md.", " kr");
   return `${match[1]} kr`;
 }
+
 export default function SubscriptionBetalingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPlanSlug = (searchParams.get("plan") ?? "guld").toLowerCase();
   const carId = searchParams.get("carId") ?? undefined;
-  const storedPaymentCard = getStoredPaymentCard();
+
+  const [storedPaymentCard] = useState<StoredPaymentCard | null>(() => {
+    if (typeof window === "undefined") return null;
+    const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  });
+
+  const [selectedPayment, setSelectedPayment] = useState<string | null>(
+    storedPaymentCard ? "card" : null,
+  );
+  const [useNewCard, setUseNewCard] = useState(storedPaymentCard === null);
   const [showCvcHelp, setShowCvcHelp] = useState(false);
-  const [cardNumber, setCardNumber] = useState(
-    storedPaymentCard?.cardNumber ?? "",
-  );
-  const [expiry, setExpiry] = useState(storedPaymentCard?.expiry ?? "");
+  const [walletMethod, setWalletMethod] = useState<"apple" | "google">("apple");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
-  const [cardholderName, setCardholderName] = useState(
-    storedPaymentCard?.name ?? "",
-  );
-  const [rememberCard, setRememberCard] = useState(storedPaymentCard !== null);
+  const [cardholderName, setCardholderName] = useState("");
+  const [rememberCard, setRememberCard] = useState(true);
 
   const activePlan = getSubscriptionPlanBySlug(selectedPlanSlug);
-  const firstPaymentAmount = getFirstPaymentAmount(
-    activePlan.firstMonth,
-    activePlan.price,
-  );
+  const firstPaymentAmount = getFirstPaymentAmount(activePlan.firstMonth, activePlan.price);
   const recurringAmount = activePlan.price.replace("kr./ md.", " kr/md.");
+  const selectedWalletMethod = paymentPageContent.wallet.methods.find((m) => m.value === walletMethod);
+  const maskedNumber = storedPaymentCard
+    ? `**** **** **** ${storedPaymentCard.cardNumber.replace(/\s/g, "").slice(-4)}`
+    : null;
 
-  useEffect(() => {
-    if (!storedPaymentCard) {
-      return;
-    }
+  const newCardIsValid =
+    cardNumber.replace(/\s/g, "").length >= 16 &&
+    /^\d{2}\/\d{2}$/.test(expiry) &&
+    cvc.length >= 3 &&
+    cardholderName.trim().length > 0;
 
-    router.replace(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId));
-  }, [router, selectedPlanSlug, carId, storedPaymentCard]);
+  const cardReady = selectedPayment === "card" && (useNewCard ? newCardIsValid : true);
+  const canContinue =
+    selectedPayment !== null &&
+    (selectedPayment !== "card" || cardReady);
+
+  function handleSelectPayment(id: string) {
+    setSelectedPayment(id);
+    if (id !== "card") setShowCvcHelp(false);
+  }
 
   function handleContinue() {
-    if (rememberCard) {
+    if (!canContinue) return;
+    if (selectedPayment === "card" && useNewCard && rememberCard) {
       window.localStorage.setItem(
         SAVED_PAYMENT_CARD_STORAGE_KEY,
-        JSON.stringify({
-          cardNumber,
-          expiry,
-          name: cardholderName,
-        } satisfies StoredPaymentCard),
+        JSON.stringify({ cardNumber, expiry, name: cardholderName } satisfies StoredPaymentCard),
       );
-    } else {
-      window.localStorage.removeItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
     }
-
-    console.log("create subscription", {
-      plan: selectedPlanSlug,
-      payment: "card",
-    });
-
     router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId));
   }
 
@@ -115,94 +114,208 @@ export default function SubscriptionBetalingPage() {
           {subscriptionPaymentPageContent.pageTitle}
         </h1>
 
-        <div className="mt-6 rounded-lg bg-black/40 p-4">
-          <div className="space-y-3">
-            <label className="block text-sm font-bold text-white">
-              {paymentPageContent.card.cardNumberLabel}
-            </label>
-            <input
-              type="text"
-              placeholder={paymentPageContent.card.cardNumberPlaceholder}
-              value={cardNumber}
-              onChange={(event) => setCardNumber(event.target.value)}
-              className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
+        <div className="mb-5 rounded-lg bg-black/30 px-4 py-3 text-sm font-semibold text-white/80">
+          Første betaling: <span className="font-bold text-white">{firstPaymentAmount}</span>
+          <span className="mx-2 text-white/40">·</span>
+          Derefter: <span className="font-bold text-white">{recurringAmount}</span>
+        </div>
+
+        <div className="space-y-3">
+          {paymentMethods.map((method) => (
+            <PaymentMethodCard
+              key={method.id}
+              method={method}
+              selected={selectedPayment === method.id}
+              onClick={() => handleSelectPayment(method.id)}
             />
+          ))}
+        </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-bold text-white">
-                  {paymentPageContent.card.expiryLabel}
-                </label>
-                <input
-                  type="text"
-                  placeholder={paymentPageContent.card.expiryPlaceholder}
-                  value={expiry}
-                  onChange={(event) => setExpiry(event.target.value)}
-                  className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-white">
-                  {paymentPageContent.card.cvcLabel}
-                </label>
-                <div className="relative">
-                  {showCvcHelp ? (
-                    <div className="absolute -top-20 right-0 z-10 w-48 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(228,236,245,0.92)_100%)] px-3 py-2.5 text-xs font-semibold leading-relaxed text-slate-700 shadow-[0_12px_30px_rgba(0,0,0,0.22)] backdrop-blur-sm">
-                      <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-green-01)">
-                        Kortsikkerhed
-                      </div>
-                      <p>{paymentPageContent.card.cvcHelpText}</p>
-                      <span className="absolute -bottom-1.5 right-4 h-3 w-3 rotate-45 border-r border-b border-white/20 bg-[rgb(234,240,246)]" />
-                    </div>
-                  ) : null}
-
-                  <input
-                    type="text"
-                    placeholder={paymentPageContent.card.cvcPlaceholder}
-                    value={cvc}
-                    onChange={(event) => setCvc(event.target.value)}
-                    className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 pr-10 text-white placeholder-white/60"
-                  />
-                  <button
-                    type="button"
-                    aria-label={paymentPageContent.card.cvcHelpLabel}
-                    onClick={() => setShowCvcHelp((current) => !current)}
-                    className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white/90 transition active:scale-95"
-                  >
-                    <CircleHelp className="h-5 w-5" strokeWidth={2} />
-                  </button>
-                </div>
+        {selectedPayment !== null && (
+          <div key={selectedPayment} className="payment-reveal">
+            <div className="mt-6 flex items-center gap-4 text-white">
+              <div className="h-1 w-20 bg-[rgba(0,19,12,0.65)]" />
+              <div className="flex items-center gap-3">
+                <Lock className="h-5 w-5 text-[#7CFF45]" strokeWidth={3} />
+                <span className="text-sm font-bold leading-none">
+                  {paymentPageContent.secureMessage}
+                </span>
               </div>
             </div>
 
-            <label className="block text-sm font-bold text-white">
-              {paymentPageContent.card.nameLabel}
-            </label>
-            <input
-              type="text"
-              placeholder={paymentPageContent.card.namePlaceholder}
-              value={cardholderName}
-              onChange={(event) => setCardholderName(event.target.value)}
-              className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
-            />
+            <div className="mt-6 rounded-lg bg-black/40 p-4">
+              {selectedPayment === "card" && (
+                <div className="space-y-3">
+                  {/* Gemt kort */}
+                  {storedPaymentCard && !useNewCard ? (
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--brand-green-01)">
+                          <CreditCard size={18} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">{maskedNumber}</p>
+                          <p className="text-xs font-semibold text-white/60">
+                            {storedPaymentCard.name} · Udløber {storedPaymentCard.expiry}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setUseNewCard(true)}
+                        className="mt-4 flex items-center gap-1.5 text-xs font-bold text-(--brand-green-01)"
+                      >
+                        <Plus size={14} />
+                        Brug et andet kort
+                      </button>
+                    </div>
+                  ) : (
+                    /* Kortformular */
+                    <>
+                      <label className="block text-sm font-bold text-white">
+                        {paymentPageContent.card.cardNumberLabel}
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder={paymentPageContent.card.cardNumberPlaceholder}
+                        value={cardNumber}
+                        maxLength={19}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
+                          setCardNumber(digits.replace(/(.{4})/g, "$1 ").trim());
+                        }}
+                        className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
+                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-bold text-white">
+                            {paymentPageContent.card.expiryLabel}
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder={paymentPageContent.card.expiryPlaceholder}
+                            value={expiry}
+                            maxLength={5}
+                            onChange={(e) => {
+                              const digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+                              setExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
+                            }}
+                            className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-white">
+                            {paymentPageContent.card.cvcLabel}
+                          </label>
+                          <div className="relative">
+                            {showCvcHelp && (
+                              <div className="absolute -top-20 right-0 z-10 w-48 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(228,236,245,0.92)_100%)] px-3 py-2.5 text-xs font-semibold leading-relaxed text-slate-700 shadow-[0_12px_30px_rgba(0,0,0,0.22)] backdrop-blur-sm">
+                                <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-green-01)">Kortsikkerhed</div>
+                                <p>{paymentPageContent.card.cvcHelpText}</p>
+                                <span className="absolute -bottom-1.5 right-4 h-3 w-3 rotate-45 border-r border-b border-white/20 bg-[rgb(234,240,246)]" />
+                              </div>
+                            )}
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              placeholder={paymentPageContent.card.cvcPlaceholder}
+                              value={cvc}
+                              maxLength={4}
+                              onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 pr-10 text-white placeholder-white/60"
+                            />
+                            <button
+                              type="button"
+                              aria-label={paymentPageContent.card.cvcHelpLabel}
+                              onClick={() => setShowCvcHelp((c) => !c)}
+                              className="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white/90 transition active:scale-95"
+                            >
+                              <CircleHelp className="h-5 w-5" strokeWidth={2} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <label className="block text-sm font-bold text-white">
+                        {paymentPageContent.card.nameLabel}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={paymentPageContent.card.namePlaceholder}
+                        value={cardholderName}
+                        onChange={(e) => setCardholderName(e.target.value)}
+                        className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
+                      />
+                      <label className="mt-1 flex items-center gap-3 rounded-lg border border-white/12 bg-white/6 px-3 py-2.5 text-white">
+                        <input
+                          type="checkbox"
+                          checked={rememberCard}
+                          onChange={(e) => setRememberCard(e.target.checked)}
+                          className="h-4 w-4 rounded border-white/40 accent-(--brand-green-01)"
+                        />
+                        <span className="text-sm font-bold leading-none">
+                          {paymentPageContent.card.rememberCardLabel}
+                        </span>
+                      </label>
+                      {storedPaymentCard && (
+                        <button
+                          type="button"
+                          onClick={() => setUseNewCard(false)}
+                          className="text-xs font-bold text-white/50 underline"
+                        >
+                          Tilbage til gemt kort
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
 
-            <label className="mt-1 flex items-center gap-3 rounded-lg border border-white/12 bg-white/6 px-3 py-2.5 text-white">
-              <input
-                type="checkbox"
-                checked={rememberCard}
-                onChange={(event) => setRememberCard(event.target.checked)}
-                className="h-4 w-4 rounded border-white/40 accent-(--brand-green-01)"
-              />
-              <span className="text-sm font-bold leading-none">
-                {paymentPageContent.card.rememberCardLabel}
-              </span>
-            </label>
+              {selectedPayment === "mobilepay" && (
+                <div className="space-y-3">
+                  <label className="block text-sm font-bold text-white">
+                    {paymentPageContent.mobilePay.phoneLabel}
+                  </label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder={paymentPageContent.mobilePay.countryCodePlaceholder} className="w-16 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60" />
+                    <input type="text" placeholder={paymentPageContent.mobilePay.phonePlaceholder} className="flex-1 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60" />
+                  </div>
+                  <div className="flex items-start gap-3 rounded bg-[#4a52a8] px-4 py-3 text-white">
+                    <p className="text-xs font-semibold leading-relaxed">{paymentPageContent.mobilePay.infoText}</p>
+                  </div>
+                </div>
+              )}
+
+              {selectedPayment === "wallet" && (
+                <div className="rounded-md bg-white/8 p-3">
+                  <h3 className="mb-2 text-xl font-bold text-white">{paymentPageContent.wallet.title}</h3>
+                  <p className="mb-3 text-[11px] font-semibold leading-tight text-white/80">{paymentPageContent.wallet.description}</p>
+                  <div className="relative mb-3">
+                    <select
+                      value={walletMethod}
+                      onChange={(e) => setWalletMethod(e.target.value as "apple" | "google")}
+                      className="h-10 w-full appearance-none rounded border border-white/25 bg-white/8 px-2.5 pr-8 text-base font-bold text-white"
+                    >
+                      {paymentPageContent.wallet.methods.map((m) => (
+                        <option key={m.value} value={m.value} className="text-black">{m.label}</option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-lg font-bold text-white">▾</span>
+                  </div>
+                  <button type="button" className="flex h-10 w-full items-center justify-center overflow-hidden rounded border border-sky-500 bg-white px-3 text-lg font-bold text-black">
+                    {selectedWalletMethod && (
+                      <Image src={selectedWalletMethod.logo} alt={selectedWalletMethod.label} width={260} height={260} className={selectedWalletMethod.imageClassName} />
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-auto pb-5 pt-4">
-          <ContinueButton onClick={handleContinue}>
+          <ContinueButton onClick={handleContinue} disabled={!canContinue}>
             {subscriptionPaymentPageContent.buttons.continue}
           </ContinueButton>
         </div>

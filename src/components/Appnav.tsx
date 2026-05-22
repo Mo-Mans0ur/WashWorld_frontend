@@ -39,7 +39,7 @@ export default function AppNav() {
   // Sidebar-menupunkter – tilføj/fjern her for at ændre indholdet af menuen
   const subMenuItems = [
     { label: "Mine Køretøjer", href: ROUTES.cars, icon: Car },
-    { label: "Betalingsoplysninger", href: ROUTES.paymentSettings, icon: CreditCard },
+    { label: "Betalingsoplysninger", href: ROUTES.profile, icon: CreditCard },
     { label: "Abonnement", href: ROUTES.subscription, icon: BadgeCheck },
     { label: "Forbrug", href: ROUTES.washHistory, icon: History },
     { label: "Notifikationer", href: ROUTES.notifications, icon: Bell },

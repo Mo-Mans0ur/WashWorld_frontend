@@ -8,6 +8,7 @@
 // Opsigelsesbekræftelse håndteres med en inline modal der kalder deleteSubscription().
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
@@ -17,11 +18,13 @@ import {
   MoreVertical,
   ArrowLeftRight,
   XCircle,
+  CreditCard,
 } from "lucide-react";
 import {
   profileBadges,
   profilePageNames,
   profileStamps,
+  SAVED_PAYMENT_CARD_STORAGE_KEY,
 } from "@/data/profileData";
 import { useAuth } from "@/hooks";
 import { fetchSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
@@ -53,6 +56,16 @@ export default function ProfilePage() {
   >("idle");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Subscription | null>(null);
+  const [savedCardNumber, setSavedCardNumber] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+      if (!raw) return null;
+      return (JSON.parse(raw) as { cardNumber: string }).cardNumber ?? null;
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -133,13 +146,12 @@ export default function ProfilePage() {
           <article className="relative rounded-[3px] bg-(--white-white) shadow-2xl">
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
               <p className="text-sm font-semibold text-neutral-600">Abonnementer</p>
-              <button
-                type="button"
-                onClick={() => router.push(ROUTES.subscription)}
-                className="h-8 min-w-24 bg-(--brand-green-01) px-3 text-sm font-bold text-white [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
+              <Link
+                href={ROUTES.subscription}
+                className="flex h-8 min-w-24 items-center justify-center bg-(--brand-green-01) px-3 text-sm font-bold text-white [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
               >
                 Tilføj
-              </button>
+              </Link>
             </div>
 
             {subscriptions.length === 0 ? (
@@ -171,14 +183,14 @@ export default function ProfilePage() {
                         </button>
                         {openMenuId === sub.subscription_id && (
                           <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
-                            <button
-                              type="button"
-                              onClick={() => { setOpenMenuId(null); router.push(ROUTES.subscription); }}
+                            <Link
+                              href={ROUTES.subscription}
+                              onClick={() => setOpenMenuId(null)}
                               className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
                             >
                               <ArrowLeftRight size={15} className="text-(--brand-green-01)" />
                               Skift abonnement
-                            </button>
+                            </Link>
                             <div className="h-px bg-neutral-200" />
                             <button
                               type="button"
@@ -229,14 +241,53 @@ export default function ProfilePage() {
               <p className="flex px-4 py-3 text-xs font-semibold items-center text-neutral-600">
                 {profilePageNames.memberSinceLabel} {user?.user_created_at ? formatMemberSince(user.user_created_at) : "—"}
               </p>
-              <button
-                type="button"
-                onClick={() => router.push(ROUTES.updateProfile)}
-                className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+              <Link
+                href={ROUTES.updateProfile}
+                className="flex h-11 min-w-45 items-center justify-center bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
               >
                 {profilePageNames.editProfile}
-              </button>
+              </Link>
             </div>
+          </article>
+
+          {/* Betalingskort */}
+          <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
+                  <CreditCard size={16} />
+                </span>
+                <p className="text-sm font-semibold text-neutral-600">Betalingskort</p>
+              </div>
+              <Link
+                href={ROUTES.savePaymentCard}
+                className="flex h-8 min-w-24 items-center justify-center bg-(--brand-green-01) px-3 text-sm font-bold text-white [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
+              >
+                {savedCardNumber ? "Rediger" : "Tilføj"}
+              </Link>
+            </div>
+            {savedCardNumber ? (
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <CreditCard size={20} className="text-neutral-400 shrink-0" />
+                  <p className="text-sm font-semibold text-neutral-700">
+                    **** **** **** {savedCardNumber.replace(/\s/g, "").slice(-4)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.localStorage.removeItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+                    setSavedCardNumber(null);
+                  }}
+                  className="text-xs font-bold text-red-500"
+                >
+                  Fjern
+                </button>
+              </div>
+            ) : (
+              <p className="px-4 py-3 text-sm font-semibold text-neutral-400">Intet gemt kort</p>
+            )}
           </article>
 
           {/* Klippekort */}

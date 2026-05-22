@@ -7,13 +7,13 @@
 // og brugeren sendes til /profile. car_id knyttes til det valgte køretøj.
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
 import { useVehicles } from "@/hooks";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
-  subscriptionPaymentMethods,
 } from "@/data/subscriptionData";
 import PageInfo from "@/components/PageInfo";
 import BottomSheet from "@/components/BottomSheet";
@@ -51,13 +51,26 @@ export default function HandleSubscriptionPage() {
     )?.value ??
     savedVehicleOptions[0]?.value ??
     "";
-  const hasSavedPaymentCard =
-    typeof window !== "undefined" &&
-    window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY) !== null;
+  const [savedCard] = useState<{ cardNumber: string; expiry: string; name: string } | null>(() => {
+    if (typeof window === "undefined") return null;
+    const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); }
+    catch { return null; }
+  });
+
+  const paymentMethods = useMemo(() => {
+    const last4 = savedCard?.cardNumber.replace(/\s/g, "").slice(-4);
+    return [
+      { value: "card", label: last4 ? `Kort •••• ${last4}` : "Kreditkort" },
+      { value: "mobilepay", label: "MobilePay" },
+      { value: "wallet", label: "Apple Pay / Google Pay" },
+    ];
+  }, [savedCard]);
   const vehicleOptions = savedVehicleOptions;
 
   const [vehicle, setVehicle] = useState(initialVehicleValue);
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState(() => savedCard ? "card" : "");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
@@ -67,8 +80,7 @@ export default function HandleSubscriptionPage() {
     ? vehicleOptions.find((option) => option.value === vehicle)?.label
     : "";
   const selectedPaymentMethodLabel = paymentMethod
-    ? subscriptionPaymentMethods.find((item) => item.value === paymentMethod)
-        ?.label
+    ? paymentMethods.find((item) => item.value === paymentMethod)?.label
     : "";
 
   // Alle tre betingelser skal være opfyldt for at aktivere send-knappen
@@ -200,13 +212,12 @@ export default function HandleSubscriptionPage() {
                   <span className="flex-1 pr-4 text-[1rem] font-semibold text-(--color-grey-01)">
                     Ingen køretøjer tilknyttet
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => router.push(ROUTES.addCar)}
+                  <Link
+                    href={ROUTES.addCar}
                     className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
                   >
                     + Tilføj
-                  </button>
+                  </Link>
                 </div>
               )}
               {attempted && !vehicle && (
@@ -299,7 +310,7 @@ export default function HandleSubscriptionPage() {
             </button>
           ))
         ) : (
-          subscriptionPaymentMethods.map((item) => (
+          paymentMethods.map((item) => (
             <button
               key={item.value}
               type="button"

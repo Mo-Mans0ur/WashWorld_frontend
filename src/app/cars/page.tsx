@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import { useVehicles } from "@/hooks";
@@ -15,7 +16,6 @@ const VEHICLE_ICONS: Record<VehicleType, ElementType> = {
   bus: Bus,
 };
 import { ROUTES } from "@/lib/routes";
-import { Button } from "@/components/buttons";
 import { capitalizeName } from "@/lib/formatName";
 
 export default function BilerPage() {
@@ -85,15 +85,13 @@ export default function BilerPage() {
           </p>
         )}
 
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={() => router.push(ROUTES.addCar)}
-          className="mt-2 flex w-full items-center justify-center gap-2"
+        <Link
+          href={ROUTES.addCar}
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-[3px] bg-(--brand-green-01) py-3 text-xl font-bold text-white"
         >
           <Plus size={22} strokeWidth={3} />
           Tilføj bil
-        </Button>
+        </Link>
       </main>
     </div>
   );

@@ -58,7 +58,10 @@ export default function BetalingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const storedPaymentCard = getStoredPaymentCard();
-  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+  const saveCardOnly = searchParams.get("saveCard") === "true";
+  const [selectedPayment, setSelectedPayment] = useState<string | null>(
+    saveCardOnly ? "card" : null,
+  );
   const [walletMethod, setWalletMethod] = useState<"apple" | "google">("apple");
   const [showCvcHelp, setShowCvcHelp] = useState(false);
   const [cardNumber, setCardNumber] = useState(
@@ -69,7 +72,9 @@ export default function BetalingPage() {
   const [cardholderName, setCardholderName] = useState(
     storedPaymentCard?.name ?? "",
   );
-  const [rememberCard, setRememberCard] = useState(storedPaymentCard !== null);
+  const [rememberCard, setRememberCard] = useState(
+    saveCardOnly || storedPaymentCard !== null,
+  );
   const selectedPlan = searchParams.get("plan") ?? "guld";
   const prefilledPlate = searchParams.get("plate") ?? undefined;
   const carId = searchParams.get("carId") ?? undefined;
@@ -79,8 +84,16 @@ export default function BetalingPage() {
   const selectedWalletMethod = paymentPageContent.wallet.methods.find(
     (method) => method.value === walletMethod,
   );
+  const cardIsValid =
+    selectedPayment === "card" &&
+    cardNumber.replace(/\s/g, "").length >= 16 &&
+    /^\d{2}\/\d{2}$/.test(expiry) &&
+    cvc.length >= 3 &&
+    cardholderName.trim().length > 0;
   const hasSelectedRoute =
-    selectedPayment !== null && selectedPayment !== "contactless";
+    selectedPayment !== null &&
+    selectedPayment !== "contactless" &&
+    (selectedPayment !== "card" || cardIsValid);
   const showPaymentDetails =
     selectedPayment !== null && selectedPayment !== "contactless";
 
@@ -109,7 +122,12 @@ export default function BetalingPage() {
       }
     }
 
-    router.push(ROUTES.licensePlate(selectedPlan, selectedPayment, prefilledPlate, carId));
+    if (saveCardOnly) {
+      router.push(ROUTES.profile);
+      return;
+    }
+
+    router.push(ROUTES.startWash(selectedPlan, selectedPayment, prefilledPlate ?? "", carId));
   }
 
   return (
@@ -126,7 +144,7 @@ export default function BetalingPage() {
         </h1>
 
         <div className="space-y-3">
-          {paymentMethods.map((method) => (
+          {(saveCardOnly ? paymentMethods.filter((m) => m.id !== "contactless") : paymentMethods).map((method) => (
             <PaymentMethodCard
               key={method.id}
               method={method}
@@ -156,9 +174,14 @@ export default function BetalingPage() {
                   </label>
                   <input
                     type="text"
+                    inputMode="numeric"
                     placeholder={paymentPageContent.card.cardNumberPlaceholder}
                     value={cardNumber}
-                    onChange={(event) => setCardNumber(event.target.value)}
+                    maxLength={19}
+                    onChange={(event) => {
+                      const digits = event.target.value.replace(/\D/g, "").slice(0, 16);
+                      setCardNumber(digits.replace(/(.{4})/g, "$1 ").trim());
+                    }}
                     className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                   />
 
@@ -169,9 +192,14 @@ export default function BetalingPage() {
                       </label>
                       <input
                         type="text"
+                        inputMode="numeric"
                         placeholder={paymentPageContent.card.expiryPlaceholder}
                         value={expiry}
-                        onChange={(event) => setExpiry(event.target.value)}
+                        maxLength={5}
+                        onChange={(event) => {
+                          const digits = event.target.value.replace(/\D/g, "").slice(0, 4);
+                          setExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
+                        }}
                         className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                       />
                     </div>
@@ -191,9 +219,11 @@ export default function BetalingPage() {
                         )}
                         <input
                           type="text"
+                          inputMode="numeric"
                           placeholder={paymentPageContent.card.cvcPlaceholder}
                           value={cvc}
-                          onChange={(event) => setCvc(event.target.value)}
+                          maxLength={4}
+                          onChange={(event) => setCvc(event.target.value.replace(/\D/g, "").slice(0, 4))}
                           className="w-full rounded border border-white/30 bg-white/10 px-3 py-2 pr-10 text-white placeholder-white/60"
                         />
                         <button
@@ -361,7 +391,11 @@ export default function BetalingPage() {
 
         <div className="mt-auto pb-5 pt-4">
           <ContinueButton onClick={handleContinue} disabled={!hasSelectedRoute}>
-            {paymentPageContent.buttons.continue}
+            {saveCardOnly
+              ? selectedPayment === "card"
+                ? "Gem kort"
+                : "Vælg metode"
+              : paymentPageContent.buttons.continue}
           </ContinueButton>
         </div>
       </section>

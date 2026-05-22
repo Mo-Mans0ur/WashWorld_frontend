@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { type FormEvent, useState } from "react";
+import { Button } from "@/components/buttons";
 import { ROUTES } from "@/lib/routes";
 
 const MIN_EMAIL_LENGTH = 5;
@@ -14,7 +15,6 @@ function getInputStyle(value: string) {
 }
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -68,13 +68,12 @@ export default function ResetPasswordPage() {
             <p className="text-sm text-white/80">
               Hvis der findes en konto med denne email, modtager du snart et link til at nulstille dit kodeord.
             </p>
-            <button
-              type="button"
-              onClick={() => router.push(ROUTES.login)}
-              className="h-12 w-full bg-(--brand-green-01) font-bold text-white [clip-path:polygon(0_0,100%_0,96%_100%,0_100%)]"
+            <Link
+              href={ROUTES.login}
+              className="btn btn--primary btn--lg w-full text-center"
             >
               Tilbage til login
-            </button>
+            </Link>
           </div>
         ) : (
           <form
@@ -104,21 +103,22 @@ export default function ResetPasswordPage() {
               {error ? <p className="text-sm text-red-400">{error}</p> : null}
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="lg"
               disabled={!canSubmit}
-              className="h-12 w-full bg-(--brand-green-01) font-bold text-white transition-opacity disabled:opacity-50 [clip-path:polygon(0_0,100%_0,96%_100%,0_100%)]"
+              className="w-full"
             >
               {isSubmitting ? "Sender…" : "Nulstil adgangskode"}
-            </button>
+            </Button>
 
-            <button
-              type="button"
-              onClick={() => router.push(ROUTES.login)}
+            <Link
+              href={ROUTES.login}
               className="mt-3 text-sm text-white/70 hover:text-white"
             >
               Tilbage til login
-            </button>
+            </Link>
           </form>
         )}
       </div>

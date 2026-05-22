@@ -25,6 +25,7 @@ export const ROUTES = {
   // Single wash flow
   singlewash: "/singlewash",
   paymentSettings: "/betaling",
+  savePaymentCard: "/betaling?saveCard=true",
   payment: (plan: string, plate?: string, carId?: string) =>
     `/betaling?plan=${plan}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
   licensePlate: (plan: string, payment: string, plate?: string, carId?: string) =>

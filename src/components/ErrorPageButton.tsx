@@ -1,6 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type ErrorPageButtonProps = {
   href: string;
@@ -13,15 +11,9 @@ export default function ErrorPageButton({
   className,
   children,
 }: ErrorPageButtonProps) {
-  const router = useRouter();
-
   return (
-    <button
-      type="button"
-      onClick={() => router.push(href)}
-      className={className}
-    >
+    <Link href={href} className={className}>
       {children}
-    </button>
+    </Link>
   );
 }
