@@ -44,10 +44,10 @@ export const ROUTES = {
   // Subscription flow
   subscription: "/abonnement",
   subscriptionForCar: (carId: string) => `/abonnement?carId=${encodeURIComponent(carId)}`,
-  subscriptionPayment: (plan: string, carId?: string) =>
-    `/abonnement/betaling?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
-  subscriptionConfirmation: (plan: string, carId?: string) =>
-    `/abonnement/handlesubscription?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  subscriptionPayment: (plan: string, carId?: string, allLocations?: boolean) =>
+    `/abonnement/betaling?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}`,
+  subscriptionConfirmation: (plan: string, carId?: string, allLocations?: boolean) =>
+    `/abonnement/handlesubscription?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}`,
 
   // Vehicles
   cars: "/cars",

@@ -35,10 +35,16 @@ const paymentMethods = paymentOptions
     image: o.icon || `/payment/${i}.png`,
   }));
 
-function getFirstPaymentAmount(firstMonth: string, fallback: string) {
+function getFirstPaymentAmount(firstMonth: string, fallback: string, surcharge = 0) {
   const match = firstMonth.match(/(\d+)\s*kr\./i);
-  if (!match) return fallback.replace("kr./ md.", " kr");
-  return `${match[1]} kr`;
+  const base = match ? parseInt(match[1], 10) : parseInt(fallback, 10);
+  return `${base + surcharge} kr`;
+}
+
+function formatRecurringAmount(price: string, surcharge = 0) {
+  const match = price.match(/(\d+)/);
+  if (!match) return price.replace("kr./ md.", " kr/md.");
+  return `${parseInt(match[1], 10) + surcharge} kr/md.`;
 }
 
 export default function SubscriptionBetalingPage() {
@@ -46,6 +52,7 @@ export default function SubscriptionBetalingPage() {
   const searchParams = useSearchParams();
   const selectedPlanSlug = (searchParams.get("plan") ?? "guld").toLowerCase();
   const carId = searchParams.get("carId") ?? undefined;
+  const allLocations = searchParams.get("allLocations") === "true";
 
   const [storedPaymentCard] = useState<StoredPaymentCard | null>(() => {
     if (typeof window === "undefined") return null;
@@ -65,10 +72,12 @@ export default function SubscriptionBetalingPage() {
   const [cvc, setCvc] = useState("");
   const [cardholderName, setCardholderName] = useState("");
   const [rememberCard, setRememberCard] = useState(true);
+  const [walletConsent, setWalletConsent] = useState(false);
 
   const activePlan = getSubscriptionPlanBySlug(selectedPlanSlug);
-  const firstPaymentAmount = getFirstPaymentAmount(activePlan.firstMonth, activePlan.price);
-  const recurringAmount = activePlan.price.replace("kr./ md.", " kr/md.");
+  const locationSurcharge = allLocations ? 10 : 0;
+  const firstPaymentAmount = getFirstPaymentAmount(activePlan.firstMonth, activePlan.price, locationSurcharge);
+  const recurringAmount = formatRecurringAmount(activePlan.price, locationSurcharge);
   const selectedWalletMethod = paymentPageContent.wallet.methods.find((m) => m.value === walletMethod);
   const maskedNumber = storedPaymentCard
     ? `**** **** **** ${storedPaymentCard.cardNumber.replace(/\s/g, "").slice(-4)}`
@@ -81,9 +90,11 @@ export default function SubscriptionBetalingPage() {
     cardholderName.trim().length > 0;
 
   const cardReady = selectedPayment === "card" && (useNewCard ? newCardIsValid : true);
+  const walletReady = selectedPayment === "wallet" && walletConsent;
   const canContinue =
     selectedPayment !== null &&
-    (selectedPayment !== "card" || cardReady);
+    (selectedPayment !== "card" || cardReady) &&
+    (selectedPayment !== "wallet" || walletReady);
 
   function handleSelectPayment(id: string) {
     setSelectedPayment(id);
@@ -98,7 +109,7 @@ export default function SubscriptionBetalingPage() {
         JSON.stringify({ cardNumber, expiry, name: cardholderName } satisfies StoredPaymentCard),
       );
     }
-    router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId));
+    router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId, allLocations));
   }
 
   return (
@@ -118,6 +129,11 @@ export default function SubscriptionBetalingPage() {
           Første betaling: <span className="font-bold text-white">{firstPaymentAmount}</span>
           <span className="mx-2 text-white/40">·</span>
           Derefter: <span className="font-bold text-white">{recurringAmount}</span>
+          {allLocations && (
+            <p className="mt-1 text-[11px] text-white/50">
+              Inkl. adgang til alle WashWorlds (+10 kr/md.)
+            </p>
+          )}
         </div>
 
         <div className="space-y-3">
@@ -291,6 +307,9 @@ export default function SubscriptionBetalingPage() {
                 <div className="rounded-md bg-white/8 p-3">
                   <h3 className="mb-2 text-xl font-bold text-white">{paymentPageContent.wallet.title}</h3>
                   <p className="mb-3 text-[11px] font-semibold leading-tight text-white/80">{paymentPageContent.wallet.description}</p>
+                  <label className="mb-1 block text-xs font-bold text-white">
+                    {paymentPageContent.wallet.methodLabel}
+                  </label>
                   <div className="relative mb-3">
                     <select
                       value={walletMethod}
@@ -303,6 +322,26 @@ export default function SubscriptionBetalingPage() {
                     </select>
                     <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-lg font-bold text-white">▾</span>
                   </div>
+                  <label className="mb-1 block text-xs font-bold text-white">
+                    {paymentPageContent.wallet.amountLabel}
+                  </label>
+                  <div className="mb-1 flex h-10 items-center justify-end rounded border border-white/25 bg-white/8 px-3">
+                    <span className="text-[30px] font-bold text-(--brand-green-01)">{firstPaymentAmount}</span>
+                  </div>
+                  <p className="mb-3 text-right text-[10px] font-semibold text-white/60">
+                    Derefter {recurringAmount}
+                  </p>
+                  <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-lg border border-white/12 bg-white/6 px-3 py-2.5 text-white">
+                    <input
+                      type="checkbox"
+                      checked={walletConsent}
+                      onChange={(e) => setWalletConsent(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/40 accent-(--brand-green-01)"
+                    />
+                    <span className="text-[10px] font-semibold leading-tight text-white/70">
+                      {paymentPageContent.wallet.consentText}
+                    </span>
+                  </label>
                   <button type="button" className="flex h-10 w-full items-center justify-center overflow-hidden rounded border border-sky-500 bg-white px-3 text-lg font-bold text-black">
                     {selectedWalletMethod && (
                       <Image src={selectedWalletMethod.logo} alt={selectedWalletMethod.label} width={260} height={260} className={selectedWalletMethod.imageClassName} />

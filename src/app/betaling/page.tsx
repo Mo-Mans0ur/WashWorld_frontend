@@ -75,14 +75,21 @@ export default function BetalingPage() {
   const [rememberCard, setRememberCard] = useState(
     saveCardOnly || storedPaymentCard !== null,
   );
-  const selectedPlan = searchParams.get("plan") ?? "guld";
+  const [countryCode, setCountryCode] = useState("+45");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [walletConsent, setWalletConsent] = useState(false);
+  const planParam = searchParams.get("plan");
+  const selectedPlan = planParam ?? "guld";
   const prefilledPlate = searchParams.get("plate") ?? undefined;
   const carId = searchParams.get("carId") ?? undefined;
   const locationId = searchParams.get("location") ?? undefined;
   const equipmentId = searchParams.get("equipment") ?? undefined;
-  const selectedPlanDetails =
-    paymentPlans.find((plan) => plan.slug === selectedPlan) ?? paymentPlans[0];
-  const selectedPlanAmount = selectedPlanDetails.price.replace("kr.", " kr");
+  const selectedPlanDetails = planParam
+    ? paymentPlans.find((plan) => plan.slug === selectedPlan)
+    : undefined;
+  const selectedPlanAmount = selectedPlanDetails
+    ? selectedPlanDetails.price.replace("kr.", " kr")
+    : "0 kr";
   const selectedWalletMethod = paymentPageContent.wallet.methods.find(
     (method) => method.value === walletMethod,
   );
@@ -92,10 +99,18 @@ export default function BetalingPage() {
     /^\d{2}\/\d{2}$/.test(expiry) &&
     cvc.length >= 3 &&
     cardholderName.trim().length > 0;
+  const mobilePayIsValid =
+    selectedPayment === "mobilepay" &&
+    /^\+\d{1,3}$/.test(countryCode.trim()) &&
+    phoneNumber.replace(/\s/g, "").length >= 8;
+  const walletIsValid =
+    selectedPayment === "wallet" && walletConsent;
   const hasSelectedRoute =
     selectedPayment !== null &&
     selectedPayment !== "contactless" &&
-    (selectedPayment !== "card" || cardIsValid);
+    (selectedPayment !== "card" || cardIsValid) &&
+    (selectedPayment !== "mobilepay" || mobilePayIsValid) &&
+    (selectedPayment !== "wallet" || walletIsValid);
   const showPaymentDetails =
     selectedPayment !== null && selectedPayment !== "contactless";
 
@@ -275,16 +290,28 @@ export default function BetalingPage() {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder={
-                        paymentPageContent.mobilePay.countryCodePlaceholder
-                      }
+                      inputMode="tel"
+                      placeholder={paymentPageContent.mobilePay.countryCodePlaceholder}
+                      value={countryCode}
+                      maxLength={4}
+                      onChange={(event) => {
+                        const raw = event.target.value.replace(/[^\d+]/g, "");
+                        setCountryCode(raw.startsWith("+") ? raw : "+" + raw.replace(/\+/g, ""));
+                      }}
                       className="w-16 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                     />
                     <input
                       type="text"
-                      placeholder={
-                        paymentPageContent.mobilePay.phonePlaceholder
-                      }
+                      inputMode="tel"
+                      placeholder={paymentPageContent.mobilePay.phonePlaceholder}
+                      value={phoneNumber}
+                      maxLength={11}
+                      onChange={(event) => {
+                        const digits = event.target.value.replace(/\D/g, "").slice(0, 8);
+                        setPhoneNumber(
+                          digits.replace(/(\d{2})(?=\d)/g, "$1 ").trim()
+                        );
+                      }}
                       className="flex-1 rounded border border-white/30 bg-white/10 px-3 py-2 text-white placeholder-white/60"
                     />
                   </div>
@@ -366,10 +393,17 @@ export default function BetalingPage() {
                     </span>
                   </div>
 
-                  <p className="mb-3 flex items-start gap-1.5 text-[10px] font-semibold leading-tight text-white/70">
-                    <span className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-sky-400" />
-                    {paymentPageContent.wallet.consentText}
-                  </p>
+                  <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-lg border border-white/12 bg-white/6 px-3 py-2.5 text-white">
+                    <input
+                      type="checkbox"
+                      checked={walletConsent}
+                      onChange={(event) => setWalletConsent(event.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/40 accent-(--brand-green-01)"
+                    />
+                    <span className="text-[10px] font-semibold leading-tight text-white/70">
+                      {paymentPageContent.wallet.consentText}
+                    </span>
+                  </label>
 
                   <button
                     type="button"

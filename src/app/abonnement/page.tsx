@@ -18,6 +18,7 @@ export default function AbonnementPage() {
     "right",
   );
   const [animKey, setAnimKey] = useState(0);
+  const [allLocations, setAllLocations] = useState(false);
 
   const selectedPlan = PLANS[selectedIndex];
   const currentPlan = subscriptionPlans.find(
@@ -37,11 +38,11 @@ export default function AbonnementPage() {
 
   function handleCreateSubscription() {
     if (missingPaymentCard) {
-      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase(), carId));
+      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase(), carId, allLocations));
       return;
     }
 
-    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase(), carId));
+    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase(), carId, allLocations));
   }
 
   return (
@@ -118,6 +119,19 @@ export default function AbonnementPage() {
                 ))}
               </div>
             </div>
+
+            <label className="mx-5 mb-4 flex cursor-pointer items-start gap-3 rounded-[3px] border border-(--brand-green-01)/30 bg-(--brand-green-01)/5 px-3 py-2.5">
+              <input
+                type="checkbox"
+                checked={allLocations}
+                onChange={(e) => setAllLocations(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-(--brand-green-01)"
+              />
+              <span className="text-left text-[0.75rem] font-semibold leading-snug text-black">
+                Adgang til alle WashWorlds{" "}
+                <span className="font-bold text-(--brand-green-01)">+10 kr/md.</span>
+              </span>
+            </label>
 
             <button
               type="button"
