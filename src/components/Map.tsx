@@ -7,6 +7,7 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -17,6 +18,7 @@ import {
   ArrowUpLeft,
   ArrowUpRight,
   ChevronDown,
+  ChevronUp,
   MapPin,
   Navigation,
   RotateCcw,
@@ -283,7 +285,7 @@ export default function Map() {
   );
   const [loadError, setLoadError] = useState<string | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [routePanelOpen, setRoutePanelOpen] = useState(true);
   const [locationStatus, setLocationStatus] = useState<"pending" | "ok" | "error">("pending");
 
   useEffect(() => {
@@ -334,7 +336,7 @@ export default function Map() {
         const to: [number, number] = [parseFloat(destLng), parseFloat(destLat)];
         routeDrawnRef.current = true;
         drawRoute(map, lngLat, to).then((info) => {
-          if (info) { setRouteInfo(info); setPanelOpen(true); }
+          if (info) { setRouteInfo(info); }
           const bounds = new mapboxgl.LngLatBounds().extend(lngLat).extend(to);
           map.fitBounds(bounds, { padding: 80 });
         });
@@ -411,7 +413,6 @@ export default function Map() {
         drawRoute(map, userLngLatRef.current, to).then((info) => {
           if (info) {
             setRouteInfo(info);
-            setPanelOpen(true);
           }
           const bounds = new mapboxgl.LngLatBounds()
             .extend(userLngLatRef.current!)
@@ -513,48 +514,60 @@ export default function Map() {
         </div>
       )}
 
-      {routeInfo && (
-        <div className="absolute bottom-0 left-0 right-0 z-10 rounded-t-lg bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.18)]">
-          <button
-            type="button"
-            onClick={() => setPanelOpen((o) => !o)}
-            className="flex w-full items-center justify-between px-4 py-3"
-          >
-            <span className="text-sm font-bold text-black">
-              {formatDuration(routeInfo.totalDurationS)}
-              <span className="font-normal text-gray-500">
-                {" "}· {formatDistance(routeInfo.totalDistanceM)}
-              </span>
-            </span>
-            <ChevronDown
-              className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${panelOpen ? "rotate-180" : ""}`}
-            />
-          </button>
+      {routeInfo && routeInfo.steps[0] && typeof document !== "undefined" && (() => {
+        const target = document.querySelector(".app-screen");
+        if (!target) return null;
+        return createPortal(
+          <div className="absolute bottom-22 left-0 right-0 z-20 overflow-hidden bg-white shadow-[0_-4px_24px_rgba(0,0,0,0.15)]">
+            <button
+              type="button"
+              onClick={() => setRoutePanelOpen((o) => !o)}
+              className="flex w-full items-center justify-center py-1.5"
+              aria-label={routePanelOpen ? "Skjul vejvisning" : "Vis vejvisning"}
+            >
+              {routePanelOpen ? (
+                <ChevronDown className="h-4 w-4 text-black/30" />
+              ) : (
+                <ChevronUp className="h-4 w-4 text-black/30" />
+              )}
+            </button>
 
-          {panelOpen && (
-            <div className="max-h-56 overflow-y-auto border-t border-gray-100">
-              {routeInfo.steps.map((step, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 border-b border-gray-50 px-4 py-2.5 last:border-b-0"
-                >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
-                    <StepIcon type={step.maneuverType} modifier={step.maneuverModifier} />
+            {routePanelOpen && (
+              <>
+                <div className="flex items-center gap-3 px-4 pb-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[3px] bg-(--brand-green-01) text-white">
+                    <StepIcon type={routeInfo.steps[0].maneuverType} modifier={routeInfo.steps[0].maneuverModifier} />
                   </div>
-                  <span className="flex-1 text-xs leading-snug text-gray-800">
-                    {step.instruction}
+                  <span className="flex-1 text-sm font-semibold leading-snug text-black">
+                    {routeInfo.steps[0].instruction}
                   </span>
-                  {step.distanceM > 0 && (
-                    <span className="shrink-0 text-xs text-gray-400">
-                      {formatDistance(step.distanceM)}
+                  {routeInfo.steps[0].distanceM > 0 && (
+                    <span className="shrink-0 text-sm font-bold text-black/40">
+                      {formatDistance(routeInfo.steps[0].distanceM)}
                     </span>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                <div className="flex items-center gap-2 border-t border-black/10 px-4 py-2">
+                  <div className="flex h-7 items-center rounded-[3px] bg-(--brand-green-01) px-2.5">
+                    <span className="text-xs font-bold text-white">{formatDuration(routeInfo.totalDurationS)}</span>
+                  </div>
+                  <span className="text-xs font-semibold text-black/40">{formatDistance(routeInfo.totalDistanceM)} i alt</span>
+                </div>
+              </>
+            )}
+
+            {!routePanelOpen && (
+              <div className="flex items-center gap-2 px-4 pb-2">
+                <div className="flex h-7 items-center rounded-[3px] bg-(--brand-green-01) px-2.5">
+                  <span className="text-xs font-bold text-white">{formatDuration(routeInfo.totalDurationS)}</span>
+                </div>
+                <span className="text-xs font-semibold text-black/40">{formatDistance(routeInfo.totalDistanceM)} i alt</span>
+              </div>
+            )}
+          </div>,
+          target,
+        );
+      })()}
     </div>
   );
 }
