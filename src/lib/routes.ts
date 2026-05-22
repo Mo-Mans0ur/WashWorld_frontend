@@ -26,14 +26,14 @@ export const ROUTES = {
   singlewash: "/singlewash",
   paymentSettings: "/betaling",
   savePaymentCard: "/betaling?saveCard=true",
-  payment: (plan: string, plate?: string, carId?: string) =>
-    `/betaling?plan=${plan}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  payment: (plan: string, plate?: string, carId?: string, locationId?: string, equipmentId?: string) =>
+    `/betaling?plan=${plan}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
   licensePlate: (plan: string, payment: string, plate?: string, carId?: string) =>
     `/singlewash/nummerplade?plan=${plan}&payment=${payment}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
-  startWash: (plan: string, payment: string, plate: string, carId?: string) =>
-    `/singlewash/startvask?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
-  activeWash: (plan: string, payment: string, plate: string, carId?: string) =>
-    `/activewash?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  startWash: (plan: string, payment: string, plate: string, carId?: string, locationId?: string, equipmentId?: string) =>
+    `/singlewash/startvask?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
+  activeWash: (plan: string, payment: string, plate: string, carId?: string, locationId?: string, equipmentId?: string) =>
+    `/activewash?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
   activeWashSubscription: (location: string, equipment: string, carId?: string) =>
     `/activewash?subscription=true&location=${location}&equipment=${equipment}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
 

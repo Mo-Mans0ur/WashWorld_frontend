@@ -23,6 +23,7 @@ export default function BilerPage() {
   const { vehicles, isLoading, error, deleteVehicle } = useVehicles();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function handleEdit(id: string) {
     setOpenMenuId(null);
@@ -31,11 +32,13 @@ export default function BilerPage() {
 
   async function handleDelete(id: string) {
     setDeletingId(id);
+    setDeleteError(null);
     try {
       await deleteVehicle(id);
       setOpenMenuId(null);
-    } catch {
-      // Fejl vises via error-state fra context ved næste refresh
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : "Kunne ikke slette køretøjet");
+      setOpenMenuId(null);
     } finally {
       setDeletingId(null);
     }
@@ -55,6 +58,12 @@ export default function BilerPage() {
         {error && (
           <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
             {error}
+          </p>
+        )}
+
+        {deleteError && (
+          <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+            {deleteError}
           </p>
         )}
 

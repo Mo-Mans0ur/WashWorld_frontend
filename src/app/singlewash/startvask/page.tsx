@@ -17,10 +17,12 @@ export default function SingleWashStartPage() {
   const selectedPayment = searchParams.get("payment") ?? "card";
   const plateNumber = searchParams.get("plate") ?? "";
   const carId = searchParams.get("carId") ?? undefined;
+  const locationId = searchParams.get("location") ?? undefined;
+  const equipmentId = searchParams.get("equipment") ?? undefined;
   const pageTitle = singleWashReadyPageContent.title.replace(/\.\.\.$/, "");
 
   function handleStartWash() {
-    router.push(ROUTES.activeWash(selectedPlan, selectedPayment, plateNumber, carId));
+    router.push(ROUTES.activeWash(selectedPlan, selectedPayment, plateNumber, carId, locationId, equipmentId));
   }
 
   return (

@@ -78,6 +78,8 @@ export default function BetalingPage() {
   const selectedPlan = searchParams.get("plan") ?? "guld";
   const prefilledPlate = searchParams.get("plate") ?? undefined;
   const carId = searchParams.get("carId") ?? undefined;
+  const locationId = searchParams.get("location") ?? undefined;
+  const equipmentId = searchParams.get("equipment") ?? undefined;
   const selectedPlanDetails =
     paymentPlans.find((plan) => plan.slug === selectedPlan) ?? paymentPlans[0];
   const selectedPlanAmount = selectedPlanDetails.price.replace("kr.", " kr");
@@ -127,7 +129,7 @@ export default function BetalingPage() {
       return;
     }
 
-    router.push(ROUTES.startWash(selectedPlan, selectedPayment, prefilledPlate ?? "", carId));
+    router.push(ROUTES.startWash(selectedPlan, selectedPayment, prefilledPlate ?? "", carId, locationId, equipmentId));
   }
 
   return (

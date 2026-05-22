@@ -33,10 +33,13 @@ function getDistanceInKm(
 export default function DashboardPage() {
   const { displayFirstName } = useAuth();
   const { vehicles, isLoading: vehiclesLoading } = useVehicles();
-  const [missingPaymentCard] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem("washworld-saved-payment-card") === null;
-  });
+  const [missingPaymentCard, setMissingPaymentCard] = useState(false);
+
+  useEffect(() => {
+    setMissingPaymentCard(
+      window.localStorage.getItem("washworld-saved-payment-card") === null,
+    );
+  }, []);
   const missingVehicle = !vehiclesLoading && vehicles.length === 0;
   const hasMissingProfileInfo = missingVehicle || missingPaymentCard;
   const { favorites } = useFavorites();

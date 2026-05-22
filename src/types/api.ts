@@ -20,6 +20,7 @@ export type Car = {
   car_is_ev: boolean | number;
   car_country_code: string;
   car_vehicle_type: string;
+  car_is_active: boolean | number;
 };
 
 export type Product = {

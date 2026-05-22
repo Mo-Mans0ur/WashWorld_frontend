@@ -14,6 +14,8 @@ export default function SingleWashPage() {
   const searchParams = useSearchParams();
   const plate = searchParams.get("plate") ?? undefined;
   const carId = searchParams.get("carId") ?? undefined;
+  const locationId = searchParams.get("location") ?? undefined;
+  const equipmentId = searchParams.get("equipment") ?? undefined;
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState<"right" | "left">("right");
@@ -29,7 +31,7 @@ export default function SingleWashPage() {
   }
 
   function handleContinue() {
-    router.push(ROUTES.payment(currentPlan.slug, plate, carId));
+    router.push(ROUTES.payment(currentPlan.slug, plate, carId, locationId, equipmentId));
   }
 
   return (

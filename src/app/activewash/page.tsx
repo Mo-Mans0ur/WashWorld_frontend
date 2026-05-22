@@ -856,7 +856,7 @@ export default function ActiveAutoWashPage({
 
   const handleReceipt = () => {
     setShowModal(false);
-    router.push(ROUTES.profile);
+    router.push(ROUTES.washHistory);
   };
 
   return (

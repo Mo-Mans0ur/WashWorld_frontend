@@ -235,7 +235,7 @@ export default function DetailsPage() {
     if (carSub) {
       router.push(ROUTES.activeWashSubscription(locationId ?? "", selectedId ?? "", car.car_id));
     } else {
-      router.push(`${ROUTES.singlewash}?plate=${encodeURIComponent(car.car_license_plate)}&carId=${encodeURIComponent(car.car_id)}`);
+      router.push(`${ROUTES.singlewash}?plate=${encodeURIComponent(car.car_license_plate)}&carId=${encodeURIComponent(car.car_id)}&location=${encodeURIComponent(locationId ?? "")}&equipment=${encodeURIComponent(selectedId ?? "")}`);
     }
   }
 
