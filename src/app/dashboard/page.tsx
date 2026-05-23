@@ -5,9 +5,11 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { Bell } from "lucide-react";
-import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
+import { dashboardPageNames } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
+import { fetchOffers, getOfferImageSrc } from "@/lib/offersApi";
+import type { Offer } from "@/types/api";
 import { formatLocationAddress } from "@/lib/locationsApi";
 import { useFavorites, useAuth, useVehicles } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
@@ -50,6 +52,12 @@ export default function DashboardPage() {
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ["locations"],
     queryFn: fetchLocations,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: offers = [], isLoading: offersLoading } = useQuery({
+    queryKey: ["offers"],
+    queryFn: fetchOffers,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -252,12 +260,18 @@ export default function DashboardPage() {
         </h3>
 
         <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-          {dashboardNewsItems.map((newsItem) => (
-            <NewsCard
-              key={newsItem.id}
-              image={newsItem.image}
-              description={newsItem.description}
-            />
+          {offersLoading && (
+            <p className="px-2 text-sm font-semibold text-neutral-500">
+              Henter tilbud...
+            </p>
+          )}
+          {!offersLoading && offers.length === 0 && (
+            <p className="px-2 text-sm font-semibold text-neutral-500">
+              Ingen aktuelle tilbud
+            </p>
+          )}
+          {offers.map((offer) => (
+            <NewsCard key={offer.offer_id} offer={offer} />
           ))}
         </div>
       </section>
@@ -315,30 +329,35 @@ function FavoriteCard({
   );
 }
 
-// Kort der viser en nyhed med billede og beskrivelse
-function NewsCard({
-  image,
-  description,
-}: {
-  image: string;
-  description: string;
-}) {
+// Kort der viser et tilbud med billede (base64 fra DB) og beskrivelse
+function NewsCard({ offer }: { offer: Offer }) {
+  const imageSrc = getOfferImageSrc(offer.offer_photo_base64);
+  const isDataUrl = imageSrc.startsWith("data:");
+
   return (
     <Link
       href={ROUTES.underConstruction}
       className="w-46 shrink-0 overflow-hidden rounded-[3px] border-white/90 bg-white shadow-md block"
     >
-      <Image
-        src={image}
-        alt={description}
-        className="w-full h-20 object-cover"
-        width={184}
-        height={80}
-        quality={75}
-      />
+      {isDataUrl ? (
+        <img
+          src={imageSrc}
+          alt={offer.offer_description}
+          className="h-20 w-full object-cover"
+        />
+      ) : (
+        <Image
+          src={imageSrc}
+          alt={offer.offer_description}
+          className="h-20 w-full object-cover"
+          width={184}
+          height={80}
+          quality={75}
+        />
+      )}
 
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">
-        {description}
+        {offer.offer_description}
       </p>
     </Link>
   );
