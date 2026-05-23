@@ -1,9 +1,39 @@
 import { apiRequest } from "@/lib/apiClient";
 import type { Offer } from "@/types/api";
 
+/** Returnerer true hvis tilbuddet er aktivt på reference-datoen (kalenderdag). */
+export function isOfferActive(
+  offer: Offer,
+  referenceDate: Date = new Date(),
+): boolean {
+  const start = new Date(offer.offer_start_date);
+  const end = new Date(offer.offer_end_date);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return false;
+  }
+
+  const dayStart = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate(),
+  );
+  const dayEnd = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate(),
+    23,
+    59,
+    59,
+    999,
+  );
+
+  return start.getTime() <= dayEnd.getTime() && end.getTime() >= dayStart.getTime();
+}
+
 export async function fetchOffers(): Promise<Offer[]> {
   const data = await apiRequest<{ offers: Offer[] }>("/api/offers");
-  return data.offers;
+  const today = new Date();
+  return data.offers.filter((offer) => isOfferActive(offer, today));
 }
 
 const DEFAULT_OFFER_IMAGE = "/tilbud.png";
