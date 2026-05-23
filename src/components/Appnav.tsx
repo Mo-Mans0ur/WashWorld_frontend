@@ -126,7 +126,7 @@ export default function AppNav() {
         <div className="mt-auto px-3 pb-6 border-t border-white/10 pt-4">
           <button
             onClick={() => setMenuOpen(false)}
-            className="flex w-full items-center justify-center gap-3 px-3 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all"
+            className="flex w-full items-center justify-left gap-3 px-3 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all"
           >
             <X size={18} strokeWidth={2.5} />
             <span className="text-[0.95rem] font-semibold">Luk menu</span>
