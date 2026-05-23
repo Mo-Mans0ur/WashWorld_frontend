@@ -27,7 +27,7 @@ import {
   SAVED_PAYMENT_CARD_STORAGE_KEY,
 } from "@/data/profileData";
 import { useAuth } from "@/hooks";
-import { fetchSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
+import { fetchUserSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";
 import { ROUTES } from "@/lib/routes";
 
@@ -41,6 +41,14 @@ function formatMemberSince(dateStr: string): string {
 function formatRenewalDate(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString("da-DK");
+}
+
+function getSubscriptionCarLabel(sub: Subscription): string | null {
+  if (!sub.car_id) return null;
+  const name = sub.car_name?.trim();
+  if (name) return name;
+  if (sub.car_license_plate?.trim()) return sub.car_license_plate.trim();
+  return null;
 }
 
 export default function ProfilePage() {
@@ -69,7 +77,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
-    fetchSubscriptions()
+    fetchUserSubscriptions(user.user_id)
       .then((subs) => setSubscriptions(subs))
       .catch(() => {});
   }, [user]);
@@ -142,6 +150,48 @@ export default function ProfilePage() {
         />
 
         <section className="space-y-4 p-4 pt-4">
+
+          {/* Bruger-kort */}
+          <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
+            <div className="flex items-start gap-3 px-4 py-3">
+              <div className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-(--brand-green-01) text-3xl text-white">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-10 w-10"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.42 0-8 2.01-8 4.5V21h16v-2.5c0-2.49-3.58-4.5-8-4.5Z" />
+                </svg>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate text-2xl font-bold text-natural-800">
+                  {user ? displayFullName : "—"}
+                </h2>
+                <p className="mt-0.5 text-sm font-semibold text-neutral-600">
+                  {user?.user_email ?? "—"}
+                </p>
+                <p className="mt-0.5 text-sm font-semibold text-neutral-600">
+                  {user?.user_phone || "—"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-neutral-200">
+              <p className="flex px-4 py-3 text-xs font-semibold items-center text-neutral-600">
+                {profilePageNames.memberSinceLabel} {user?.user_created_at ? formatMemberSince(user.user_created_at) : "—"}
+              </p>
+              <Link
+                href={ROUTES.updateProfile}
+                className="flex h-11 min-w-45 items-center justify-center bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+              >
+                {profilePageNames.editProfile}
+              </Link>
+            </div>
+          </article>
+
+          
           {/* Abonnementer */}
           <article className="relative rounded-[3px] bg-(--white-white) shadow-2xl">
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
@@ -158,10 +208,17 @@ export default function ProfilePage() {
               <p className="px-4 py-3 text-sm font-semibold text-neutral-400">Intet abonnement</p>
             ) : (
               <div className="divide-y divide-neutral-200">
-                {subscriptions.map((sub) => (
+                {subscriptions.map((sub) => {
+                  const carLabel = getSubscriptionCarLabel(sub);
+                  return (
                   <div key={sub.subscription_id} className="flex items-center justify-between px-4 py-3">
                     <div>
                       <p className="text-base font-bold text-neutral-800">{sub.subscriptions_name}</p>
+                      {carLabel && (
+                        <p className="mt-0.5 text-xs font-semibold text-neutral-600">
+                          {carLabel}
+                        </p>
+                      )}
                       {sub.subscriptions_next_billing_date && (
                         <p className="mt-0.5 text-xs font-semibold text-neutral-500">
                           Fornyes d. {formatRenewalDate(sub.subscriptions_next_billing_date)}
@@ -205,49 +262,10 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
-          </article>
-
-          {/* Bruger-kort */}
-          <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
-            <div className="flex items-start gap-3 px-4 py-3">
-              <div className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-(--brand-green-01) text-3xl text-white">
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-10 w-10"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.42 0-8 2.01-8 4.5V21h16v-2.5c0-2.49-3.58-4.5-8-4.5Z" />
-                </svg>
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate text-2xl font-bold text-natural-800">
-                  {user ? displayFullName : "—"}
-                </h2>
-                <p className="mt-0.5 text-sm font-semibold text-neutral-600">
-                  {user?.user_email ?? "—"}
-                </p>
-                <p className="mt-0.5 text-sm font-semibold text-neutral-600">
-                  {user?.user_phone || "—"}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between border-t border-neutral-200">
-              <p className="flex px-4 py-3 text-xs font-semibold items-center text-neutral-600">
-                {profilePageNames.memberSinceLabel} {user?.user_created_at ? formatMemberSince(user.user_created_at) : "—"}
-              </p>
-              <Link
-                href={ROUTES.updateProfile}
-                className="flex h-11 min-w-45 items-center justify-center bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
-              >
-                {profilePageNames.editProfile}
-              </Link>
-            </div>
           </article>
 
           {/* Betalingskort */}

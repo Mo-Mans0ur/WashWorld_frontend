@@ -40,6 +40,8 @@ export type Subscription = {
   subscriptions_start_date: string;
   subscriptions_end_date: string;
   subscriptions_next_billing_date: string;
+  car_name?: string | null;
+  car_license_plate?: string | null;
 };
 
 export type WashLog = {
