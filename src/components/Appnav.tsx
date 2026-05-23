@@ -46,6 +46,26 @@ export default function AppNav() {
     { label: "Hjælp", href: ROUTES.customerService, icon: LifeBuoy },
   ];
 
+  const menuRoutePrefixes = subMenuItems.map(({ href }) => href.split("?")[0]);
+
+  const isHomeActive = pathname === ROUTES.dashboard;
+  const isMapActive =
+    pathname.startsWith("/locations") || pathname.startsWith("/details");
+  const isProfileActive = pathname.startsWith(ROUTES.profile);
+  const isMenuActive =
+    menuOpen ||
+    menuRoutePrefixes.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`),
+    );
+
+  function bottomNavClass(active: boolean) {
+    return `flex h-full flex-col items-center justify-center gap-1 transition-colors ${
+      active
+        ? "text-(--brand-green-01)"
+        : "text-white/70 hover:text-white"
+    }`;
+  }
+
   return (
     <>
       {/* Halvgennemsigtig baggrund der dækker indholdet mens sidebaren er åben.
@@ -119,31 +139,43 @@ export default function AppNav() {
       <nav className="absolute bottom-0 left-0 right-0 z-30 flex h-22 w-full items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
         <Link
           href={ROUTES.dashboard}
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
+          className={bottomNavClass(isHomeActive)}
+          aria-current={isHomeActive ? "page" : undefined}
         >
-          <Home size={26} />
-          <span className="text-xs">Home</span>
+          <Home size={26} strokeWidth={isHomeActive ? 2.5 : 2} />
+          <span className={`text-xs ${isHomeActive ? "font-bold" : "font-medium"}`}>
+            Home
+          </span>
         </Link>
         <Link
           href={ROUTES.map}
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
+          className={bottomNavClass(isMapActive)}
+          aria-current={isMapActive ? "page" : undefined}
         >
-          <MapPin size={26} />
-          <span className="text-xs">Kort</span>
+          <MapPin size={26} strokeWidth={isMapActive ? 2.5 : 2} />
+          <span className={`text-xs ${isMapActive ? "font-bold" : "font-medium"}`}>
+            Kort
+          </span>
         </Link>
         <Link
           href={ROUTES.profile}
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
+          className={bottomNavClass(isProfileActive)}
+          aria-current={isProfileActive ? "page" : undefined}
         >
-          <User size={26} />
-          <span className="text-xs">Profil</span>
+          <User size={26} strokeWidth={isProfileActive ? 2.5 : 2} />
+          <span className={`text-xs ${isProfileActive ? "font-bold" : "font-medium"}`}>
+            Profil
+          </span>
         </Link>
         <button
           onClick={() => setMenuOpen(true)}
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white focus:outline-none"
+          className={`${bottomNavClass(isMenuActive)} focus:outline-none`}
+          aria-current={isMenuActive ? "page" : undefined}
         >
-          <Menu size={26} />
-          <span className="text-xs">Menu</span>
+          <Menu size={26} strokeWidth={isMenuActive ? 2.5 : 2} />
+          <span className={`text-xs ${isMenuActive ? "font-bold" : "font-medium"}`}>
+            Menu
+          </span>
         </button>
       </nav>
     </>
