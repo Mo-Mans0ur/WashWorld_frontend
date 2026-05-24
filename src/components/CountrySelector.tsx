@@ -1,3 +1,7 @@
+// CountrySelector – dropdown til at vælge land ved registrering af telefonnummer.
+// Viser alle europæiske lande med landekode (DK, SE osv.) og tilhørende opkaldskode (+45, +46 osv.).
+// Lukker automatisk når brugeren klikker uden for dropdown-listen.
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";

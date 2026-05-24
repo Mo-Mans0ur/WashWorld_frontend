@@ -1,3 +1,7 @@
+// receiptHistory – kvitteringsdata og hjælpefunktioner til vaskehistorik-siden.
+// Den seneste enkelt vask gemmes i localStorage og sættes ind ved getReceiptHistoryItems().
+// saveLatestSingleWashReceipt() kaldes efter en gennemført betaling for at persistere kvitteringen.
+
 export type ReceiptHistoryItem = {
   id: number;
   title: string;
@@ -63,10 +67,12 @@ export const receiptActionNames = [
   "Kontakt support",
 ] as const;
 
+// Konverterer prisformat fra "59kr." til "59 Dkk" til brug i kvitteringer.
 function formatReceiptAmount(price: string) {
   return price.replace("kr.", " Dkk");
 }
 
+// Bygger et komplet kvitterings-objekt ud fra den seneste enkelt-vaske-session og aktuel dato/tid.
 function buildLatestSingleWashReceipt(
   latestReceipt: LatestSingleWashReceiptInput,
 ): ReceiptHistoryItem {
@@ -102,6 +108,7 @@ function buildLatestSingleWashReceipt(
   };
 }
 
+// Gemmer den seneste enkelt-vaske-kvittering i localStorage så den kan vises i vaskehistorikken.
 export function saveLatestSingleWashReceipt(
   latestReceipt: LatestSingleWashReceiptInput,
 ) {
@@ -113,6 +120,7 @@ export function saveLatestSingleWashReceipt(
   );
 }
 
+// Returnerer alle kvitteringer inkl. den seneste enkelt vask fra localStorage (hvis den findes).
 export function getReceiptHistoryItems() {
   if (typeof window === "undefined") {
     return receiptHistory;
@@ -139,6 +147,7 @@ export function getReceiptHistoryItems() {
   }
 }
 
+// Finder én kvittering ud fra dens id — bruges til detaljeside for en enkelt vask.
 export function getReceiptById(id: number) {
   return (
     getReceiptHistoryItems().find((item) => item.id === id) || receiptHistory[0]

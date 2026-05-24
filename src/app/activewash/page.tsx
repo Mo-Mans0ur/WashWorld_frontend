@@ -1,3 +1,9 @@
+// ActiveAutoWashPage – aktiv automatisk vask (vaskehal).
+// Viser en animeret bil-illustration der gennemgår faserne: forbereder → sæbe → skyl → tørring → færdig.
+// Fremgangen kører automatisk med en timer. Når vasken er færdig vises en afslutningsmodal
+// med mulighed for at se kvittering eller gå tilbage til forsiden.
+// En wash_log-post gemmes i databasen én gang når fremgangen rammer 100%.
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";

@@ -1,3 +1,7 @@
+// SubscriptionBetalingPage – betalingsside til abonnement.
+// Brugeren vælger betalingsmetode (kort, MobilePay eller wallet) og indtaster kortoplysninger.
+// Gemmer kortet i localStorage hvis brugeren ønsker det, og sender videre til bekræftelsessiden.
+
 "use client";
 
 import { useState } from "react";

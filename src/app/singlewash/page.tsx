@@ -1,3 +1,7 @@
+// SingleWashPage – valg af vaskeprogram (Guld / Premium / Brilliant) til en enkelt vask.
+// Brugeren ser en animeret kortvisning for hvert program med priser og indhold.
+// Valg gemmes som URL-parameter og sendes videre til betalingssiden.
+
 "use client";
 
 import { useState } from "react";

@@ -1,3 +1,5 @@
+// detailsPageData – statiske data om maskiner på en vaskelokation: vaskehaller, selvvask og støvsugere med status.
+// Status kan være "Ledig", "Optaget" eller "Ud af drift" og bruges til at styre StartWashButton-knappens udseende.
 
 export type Vaskehall = {
 id: number;

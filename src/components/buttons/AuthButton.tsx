@@ -1,3 +1,6 @@
+// AuthButton – den dobbelte knap-komponent på login- og signup-siderne.
+// Venstre knap er submit (Log ind/Opret), højre knap er et link til den anden side (Ny bruger/Login).
+
 import Link from "next/link";
 
 interface AuthButtonProps {

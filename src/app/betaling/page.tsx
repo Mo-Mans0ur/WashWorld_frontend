@@ -1,3 +1,7 @@
+// BetalingPage – betalingsside til enkelt vask og gem-kort-funktion.
+// Brugeren vælger betalingsmetode og gennemfører betaling for en enkelt vask.
+// Kan også bruges alene til at gemme et betalingskort (via ?saveCard=true).
+
 "use client";
 
 import Image from "next/image";

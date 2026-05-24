@@ -1,3 +1,7 @@
+// SingleWashStartPage – klargøringssiden inden vasken begynder.
+// Viser en bil-animation og en stor Start Vask-knap.
+// Understøtter både enkelt vask (plan + betaling) og abonnements-vask.
+
 "use client";
 
 import Image from "next/image";

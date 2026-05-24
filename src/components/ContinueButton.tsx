@@ -1,3 +1,6 @@
+// ContinueButton – en stor grøn knap der bruges til at gå videre til næste trin i en vask-flow.
+// Vises grå og kan ikke klikkes (disabled) hvis betingelserne for at fortsætte ikke er opfyldt.
+
 import React from "react";
 
 interface ContinueButtonProps {

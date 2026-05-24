@@ -1,3 +1,6 @@
+// AssistanceButton – den røde HJÆLP-knap der bruges under aktive vaske.
+// Klik åbner en bekræftelsesdialog hvorfra brugeren kan ringe til WashWorld support på +45 70 70 70 70.
+
 "use client";
 
 import { useState } from "react";

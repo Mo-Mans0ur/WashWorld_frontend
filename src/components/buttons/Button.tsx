@@ -1,3 +1,6 @@
+// Button – den universelle knap-komponent til hele appen.
+// Understøtter variant (primary, secondary, trapezoid, danger) og størrelse (sm, md, lg) via CSS-klasser i Button.css.
+
 import './Button.css';
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 

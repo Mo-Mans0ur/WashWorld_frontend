@@ -1,3 +1,6 @@
+// NotFound – 404-siden der vises når brugeren navigerer til en URL der ikke eksisterer.
+// Skjuler navigationsmenuen (setHideNav) da 404-siden er en standalone fejlside.
+
 "use client";
 
 import { useEffect } from "react";

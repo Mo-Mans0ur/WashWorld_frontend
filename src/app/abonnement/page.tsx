@@ -1,3 +1,7 @@
+// AbonnementPage – valg og oprettelse af abonnement.
+// Brugeren vælger abonnementstype (Guld/Premium/Brilliant), om det gælder alle lokationer,
+// og hvilken lokation de ønsker at vaske ved. Herefter sendes de til betaling eller bekræftelse.
+
 "use client";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";

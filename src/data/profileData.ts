@@ -1,3 +1,7 @@
+// profileData – statiske data og tekster til profilsiden og profil-opdateringssiden.
+// Indeholder badges, menupunkter, klippekort-stempler og hjælpefunktionen getMissingProfileInfoState
+// der bruges til at vise en toast hvis brugeren mangler bil eller betalingskort.
+
 export type ProfileBadge = {
   id: number;
   label: string;
@@ -197,6 +201,7 @@ export const profileVehicles: ProfileVehicle[] = [];
 
 export const profilePaymentCards: ProfilePaymentCard[] = [];
 
+// Tjekker om brugeren mangler bil eller betalingskort og returnerer en status der bruges til dashboard-toasten.
 export function getMissingProfileInfoState() {
   const missingVehicle = profileVehicles.length === 0;
   const hasStoredPaymentCard =

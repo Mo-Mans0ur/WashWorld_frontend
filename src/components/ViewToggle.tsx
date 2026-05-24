@@ -1,3 +1,6 @@
+// ViewToggle – to-knaps skifter til at skifte mellem kortvisning og listevisning af vaskelokationer.
+// Den aktive visning fremhæves med grøn baggrund. Bruges øverst på både kort- og listesiden.
+
 "use client";
 
 import Link from "next/link";

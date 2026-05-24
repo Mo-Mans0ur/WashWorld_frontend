@@ -1,3 +1,4 @@
+// Samlet eksportpunkt for alle knap-komponenter i buttons-mappen.
 export { default as AngleButton } from './AngleButton';
 export { default as AssistanceButton } from './AssistanceButton';
 export { default as AuthButton } from './AuthButton';

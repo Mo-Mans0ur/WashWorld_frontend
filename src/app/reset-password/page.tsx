@@ -1,3 +1,7 @@
+// ResetPasswordPage – siden hvor brugeren anmoder om nulstilling af kodeord.
+// Brugeren indtaster sin email og API'et sender et nulstillingslink.
+// Efter afsendelse vises en bekræftelsesbesked uanset om emailen eksisterer (af sikkerhedshensyn).
+
 "use client";
 
 import Image from "next/image";

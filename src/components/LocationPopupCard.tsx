@@ -1,3 +1,6 @@
+// LocationPopupCard – kort der viser navn, adresse, afstand og åbningstider for én vaskelokation.
+// Bruges i LocationsList (listevisning) og har samme udseende som popup-kortene på Mapbox-kortet.
+
 import Link from "next/link";
 import {
   formatOpenHoursDisplay,

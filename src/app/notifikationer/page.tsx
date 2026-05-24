@@ -1,3 +1,7 @@
+// NotifikationerPage – indstillinger for push-notifikationer.
+// Brugeren kan slå individuelle notifikationstyper til og fra, eller slå dem alle til/fra på én gang.
+// Indstillingerne er defineret i notificationData.ts.
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -122,6 +126,7 @@ export default function NotifikationerPage() {
   );
 }
 
+// Lille til/fra-knap (toggle switch) der bruges til hvert notifikationsvalg
 function ToggleSwitch({
   enabled,
   onToggle,

@@ -1,3 +1,7 @@
+// ActiveWashPage (Selvvask/Støvsuger) – aktiv session til selvvask eller støvsuger.
+// Viser en timer og en løbende pris (6 kr/min). Brugeren afslutter manuelt med en knap.
+// Ved afslutning gemmes en wash_log-post i databasen og brugeren sendes til forsiden.
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";

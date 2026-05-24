@@ -1,3 +1,6 @@
+// AppHeader – den grønne topbar med WashWorld-logo og en tilbageknap.
+// Tilbageknappen vises ikke på rod-siderne (dashboard, kort, profil) da der ikke er noget at gå tilbage til.
+
 "use client";
 
 import Image from "next/image";

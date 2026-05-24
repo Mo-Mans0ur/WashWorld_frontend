@@ -1,3 +1,6 @@
+// CarPickerSheet – bundpanel til valg af køretøj inden en vask startes.
+// Viser alle brugerens biler med nummerplade og om de har et aktivt abonnement eller ej.
+
 "use client";
 
 import BottomSheet from "@/components/BottomSheet";
@@ -55,6 +58,7 @@ export default function CarPickerSheet({
   );
 }
 
+// Viser en nummerplade med blå EU-søjle til venstre, ligesom et rigtigt dansk skilt.
 function LicensePlate({ plate }: { plate: string }) {
   return (
     <div className="flex h-8 shrink-0 overflow-hidden border-2 border-neutral-800 bg-white text-neutral-950">

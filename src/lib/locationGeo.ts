@@ -1,3 +1,6 @@
+// locationGeo indeholder geografiske hjælpefunktioner til brug på kort- og listesiden.
+// Bruges bl.a. til at beregne afstand fra brugerens placering til nærmeste vaskehal.
+
 const EARTH_RADIUS_KM = 6371;
 
 function toRadians(deg: number): number {

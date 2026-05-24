@@ -1,3 +1,7 @@
+// plateFormats – nummerpladeformater for 30 europæiske lande.
+// Hvert format har et regex til validering og en mask-funktion der formaterer brugerens input løbende (fx "AB12345" → "AB 12 345").
+// getPlateFormat() bruges af nummerplade-inputfeltet på bil-tilføj/rediger-siderne.
+
 export type PlateFormat = {
   placeholder: string;
   hint: string;
@@ -5,11 +9,13 @@ export type PlateFormat = {
   mask: (raw: string) => string;
 };
 
+// Opdeler en streng i segmenter adskilt af mellemrum, fx seg("AB12345", 2, 2, 3) → "AB 12 345".
 function seg(s: string, ...lengths: number[]): string {
   let i = 0;
   return lengths.map(n => s.slice(i, (i += n))).filter(Boolean).join(" ");
 }
 
+// Opdeler en streng i segmenter adskilt af bindestreger, fx segDash("ABC123", 3, 3) → "ABC-123".
 function segDash(s: string, ...lengths: number[]): string {
   let i = 0;
   return lengths.map(n => s.slice(i, (i += n))).filter(Boolean).join("-");
@@ -48,6 +54,7 @@ export const PLATE_FORMATS: Record<string, PlateFormat> = {
   CY: { placeholder: "ABC 1234",    hint: "ABC 1234",     regex: /^[A-Z]{3} \d{4}$/,                 mask: s => seg(s, 3, 4) },
 };
 
+// Returnerer nummerpladeformatet for et givet landekode. Falder tilbage til et generisk format hvis landet ikke kendes.
 export function getPlateFormat(countryCode: string): PlateFormat {
   return (
     PLATE_FORMATS[countryCode] ?? {

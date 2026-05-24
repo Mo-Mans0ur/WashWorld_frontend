@@ -1,3 +1,7 @@
+// LocationsList – liste over alle WashWorld-vaskelokationer sorteret efter afstand til brugeren.
+// Henter lokationer fra API'et og brugerens GPS-position (én gang ved indlæsning),
+// beregner afstand med Haversine-formlen og viser lokationerne som kort i en scrollbar liste.
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -9,6 +13,8 @@ import ViewToggle from "@/components/ViewToggle";
 
 type LocationWithDistance = MapLocation & { distanceKm: number | null };
 
+// Tilføjer afstandsfeltet til alle lokationer og sorterer dem nærmest-først.
+// Lokationer uden GPS-data (userCoords er null) sorteres alfabetisk i stedet.
 function sortByNearest(
   locations: MapLocation[],
   userCoords: [number, number] | null,

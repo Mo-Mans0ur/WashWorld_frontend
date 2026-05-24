@@ -1,3 +1,7 @@
+// Map – kortkomponenten der bruger Mapbox GL til at vise alle WashWorld-vaskelokationer på et interaktivt kort.
+// Henter lokationer fra API'et, sporer brugerens GPS-position og tegner en kørende rute til en valgt destination.
+// Dag/nat-lystema kan skiftes med knappen i hjørnet. Rute-panelet i bunden viser vejvisning trin for trin.
+
 "use client";
 
 import {
@@ -52,11 +56,13 @@ type RouteInfo = {
   totalDurationS: number;
 };
 
+// Formaterer en afstand i meter til dansk tekst: under 1 km vises i meter, ellers i km.
 function formatDistance(meters: number): string {
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(1).replace(".", ",")} km`;
 }
 
+// Formaterer en varighed i sekunder til dansk tekst: fx "12 min" eller "1 t 5 min".
 function formatDuration(seconds: number): string {
   const mins = Math.round(seconds / 60);
   if (mins < 60) return `${mins} min`;
@@ -65,6 +71,7 @@ function formatDuration(seconds: number): string {
   return m === 0 ? `${h} t` : `${h} t ${m} min`;
 }
 
+// Viser det rette pil-ikon til et vejvisnings-trin baseret på manøvretype og retning.
 function StepIcon({ type, modifier }: { type: string; modifier?: string }) {
   if (type === "depart") return <Navigation className="h-4 w-4" />;
   if (type === "arrive") return <MapPin className="h-4 w-4" />;
@@ -80,6 +87,7 @@ function StepIcon({ type, modifier }: { type: string; modifier?: string }) {
   }
 }
 
+// Sikrer tekst mod XSS ved at erstatte HTML-specialtegn inden de indsættes i popup-HTML.
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
@@ -88,6 +96,7 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
+// Opretter et WashWorld SVG-pin-element der bruges som markør for vaskelokationer på kortet.
 function createPrimaryPin(): HTMLImageElement {
   const img = document.createElement("img");
   img.src = "/washworld-pin.svg";
@@ -97,12 +106,14 @@ function createPrimaryPin(): HTMLImageElement {
   return img;
 }
 
+// Opretter en blå pulserende cirkel der viser brugerens aktuelle GPS-position på kortet.
 function createUserLocationPin(): HTMLDivElement {
   const el = document.createElement("div");
   el.className = "washworld-user-location-pin";
   return el;
 }
 
+// Opretter brugerens positionsmarkør første gang, og flytter den ved efterfølgende GPS-opdateringer.
 function updateUserLocationMarker(
   map: mapboxgl.Map,
   markerRef: MutableRefObject<mapboxgl.Marker | null>,
@@ -120,6 +131,7 @@ function updateUserLocationMarker(
   markerRef.current.setLngLat(lngLat);
 }
 
+// Sætter en klik-lytter på "Se mere"-linket i en popup så det åbner detaljesiden via React Router i stedet for en fuld side-genindlæsning.
 function bindDetailsLink(
   popup: mapboxgl.Popup,
   locationId: string,
@@ -135,6 +147,7 @@ function bindDetailsLink(
   });
 }
 
+// Tilføjer et WashWorld-pin til kortet for hver lokation. Klik åbner en popup med navn, adresse, afstand og åbningstider.
 function addLocationMarkers(
   map: mapboxgl.Map,
   locations: MapLocation[],
@@ -216,6 +229,7 @@ function addLocationMarkers(
   });
 }
 
+// Zoomer og centrer kortet så alle vaskelokationer er synlige på én gang ved første indlæsning.
 function fitMapToLocations(map: mapboxgl.Map, locations: MapLocation[]): void {
   if (locations.length === 0) return;
   const bounds = new mapboxgl.LngLatBounds();
@@ -223,6 +237,8 @@ function fitMapToLocations(map: mapboxgl.Map, locations: MapLocation[]): void {
   map.fitBounds(bounds, { padding: 56, maxZoom: 8.5 });
 }
 
+// Henter en kørende rute fra Mapbox Directions API og tegner den som en grøn linje på kortet.
+// Returnerer rutens trin, samlet afstand og estimeret køretid.
 async function drawRoute(
   map: mapboxgl.Map,
   from: [number, number],

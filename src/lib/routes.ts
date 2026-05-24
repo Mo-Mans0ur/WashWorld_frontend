@@ -1,3 +1,7 @@
+// ROUTES er en central oversigt over alle URL-stier i appen.
+// Brug altid disse konstanter frem for at skrive URL-strenge direkte,
+// så en ændring i en URL kun skal ske ét sted.
+// Funktioner (fx details, payment) bygger URL'en automatisk med de rigtige parametre.
 export const ROUTES = {
   // Utility
   underConstruction: "/under-construction",

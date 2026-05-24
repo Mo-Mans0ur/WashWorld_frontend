@@ -1,3 +1,6 @@
+// errorPagesData – tekster og handlinger til fejlsiderne 404, "Under construction" og 505.
+// Importeres direkte af de respektive fejlsider så al tekst er samlet ét sted.
+
 export const notFoundPageData = {
   code: "404",
   title: "Oops, that page is gone",

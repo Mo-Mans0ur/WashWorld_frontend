@@ -1,3 +1,6 @@
+// EmailVerifiedPage – siden brugeren lander på efter at have klikket bekræftelseslinket i sin velkomstemail.
+// Viser forskellige beskeder baseret på URL-parameteren "status": success, already-verified, expired, invalid eller deleted.
+
 "use client";
 
 import Link from "next/link";

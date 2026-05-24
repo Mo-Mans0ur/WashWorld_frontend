@@ -1,3 +1,7 @@
+// ResetPasswordConfirmPage – siden hvor brugeren indtaster sin nye adgangskode.
+// Modtager en reset-nøgle via URL-parameteren "key" som sendes med til API'et.
+// Viser fejl hvis nøglen mangler eller er ugyldig, og bekræftelse når adgangskoden er gemt.
+
 "use client";
 
 import Image from "next/image";
@@ -33,6 +37,7 @@ export default function ResetPasswordConfirmPage() {
     if (!resetKey) setError("Ugyldigt eller manglende link. Anmod om et nyt.");
   }, [resetKey]);
 
+  // Sender den nye adgangskode og reset-nøglen til API'et og viser bekræftelse ved succes.
   async function handleSubmit(event?: FormEvent) {
     event?.preventDefault();
     if (!canSubmit) return;

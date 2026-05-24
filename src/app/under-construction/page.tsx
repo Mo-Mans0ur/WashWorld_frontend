@@ -1,3 +1,6 @@
+// UnderConstructionPage – midlertidig side der vises for sider der endnu ikke er færdigudviklet.
+// Linker tilbage til dashboard så brugeren ikke sidder fast.
+
 import Image from "next/image";
 import ErrorPageButton from "../../components/ErrorPageButton";
 import { underConstructionPageData } from "@/data/errorPagesData";

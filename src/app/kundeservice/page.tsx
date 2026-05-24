@@ -1,3 +1,7 @@
+// KundeservicePage – kundeserviceside med kontaktmuligheder og FAQ.
+// Viser kontaktkort (ring, chat, nødsituation) og en sammenklappelig FAQ-sektion.
+// Indholdet er defineret i supportData.ts og kan opdateres der uden at ændre siden.
+
 "use client";
 
 import { useState } from "react";
@@ -101,6 +105,8 @@ export default function KundeservicePage() {
   );
 }
 
+// Kort der viser én kontaktmulighed (ring, chat eller nødsituation).
+// Nødsituationskortet (urgent) har rød farve og et opkaldsikon.
 function SupportCard({ card }: { card: SupportContactCard }) {
   const Icon = supportCardIcons[card.actionType];
   const isUrgent = card.actionType === "urgent";

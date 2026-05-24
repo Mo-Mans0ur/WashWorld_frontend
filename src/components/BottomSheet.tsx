@@ -1,3 +1,6 @@
+// BottomSheet – et panel der glider op fra bunden af skærmen og viser valgmuligheder.
+// Bruges fx til at vælge køretøj. Baggrunden mørknes og klik uden for panelet lukker det.
+
 "use client";
 
 import { type ReactNode } from "react";

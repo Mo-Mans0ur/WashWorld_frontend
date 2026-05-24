@@ -1,3 +1,7 @@
+// ScreenLayout er skabelonen for alle sider i appen.
+// Den viser header og bundnavigation på alle sider undtagen login/signup og under-construction.
+// useNavVisibility() giver sider mulighed for at skjule navigationen programmatisk (fx 404-siden).
+
 "use client";
 
 import { ReactNode, createContext, useContext, useState } from "react";

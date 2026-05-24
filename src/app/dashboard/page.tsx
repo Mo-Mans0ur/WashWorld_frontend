@@ -1,3 +1,7 @@
+// DashboardPage – forsiden brugeren ser efter login.
+// Viser nærmeste vaskehal (beregnet fra GPS), brugerens favoritvaskehaller og aktuelle tilbud.
+// En notifikationsklokke vises hvis brugeren mangler betalingskort eller bil på kontoen.
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";

@@ -1,3 +1,7 @@
+// SingleWashPlatePage – nummerpladeregistrering til enkelt vask.
+// Viser en scanning-animation og lader brugeren bekræfte eller manuelt indtaste nummerplade.
+// Nummerplade sendes videre som URL-parameter til startvask-siden.
+
 "use client";
 
 import Image from "next/image";

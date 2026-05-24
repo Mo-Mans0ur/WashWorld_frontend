@@ -1,3 +1,6 @@
+// AngleButton – en skrå dekorationsknap med grøn WashWorld-stil (polygon-clip-path).
+// Bruges som et visuelt badge/label, fx til at markere et valgt abonnement eller en handling.
+
 interface AngleButtonProps {
   text: string;
   className?: string;

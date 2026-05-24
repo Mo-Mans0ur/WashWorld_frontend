@@ -1,3 +1,7 @@
+// BilerPage – oversigt over brugerens biler.
+// Henter biler fra VehiclesContext og viser dem som kort med nummerplade og abonnementsstatus.
+// Fra hvert kort kan brugeren tilføje abonnement, redigere eller slette bilen.
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";

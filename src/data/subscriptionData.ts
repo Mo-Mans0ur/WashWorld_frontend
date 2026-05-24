@@ -1,3 +1,7 @@
+// subscriptionData – data og tekster til abonnementssiderne.
+// subscriptionPlans definerer de tre abonnementstyper (Guld, Premium, Brilliant) med priser, produktId'er og featurer.
+// getSubscriptionPlanBySlug() bruges til at hente det valgte abonnement baseret på URL-parameteren.
+
 export type SubscriptionFeature = {
   text: string;
   level: number;
@@ -137,6 +141,7 @@ export const subscriptionPaymentMethods: SubscriptionOption[] = [
   { value: "wallet", label: "Apple Pay / Google Pay" },
 ];
 
+// Finder et abonnementsplan ud fra dets slug (fx "guld"), eller returnerer Guld som standard.
 export function getSubscriptionPlanBySlug(slug: string) {
   return (
     subscriptionPlans.find((plan) => plan.slug === slug) || subscriptionPlans[0]

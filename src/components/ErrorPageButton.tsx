@@ -1,3 +1,6 @@
+// ErrorPageButton – en navigationsknap der bruges på fejlsider (404, 505 osv.).
+// Fungerer som et link og modtager sin styling udefra via className-prop.
+
 import Link from "next/link";
 
 type ErrorPageButtonProps = {

@@ -1,3 +1,7 @@
+// VaskehistorikDetaljer – detaljeside for én vask eller ét abonnement.
+// URL-parametrene ?kind=wash&id=... eller ?kind=subscription&id=... bestemmer hvad der vises.
+// Siden henter data fra API'et og viser kvittering med pris, lokation, bil og handlinger.
+
 "use client";
 
 import { useEffect, useState } from "react";

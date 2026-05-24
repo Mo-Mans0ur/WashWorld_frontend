@@ -1,3 +1,7 @@
+// Vaskehistorik – liste over alle brugerens tidligere vaske og abonnementer.
+// Henter vaskelog, abonnementer og biler fra API'et og kombinerer dem til en kronologisk liste.
+// Hvert kort kan klikkes for at se detaljerne på detaljesiden.
+
 "use client";
 
 import { useEffect, useState } from "react";
