@@ -2,11 +2,16 @@
   "name": "washworld-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:selenium": "node test/login.selenium.test.js",
+    "test:signup": "node test/signup.selenium.test.js",
+    "test:app": "node test/app.selenium.test.js",
+    "test:all": "npm run test:selenium && npm run test:signup && npm run test:app"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -26,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "pngjs": "^7.0.0",
+    "selenium-webdriver": "^4.44.0",
     "tailwindcss": "^4",
     "typescript": "^6.0.3"
   }
