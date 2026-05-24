@@ -7,6 +7,7 @@
 //
 // Brug useAuth() hook i en komponent for at tilgå token, user, login og logout.
 
+import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
 import {
   createContext,
   useContext,
@@ -110,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   function logout() {
     clearToken();
     localStorage.removeItem("auth_user");
+    localStorage.removeItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
     setToken(null);
     setUser(null);
     window.location.href = "/login";

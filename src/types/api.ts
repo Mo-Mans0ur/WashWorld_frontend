@@ -44,6 +44,7 @@ export type Subscription = {
   subscription_id: string;
   product_id: string;
   car_id: string;
+  location_id: string | null;
   subscriptions_name: string;
   subscriptions_price: number;
   subscriptions_status: string;

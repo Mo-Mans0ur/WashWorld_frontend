@@ -7,6 +7,7 @@ import {
   subscriptionPageNames,
   subscriptionPlans,
 } from "@/data/subscriptionData";
+import { washworldMapLocations } from "@/data/washworldLocations";
 import { ROUTES } from "@/lib/routes";
 import PageInfo from "@/components/PageInfo";
 
@@ -19,6 +20,8 @@ export default function AbonnementPage() {
   );
   const [animKey, setAnimKey] = useState(0);
   const [allLocations, setAllLocations] = useState(false);
+  const [selectedLocationId, setSelectedLocationId] = useState("");
+  const [locationError, setLocationError] = useState(false);
 
   const selectedPlan = PLANS[selectedIndex];
   const currentPlan = subscriptionPlans.find(
@@ -37,12 +40,20 @@ export default function AbonnementPage() {
   }
 
   function handleCreateSubscription() {
+    if (!allLocations && !selectedLocationId) {
+      setLocationError(true);
+      return;
+    }
+    setLocationError(false);
+
+    const locationId = allLocations ? undefined : selectedLocationId;
+
     if (missingPaymentCard) {
-      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase(), carId, allLocations));
+      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase(), carId, allLocations, locationId));
       return;
     }
 
-    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase(), carId, allLocations));
+    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase(), carId, allLocations, locationId));
   }
 
   return (
@@ -120,11 +131,14 @@ export default function AbonnementPage() {
               </div>
             </div>
 
-            <label className="mx-5 mb-4 flex cursor-pointer items-start gap-3 rounded-[3px] border border-(--brand-green-01)/30 bg-(--brand-green-01)/5 px-3 py-2.5">
+            <label className="mx-5 mb-2 flex cursor-pointer items-start gap-3 rounded-[3px] border border-(--brand-green-01)/30 bg-(--brand-green-01)/5 px-3 py-2.5">
               <input
                 type="checkbox"
                 checked={allLocations}
-                onChange={(e) => setAllLocations(e.target.checked)}
+                onChange={(e) => {
+                  setAllLocations(e.target.checked);
+                  if (e.target.checked) setLocationError(false);
+                }}
                 className="mt-0.5 h-4 w-4 shrink-0 accent-(--brand-green-01)"
               />
               <span className="text-left text-[0.75rem] font-semibold leading-snug text-black">
@@ -132,6 +146,37 @@ export default function AbonnementPage() {
                 <span className="font-bold text-(--brand-green-01)">+10 kr/md.</span>
               </span>
             </label>
+
+            {!allLocations && (
+              <div className="mx-5 mb-4">
+                <p className="mb-1 text-[0.7rem] font-semibold text-black/60">
+                  Vælg hvilken WashWorld du vil vaske hos
+                </p>
+                <div className={`relative rounded-[3px] border ${locationError ? "border-red-400 bg-red-50" : "border-(--brand-green-01)/30 bg-(--brand-green-01)/5"}`}>
+                  <select
+                    value={selectedLocationId}
+                    onChange={(e) => {
+                      setSelectedLocationId(e.target.value);
+                      setLocationError(false);
+                    }}
+                    className="w-full appearance-none bg-transparent py-2.5 pl-3 pr-8 text-[0.75rem] font-semibold text-black"
+                  >
+                    <option value="">-- Vælg lokation --</option>
+                    {washworldMapLocations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[0.7rem] text-(--brand-green-01)">▾</span>
+                </div>
+                {locationError && (
+                  <p className="mt-1 text-[0.7rem] font-semibold text-red-500">
+                    Vælg venligst en lokation for at fortsætte
+                  </p>
+                )}
+              </div>
+            )}
 
             <button
               type="button"

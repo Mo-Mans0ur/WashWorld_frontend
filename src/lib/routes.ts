@@ -37,6 +37,8 @@ export const ROUTES = {
     `/activewash?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
   activeWashSubscription: (location: string, equipment: string, carId?: string) =>
     `/activewash?subscription=true&location=${location}&equipment=${equipment}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+  startWashSubscription: (location: string, equipment: string, carId?: string) =>
+    `/singlewash/startvask?subscription=true&location=${encodeURIComponent(location)}&equipment=${encodeURIComponent(equipment)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
 
   // Self wash
   selfWash: (location: string, equipment: string) =>
@@ -45,10 +47,10 @@ export const ROUTES = {
   // Subscription flow
   subscription: "/abonnement",
   subscriptionForCar: (carId: string) => `/abonnement?carId=${encodeURIComponent(carId)}`,
-  subscriptionPayment: (plan: string, carId?: string, allLocations?: boolean) =>
-    `/abonnement/betaling?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}`,
-  subscriptionConfirmation: (plan: string, carId?: string, allLocations?: boolean) =>
-    `/abonnement/handlesubscription?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}`,
+  subscriptionPayment: (plan: string, carId?: string, allLocations?: boolean, locationId?: string) =>
+    `/abonnement/betaling?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}${locationId ? `&locationId=${encodeURIComponent(locationId)}` : ""}`,
+  subscriptionConfirmation: (plan: string, carId?: string, allLocations?: boolean, locationId?: string) =>
+    `/abonnement/handlesubscription?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}${locationId ? `&locationId=${encodeURIComponent(locationId)}` : ""}`,
 
   // Vehicles
   cars: "/cars",
