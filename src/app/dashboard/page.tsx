@@ -265,12 +265,12 @@ export default function DashboardPage() {
 
         <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
           {offersLoading && (
-            <p className="px-2 text-sm font-semibold text-neutral-500">
+            <p className="px-2 text-sm font-semibold text-white">
               Henter tilbud...
             </p>
           )}
           {!offersLoading && offers.length === 0 && (
-            <p className="px-2 text-sm font-semibold text-neutral-500">
+            <p className="px-2 text-sm font-semibold text-white">
               Ingen aktuelle tilbud
             </p>
           )}

@@ -3,6 +3,7 @@
 
 "use client";
 
+import Link from "next/link";
 import BottomSheet from "@/components/BottomSheet";
 import type { Car, Subscription } from "@/types/api";
 
@@ -24,7 +25,15 @@ export default function CarPickerSheet({
   return (
     <BottomSheet isOpen={isOpen} title="Vælg køretøj" onClose={onClose}>
       {cars.length === 0 ? (
-        <p className="py-4 text-center text-sm text-neutral-500">Ingen biler registreret</p>
+        <div className="flex flex-col items-center gap-3 py-6 text-center">
+          <p className="text-sm text-neutral-500">Du har ingen biler tilknyttet din konto.</p>
+          <Link
+            href="/cars/add"
+            className="rounded-[3px] bg-(--color-primary) px-5 py-2 text-sm font-semibold text-white active:opacity-80"
+          >
+            Tilføj bil
+          </Link>
+        </div>
       ) : (
         cars.map((car) => {
           const hasSub = subscriptions.some(

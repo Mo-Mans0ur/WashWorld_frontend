@@ -54,7 +54,7 @@ export default function BilerPage() {
 
       <main className="flex flex-col gap-4 px-6 pt-6 pb-8">
         {isLoading && (
-          <p className="text-center text-sm font-semibold text-neutral-500">
+          <p className="text-center text-sm font-semibold text-white">
             Henter køretøjer...
           </p>
         )}
@@ -93,7 +93,7 @@ export default function BilerPage() {
           ))}
 
         {!isLoading && !error && vehicles.length === 0 && (
-          <p className="text-center text-sm font-semibold text-neutral-500">
+          <p className="text-center text-sm font-semibold text-white">
             Du har ingen køretøjer endnu.
           </p>
         )}
