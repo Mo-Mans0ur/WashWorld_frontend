@@ -64,16 +64,17 @@ export default function ProfilePage() {
   >("idle");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Subscription | null>(null);
-  const [savedCardNumber, setSavedCardNumber] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [savedCardNumber, setSavedCardNumber] = useState<string | null>(null);
+
+  useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
-      if (!raw) return null;
-      return (JSON.parse(raw) as { cardNumber: string }).cardNumber ?? null;
+      const raw = localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+      if (!raw) return;
+      setSavedCardNumber((JSON.parse(raw) as { cardNumber: string }).cardNumber ?? null);
     } catch {
-      return null;
+      // ignore corrupt data
     }
-  });
+  }, []);
 
   useEffect(() => {
     if (!user) return;

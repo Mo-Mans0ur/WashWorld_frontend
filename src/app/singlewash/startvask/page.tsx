@@ -13,6 +13,7 @@ export default function SingleWashStartPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const isSubscription = searchParams.get("subscription") === "true";
   const selectedPlan = searchParams.get("plan") ?? "guld";
   const selectedPayment = searchParams.get("payment") ?? "card";
   const plateNumber = searchParams.get("plate") ?? "";
@@ -22,7 +23,11 @@ export default function SingleWashStartPage() {
   const pageTitle = singleWashReadyPageContent.title.replace(/\.\.\.$/, "");
 
   function handleStartWash() {
-    router.push(ROUTES.activeWash(selectedPlan, selectedPayment, plateNumber, carId, locationId, equipmentId));
+    if (isSubscription) {
+      router.push(ROUTES.activeWashSubscription(locationId ?? "", equipmentId ?? "", carId));
+    } else {
+      router.push(ROUTES.activeWash(selectedPlan, selectedPayment, plateNumber, carId, locationId, equipmentId));
+    }
   }
 
   return (

@@ -24,6 +24,7 @@ export async function fetchUserSubscriptions(userId: string): Promise<Subscripti
 export type CreateSubscriptionInput = {
   product_id?: string;
   car_id?: string;
+  location_id?: string;
   subscription_name: string;
   subscription_price: number;
   subscription_status: string;

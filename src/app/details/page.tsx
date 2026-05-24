@@ -55,6 +55,12 @@ const statusClass: Record<string, string> = {
   "Ud af drift": "bg-red-500",
 };
 
+const selectedRingClass: Record<string, string> = {
+  Ledig: "ring-(--brand-green-01)",
+  Optaget: "ring-amber-500",
+  "Ud af drift": "ring-red-500",
+};
+
 // Oversætter API's lowercase-statusværdier til de viste navne med stort forbogstav
 function normalizeStatus(status: string): string {
   const s = status.trim().toLowerCase();
@@ -87,10 +93,11 @@ export default function DetailsPage() {
   // openInfo holder styr på hvilken sektion der viser dimensionspopuppen
   const [openInfo, setOpenInfo] = useState<string | null>(null);
 
-  const [hasSubscription, setHasSubscription] = useState(false);
   const [showCarPicker, setShowCarPicker] = useState(false);
   const [cars, setCars] = useState<Car[]>([]);
   const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>([]);
+  const [showLocationWarning, setShowLocationWarning] = useState(false);
+  const [pendingCar, setPendingCar] = useState<Car | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -101,9 +108,8 @@ export default function DetailsPage() {
       .then(([subs, fetchedCars]) => {
         setUserSubscriptions(subs);
         setCars(fetchedCars);
-        setHasSubscription(subs.some((s) => s.subscriptions_status === "aktiv"));
       })
-      .catch(() => setHasSubscription(false));
+      .catch(() => {});
   }, [user]);
 
   // Data hentet fra API'et
@@ -219,6 +225,10 @@ export default function DetailsPage() {
     setShowCarPicker(true);
   }
 
+  function routeToSingleWash(car: Car) {
+    router.push(`${ROUTES.singlewash}?plate=${encodeURIComponent(car.car_license_plate)}&carId=${encodeURIComponent(car.car_id)}&location=${encodeURIComponent(locationId ?? "")}&equipment=${encodeURIComponent(selectedId ?? "")}`);
+  }
+
   function handleCarSelected(car: Car) {
     setShowCarPicker(false);
     const isSelfService =
@@ -233,9 +243,15 @@ export default function DetailsPage() {
       (s) => s.car_id === car.car_id && s.subscriptions_status === "aktiv",
     );
     if (carSub) {
-      router.push(ROUTES.activeWashSubscription(locationId ?? "", selectedId ?? "", car.car_id));
+      const coversThisLocation = !carSub.location_id || carSub.location_id === locationId;
+      if (!coversThisLocation) {
+        setPendingCar(car);
+        setShowLocationWarning(true);
+        return;
+      }
+      router.push(ROUTES.startWashSubscription(locationId ?? "", selectedId ?? "", car.car_id));
     } else {
-      router.push(`${ROUTES.singlewash}?plate=${encodeURIComponent(car.car_license_plate)}&carId=${encodeURIComponent(car.car_id)}&location=${encodeURIComponent(locationId ?? "")}&equipment=${encodeURIComponent(selectedId ?? "")}`);
+      routeToSingleWash(car);
     }
   }
 
@@ -270,6 +286,43 @@ export default function DetailsPage() {
         onSelect={handleCarSelected}
         onClose={() => setShowCarPicker(false)}
       />
+
+      {showLocationWarning && pendingCar && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 pb-10 px-6">
+          <div className="w-full max-w-sm rounded-[3px] bg-white p-6 shadow-xl">
+            <h2 className="text-[1.1rem] font-bold text-neutral-900">
+              Abonnement dækker ikke her
+            </h2>
+            <p className="mt-2 text-[0.85rem] leading-snug text-neutral-600">
+              Dit abonnement er kun gyldigt på én WashWorld. En vask her vil
+              blive kvitteret som en enkelt vask og koster ekstra.
+            </p>
+            <div className="mt-5 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLocationWarning(false);
+                  routeToSingleWash(pendingCar);
+                  setPendingCar(null);
+                }}
+                className="h-11 w-full bg-(--brand-green-01) text-[0.9rem] font-bold text-white"
+              >
+                Start enkelt vask
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLocationWarning(false);
+                  setPendingCar(null);
+                }}
+                className="h-11 w-full border border-(--brand-green-01) text-[0.9rem] font-bold text-(--brand-green-01)"
+              >
+                Annuller
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Scrollbart indholdsområde – alt nedenfor titelbaren kan scrolles */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
@@ -389,7 +442,7 @@ function MachineCard({ id, image, title, status, selected, faded, onSelect }: Ma
   return (
     <button
       onClick={() => onSelect(selected ? null : id)}
-      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden rounded-[3px] bg-white font-bold shadow-md ring-inset transition-all ${selected ? "ring-4 ring-(--brand-green-01)" : ""} ${faded ? "opacity-40" : ""}`}
+      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden rounded-[3px] bg-white font-bold shadow-md ring-inset transition-all ${selected ? `ring-4 ${selectedRingClass[status] ?? "ring-(--brand-green-01)"}` : ""} ${faded ? "opacity-40" : ""}`}
     >
       <div className="flex flex-1 self-center flex-row items-center justify-start gap-2 p-1">
         <Image
@@ -404,6 +457,7 @@ function MachineCard({ id, image, title, status, selected, faded, onSelect }: Ma
       {/* Farvekodet statusbadge i hjørnet af kortet */}
       <AngleButton
         text={status}
+        size="lg"
         className={statusClass[status] ?? "bg-neutral-400"}
       />
     </button>

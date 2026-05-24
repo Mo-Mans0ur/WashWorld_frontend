@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
-import { useVehicles } from "@/hooks";
+import { useFavorites, useVehicles } from "@/hooks";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
@@ -25,9 +25,11 @@ export default function HandleSubscriptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { vehicles, refreshVehicles } = useVehicles();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const planKey = (searchParams.get("plan") || "guld").toLowerCase();
   const preselectedCarId = searchParams.get("carId") ?? null;
+  const locationId = searchParams.get("locationId") ?? null;
   const activePlan = useMemo(
     () => getSubscriptionPlanBySlug(planKey),
     [planKey],
@@ -114,6 +116,7 @@ export default function HandleSubscriptionPage() {
     try {
       await createSubscription({
         car_id: vehicle,
+        location_id: locationId ?? undefined,
         subscription_name: activePlan.name,
         subscription_price: priceRaw,
         subscription_status: "aktiv",
@@ -121,6 +124,9 @@ export default function HandleSubscriptionPage() {
         subscription_end_date: formatDate(endDate),
         subscription_next_billing_date: formatDate(nextBilling),
       });
+      if (locationId && !isFavorite(locationId)) {
+        await toggleFavorite(locationId);
+      }
       await refreshVehicles();
       router.push(ROUTES.profile);
     } catch (err) {

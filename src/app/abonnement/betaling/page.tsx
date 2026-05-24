@@ -53,6 +53,7 @@ export default function SubscriptionBetalingPage() {
   const selectedPlanSlug = (searchParams.get("plan") ?? "guld").toLowerCase();
   const carId = searchParams.get("carId") ?? undefined;
   const allLocations = searchParams.get("allLocations") === "true";
+  const locationId = searchParams.get("locationId") ?? undefined;
 
   const [storedPaymentCard] = useState<StoredPaymentCard | null>(() => {
     if (typeof window === "undefined") return null;
@@ -109,7 +110,7 @@ export default function SubscriptionBetalingPage() {
         JSON.stringify({ cardNumber, expiry, name: cardholderName } satisfies StoredPaymentCard),
       );
     }
-    router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId, allLocations));
+    router.push(ROUTES.subscriptionConfirmation(selectedPlanSlug, carId, allLocations, locationId));
   }
 
   return (

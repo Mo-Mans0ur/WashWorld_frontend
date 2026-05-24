@@ -30,10 +30,21 @@ export type Product = {
   product_category: string;
 };
 
+export type Offer = {
+  offer_id: string;
+  product_id: string | null;
+  offer_description: string;
+  offer_discount_percentage: number;
+  offer_start_date: string;
+  offer_end_date: string;
+  offer_photo_base64: string | null;
+};
+
 export type Subscription = {
   subscription_id: string;
   product_id: string;
   car_id: string;
+  location_id: string | null;
   subscriptions_name: string;
   subscriptions_price: number;
   subscriptions_status: string;
