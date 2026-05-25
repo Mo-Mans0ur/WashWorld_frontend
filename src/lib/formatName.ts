@@ -1,5 +1,3 @@
-// formatName indeholder hjælpefunktioner til at formatere brugernavne pænt.
-// Bruges i AuthContext og overalt hvor brugerens navn vises i UI'et.
 import type { User } from "@/types/api";
 
 type UserNameFields = Pick<User, "user_firstname" | "user_lastname">;

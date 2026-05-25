@@ -1,6 +1,3 @@
-// PageInfo – den skrå grønne bånd-komponent øverst på sider der viser en velkomsttekst eller sidetitel.
-// Bruges fx på dashboard med "Hej Simon" og på andre sider med en kort beskrivende tekst.
-
 import { formatDisplayName } from "@/lib/formatName";
 
 interface PageInfoProps {

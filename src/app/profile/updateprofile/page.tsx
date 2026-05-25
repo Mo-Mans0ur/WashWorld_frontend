@@ -33,35 +33,6 @@ type FormState = {
   localPhone: string;
 };
 
-// Fejlbeskeder for hvert felt i formularen
-type FormErrors = {
-  firstName: string | null;
-  lastName: string | null;
-  email: string | null;
-};
-
-// Validerer navn – kræver mindst ét tegn og kun bogstaver (inkl. æøåÆØÅ), bindestreger og mellemrum
-function validateName(value: string, label: string): string | null {
-  if (!value.trim()) return `${label} er påkrævet`;
-  if (!/^[\p{L}\s\-]+$/u.test(value.trim())) return `${label} må kun indeholde bogstaver`;
-  return null;
-}
-
-// Validerer email – kræver et udfyldt felt med gyldigt email-format
-function validateEmail(value: string): string | null {
-  if (!value.trim()) return "Email er påkrævet";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) return "Indtast en gyldig email-adresse";
-  return null;
-}
-
-// Giver hvert navnefelt et stort forbogstav og sætter resten til småt
-function capitalizeName(value: string): string {
-  return value
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
 // Splitter et gemt telefonnummer som "+45 12345678" i landekode og lokalnummer.
 // Sorterer koderne længst-først så "+358" matches før "+35" ved overlap.
 // Falder tilbage til +45/dansk nummer hvis ingen kode genkendes.
@@ -122,8 +93,6 @@ export default function UpdateProfilePage() {
     localPhone: "",
   });
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  // Fejlbeskeder for navn- og email-felterne
-  const [fieldErrors, setFieldErrors] = useState<FormErrors>({ firstName: null, lastName: null, email: null });
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -144,29 +113,18 @@ export default function UpdateProfilePage() {
   }, [user]);
 
   function handleInputChange(field: keyof FormState, value: string) {
-    // Sæt stort forbogstav automatisk i navnefelterne mens brugeren taster
-    const formatted = (field === "firstName" || field === "lastName") ? capitalizeName(value) : value;
-    setFormState((current) => ({ ...current, [field]: formatted }));
-    // Ryd feltets fejlbesked så snart brugeren begynder at rette
+    setFormState((current) => ({ ...current, [field]: value }));
     if (field === "localPhone") setPhoneError(null);
-    if (field === "firstName" || field === "lastName" || field === "email") {
-      setFieldErrors((prev) => ({ ...prev, [field]: null }));
-    }
   }
 
   async function handleSave() {
     if (!user || !token) return;
 
-    // Valider alle felter på én gang og vis eventuelle fejl
-    const firstNameError = validateName(formState.firstName, "Fornavn");
-    const lastNameError = validateName(formState.lastName, "Efternavn");
-    const emailError = validateEmail(formState.email);
     const phoneValidation = validateLocalPhone(formState.localPhone, formState.dialCode);
-
-    setFieldErrors({ firstName: firstNameError, lastName: lastNameError, email: emailError });
-    if (phoneValidation) setPhoneError(phoneValidation);
-
-    if (firstNameError || lastNameError || emailError || phoneValidation) return;
+    if (phoneValidation) {
+      setPhoneError(phoneValidation);
+      return;
+    }
 
     setIsSaving(true);
     setError(null);
@@ -188,9 +146,6 @@ export default function UpdateProfilePage() {
     }
   }
 
-  // Sletter brugerens konto permanent via API'et og logger derefter ud lokalt.
-  // Brugeren sendes til login-siden. Hvis API-kaldet fejler vises en fejlbesked
-  // og bekræftelsesdialogboksen lukkes ikke – brugeren kan prøve igen.
   async function handleDeleteAccount() {
     if (!user || !token) return;
     setIsDeleting(true);
@@ -243,14 +198,12 @@ export default function UpdateProfilePage() {
                   placeholder={profileUpdatePageContent.fields.firstName.placeholder}
                   value={formState.firstName}
                   onChange={(value) => handleInputChange("firstName", value)}
-                  error={fieldErrors.firstName}
                 />
                 <InputField
                   label={profileUpdatePageContent.fields.lastName.label}
                   placeholder={profileUpdatePageContent.fields.lastName.placeholder}
                   value={formState.lastName}
                   onChange={(value) => handleInputChange("lastName", value)}
-                  error={fieldErrors.lastName}
                 />
               </div>
               <InputField
@@ -259,7 +212,6 @@ export default function UpdateProfilePage() {
                 placeholder={profileUpdatePageContent.fields.email.placeholder}
                 value={formState.email}
                 onChange={(value) => handleInputChange("email", value)}
-                error={fieldErrors.email}
               />
               <PhoneInput
                 label={profileUpdatePageContent.fields.phoneNumber.label}
@@ -434,7 +386,6 @@ function PhoneInput({
   );
 }
 
-// Sektionsoverskrift med et rundt ikon til venstre – bruges til "Profiloplysninger" og "Adgangskode"
 function SectionTitle({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <div className="flex items-center gap-2">
@@ -452,10 +403,9 @@ type InputFieldProps = {
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
-  error?: string | null;
 };
 
-function InputField({ label, type = "text", placeholder, value, onChange, error }: InputFieldProps) {
+function InputField({ label, type = "text", placeholder, value, onChange }: InputFieldProps) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-semibold text-neutral-600">
@@ -466,12 +416,8 @@ function InputField({ label, type = "text", placeholder, value, onChange, error 
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`h-11 w-full border bg-(--white-white) px-3 text-sm font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01) ${
-          error ? "border-red-400" : "border-neutral-300"
-        }`}
+        className="h-11 w-full border border-neutral-300 bg-(--white-white) px-3 text-sm font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01)"
       />
-      {/* Vis inline fejlbesked under feltet hvis validering fejler */}
-      {error && <p className="mt-1 text-xs font-semibold text-red-500">{error}</p>}
     </label>
   );
 }

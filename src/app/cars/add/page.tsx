@@ -1,7 +1,3 @@
-// TilfoejBilPage – formular til at tilføje en ny bil.
-// Brugeren vælger land, indtaster nummerplade (valideres mod det korrekte format for landet),
-// giver bilen et kaldenavn, vælger køretøjstype og markerer evt. om det er en elbil.
-
 "use client";
 
 import { useState, type ElementType } from "react";
