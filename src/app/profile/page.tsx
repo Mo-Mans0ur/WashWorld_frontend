@@ -23,11 +23,11 @@ import {
 import {
   profileBadges,
   profilePageNames,
+  profileStamps,
   SAVED_PAYMENT_CARD_STORAGE_KEY,
 } from "@/data/profileData";
 import { useAuth } from "@/hooks";
 import { fetchUserSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
-import { fetchWashLog } from "@/lib/washLogApi";
 import type { Subscription } from "@/types/api";
 import { ROUTES } from "@/lib/routes";
 
@@ -64,28 +64,21 @@ export default function ProfilePage() {
   >("idle");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Subscription | null>(null);
-  const [savedCardNumber, setSavedCardNumber] = useState<string | null>(null);
-  // Antal vaske brugeren har gennemført – bruges til at beregne klippekortet
-  const [washCount, setWashCount] = useState<number>(0);
-
-  useEffect(() => {
+  const [savedCardNumber, setSavedCardNumber] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
-      const raw = localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
-      if (!raw) return;
-      setSavedCardNumber((JSON.parse(raw) as { cardNumber: string }).cardNumber ?? null);
+      const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+      if (!raw) return null;
+      return (JSON.parse(raw) as { cardNumber: string }).cardNumber ?? null;
     } catch {
-      // ignore corrupt data
+      return null;
     }
-  }, []);
+  });
 
   useEffect(() => {
     if (!user) return;
     fetchUserSubscriptions(user.user_id)
       .then((subs) => setSubscriptions(subs))
-      .catch(() => {});
-    // Hent brugerens vaskehistorik og gem det samlede antal vaske i state
-    fetchWashLog(user.user_id)
-      .then((log) => setWashCount(log.length))
       .catch(() => {});
   }, [user]);
 
@@ -315,40 +308,34 @@ export default function ProfilePage() {
             )}
           </article>
 
-          {/* Klippekort – viser fremgang mod næste fulde klippekort (5 klip).
-              filledCount beregnes som antal vaske modulo kortets størrelse,
-              så kortet nulstilles automatisk for hvert 5. klip. */}
-          {(() => {
-            const CARD_SIZE = 5;
-            // Antal fyldte klip på det nuværende kort (nulstilles efter hvert fuldt kort)
-            const filledCount = washCount % CARD_SIZE;
-            return (
-              <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
-                <div className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
-                      <Ticket size={16} />
-                    </span>
-                    <h2 className="text-2xl font-bold text-natural-800">
-                      {profilePageNames.clipCardTitle}
-                    </h2>
-                  </div>
-                  <div className="mt-3 flex items-center gap-2.5">
-                    {Array.from({ length: CARD_SIZE }, (_, i) => (
-                      <Stamp key={i} filled={i < filledCount}>
-                        {i < filledCount ? "W" : String(i + 1)}
-                      </Stamp>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex justify-end border-t border-neutral-200">
-                  <p className="px-4 py-3 text-xs font-semibold text-neutral-600">
-                    {filledCount} ud af {CARD_SIZE} vaske
-                  </p>
-                </div>
-              </article>
-            );
-          })()}
+          {/* Klippekort */}
+          <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
+            <div className="px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
+                  <Ticket size={16} />
+                </span>
+                <h2 className="text-2xl font-bold text-natural-800">
+                  {profilePageNames.clipCardTitle}
+                </h2>
+              </div>
+              <div className="mt-3 flex items-center gap-2.5">
+                {profileStamps.map((stamp, index) => (
+                  <Stamp
+                    key={`${stamp.label}-${stamp.filled}-${index}`}
+                    filled={stamp.filled}
+                  >
+                    {stamp.label}
+                  </Stamp>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end border-t border-neutral-200">
+              <p className="px-4 py-3 text-xs font-semibold text-neutral-600">
+                {profilePageNames.clipCardProgress}
+              </p>
+            </div>
+          </article>
 
           {/* Badges */}
           <article className="rounded-[3px] bg-(--white-white) px-4 py-3 shadow-2xl">

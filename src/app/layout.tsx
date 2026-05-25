@@ -1,5 +1,3 @@
-// layout.tsx er rodlayoutet for hele appen — det der altid vises uanset hvilken side man er på.
-// Her pakkes alt ind i Providers (login, biler, favoritter) og ScreenLayout (navigation og struktur).
 import "./globals.css";
 import Providers from "@/components/Providers";
 import ScreenLayout from "@/components/ScreenLayout";

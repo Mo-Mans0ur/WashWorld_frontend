@@ -17,7 +17,6 @@ export type EquipmentCounts = {
   total: number;
 };
 
-// De tre udstyrstyper vi viser på lokationssiden, med tilhørende labels og ikoner
 export const EQUIPMENT_SECTIONS = [
   {
     type: "vaskehal",
@@ -53,17 +52,14 @@ function getApiBase(): string {
   return base.replace(/\/$/, "");
 }
 
-// Returnerer true hvis udstyrets status er "ledig" (ikke optaget eller ude af drift)
 export function isEquipmentAvailable(status: string): boolean {
   return status.trim().toLowerCase() === "ledig";
 }
 
-// Gør udstyrtypen til små bogstaver uden mellemrum for sikker sammenligning
 export function normalizeEquipmentType(type: string): string {
   return type.trim().toLowerCase();
 }
 
-// Tæller hvor mange af en given udstyrstype der er ledige og hvor mange der er i alt
 export function countEquipmentByType(
   equipment: LocationEquipment[],
   type: string,
@@ -81,7 +77,6 @@ export function countEquipmentByType(
   };
 }
 
-// Returnerer alle udstyr af en given type, sorteret efter nummer (fx Vaskehal 01, 02, 03...)
 export function equipmentByType(
   equipment: LocationEquipment[],
   type: string,
@@ -95,7 +90,6 @@ export function equipmentByType(
     .sort((a, b) => a.location_equipment_number - b.location_equipment_number);
 }
 
-// Formaterer en overskrift til et enkelt udstyr, fx "Vaskehal 01"
 export function formatEquipmentTitle(
   titlePrefix: string,
   number: number,

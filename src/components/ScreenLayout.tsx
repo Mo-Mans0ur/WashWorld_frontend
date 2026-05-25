@@ -8,6 +8,7 @@ import { ReactNode, createContext, useContext, useState } from "react";
 import { usePathname } from "next/navigation";
 import AppNav from "@/components/Appnav";
 import AppHeader from "@/components/AppHeader";
+import AuthGuard from "@/components/AuthGuard";
 
 const NavVisibilityContext = createContext({
   setHideNav: (_: boolean) => {},
@@ -20,20 +21,22 @@ export function useNavVisibility() {
 export default function ScreenLayout({ children }: { children: ReactNode }) {
   const [forcedHideNav, setForcedHideNav] = useState(false);
   const pathname = usePathname();
-  const hideNavRoutes = new Set(["/login", "/signup", "/505", "/under-construction", "/"]);
+  const hideNavRoutes = new Set(["/login", "/signup", "/505", "/under-construction", "/", "/reset-password", "/reset-password/confirm", "/email-verified", "/terms"]);
   const showNav = !hideNavRoutes.has(pathname) && !forcedHideNav;
 
   return (
     <NavVisibilityContext.Provider value={{ setHideNav: setForcedHideNav }}>
-      <main className="app-shell">
-        <section className="app-screen relative flex min-h-0 flex-col overflow-hidden">
-          {showNav && <AppHeader />}
-          <div className={`min-h-0 flex-1 overflow-y-auto ${showNav ? "pb-22" : ""}`}>
-            {children}
-          </div>
-          {showNav && <AppNav />}
-        </section>
-      </main>
+      <AuthGuard>
+        <main className="app-shell">
+          <section className="app-screen relative flex min-h-0 flex-col overflow-hidden">
+            {showNav && <AppHeader />}
+            <div className={`min-h-0 flex-1 overflow-y-auto ${showNav ? "pb-22" : ""}`}>
+              {children}
+            </div>
+            {showNav && <AppNav />}
+          </section>
+        </main>
+      </AuthGuard>
     </NavVisibilityContext.Provider>
   );
 }

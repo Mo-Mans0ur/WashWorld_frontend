@@ -1,7 +1,3 @@
-// RedigerBilPage – redigering af en eksisterende bil.
-// Henter bilen fra VehiclesContext via URL-parameteren [id] og forindlæser alle felter.
-// Sender opdaterede data til API'et og sender brugeren tilbage til bil-oversigten.
-
 "use client";
 
 import { useEffect, useState, type ElementType } from "react";

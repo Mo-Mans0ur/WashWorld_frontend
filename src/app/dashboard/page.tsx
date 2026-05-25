@@ -1,7 +1,3 @@
-// DashboardPage – forsiden brugeren ser efter login.
-// Viser nærmeste vaskehal (beregnet fra GPS), brugerens favoritvaskehaller og aktuelle tilbud.
-// En notifikationsklokke vises hvis brugeren mangler betalingskort eller bil på kontoen.
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -101,12 +97,6 @@ export default function DashboardPage() {
     }, undefined, { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 });
   }, [locations]);
 
-  // Viser en animeret toast når klokken klikkes.
-  // Eksisterende timeouts ryddes først så toasten ikke overlapper sig selv hvis
-  // brugeren klikker hurtigt to gange. Tre faser styrer CSS-overgangen:
-  //   40 ms  → "enter" (toasten glider ind)
-  //   5000 ms → "exit"  (toasten begynder at glide ud)
-  //   5500 ms → toasten fjernes fra DOM
   function handleNotificationClick() {
     notificationToastTimeoutsRef.current.forEach((timeoutId) => {
       window.clearTimeout(timeoutId);
@@ -271,12 +261,12 @@ export default function DashboardPage() {
 
         <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
           {offersLoading && (
-            <p className="px-2 text-sm font-semibold text-white">
+            <p className="px-2 text-sm font-semibold text-neutral-500">
               Henter tilbud...
             </p>
           )}
           {!offersLoading && offers.length === 0 && (
-            <p className="px-2 text-sm font-semibold text-white">
+            <p className="px-2 text-sm font-semibold text-neutral-500">
               Ingen aktuelle tilbud
             </p>
           )}
@@ -363,7 +353,6 @@ function NewsCard({ offer }: { offer: Offer }) {
           width={184}
           height={80}
           quality={75}
-          loading="eager"
         />
       )}
 

@@ -26,12 +26,10 @@ import {
 import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
 import type { Car, Subscription } from "@/types/api";
 
-// De køretøjstyper som appen understøtter
 export type VehicleType = "car" | "motorcycle" | "truck" | "bus";
 
 const VEHICLE_TYPES: VehicleType[] = ["car", "motorcycle", "truck", "bus"];
 
-// Sikrer at en ukendt string fra API'et altid bliver til en gyldig VehicleType
 function normalizeVehicleType(value: string | undefined): VehicleType {
   if (value && VEHICLE_TYPES.includes(value as VehicleType)) {
     return value as VehicleType;
@@ -39,19 +37,17 @@ function normalizeVehicleType(value: string | undefined): VehicleType {
   return "car";
 }
 
-// Det interne køretøjsobjekt som appen bruger — en sammensmeltning af bil + abonnement
 export type Vehicle = {
   id: string;
-  name: string;           // Brugerens navn til bilen (eller "Primær" / "Bil 2" som standard)
-  plate: string;          // Nummerplade
-  countryCode: string;    // Landekode, fx "DK"
-  active: boolean;        // true hvis bilen har et aktivt abonnement
-  subscriptionName: string | null; // Navn på det aktive abonnement, eller null
-  isEV: boolean;          // true hvis bilen er en elbil
+  name: string;
+  plate: string;
+  countryCode: string;
+  active: boolean;
+  subscriptionName: string | null;
+  isEV: boolean;
   vehicleType: VehicleType;
 };
 
-// Den type som VehiclesContext stiller til rådighed for resten af appen
 type VehiclesContextType = {
   vehicles: Vehicle[];
   isLoading: boolean;
@@ -67,7 +63,6 @@ type VehiclesContextType = {
 
 export const VehiclesContext = createContext<VehiclesContextType | null>(null);
 
-// Oversætter et Vehicle-objekt til det format som backend-API'et forventer
 function toCarPayload(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
   return {
     car_license_plate: v.plate,
@@ -78,9 +73,6 @@ function toCarPayload(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
   };
 }
 
-// Kombinerer en liste af biler og abonnementer til Vehicle-objekter.
-// Finder det aktive abonnement til hver bil (status = "aktiv") og sætter
-// et læsevenligt navn hvis brugeren ikke selv har navngivet bilen.
 function mapCarsToVehicles(
   cars: Car[],
   subscriptions: Subscription[],
@@ -112,8 +104,6 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Henter biler og abonnementer fra API'et parallelt og opdaterer listen.
-  // Venter med at køre indtil AuthContext har bekræftet om brugeren er logget ind.
   const refreshVehicles = useCallback(async () => {
     if (!user) {
       setVehicles([]);
@@ -124,7 +114,6 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      // Henter biler og abonnementer på samme tid for at spare tid
       const [cars, subscriptions] = await Promise.all([
         fetchUserCars(user.user_id),
         fetchUserSubscriptions(user.user_id).catch(() => [] as Subscription[]),
@@ -138,13 +127,11 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  // Kør refreshVehicles automatisk når login-status er klar
   useEffect(() => {
     if (authLoading) return;
     refreshVehicles();
   }, [authLoading, refreshVehicles]);
 
-  // Opretter en ny bil via API'et og opdaterer listen bagefter
   async function addVehicle(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
     if (!user) throw new Error("Ikke logget ind");
 
@@ -152,7 +139,6 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
     await refreshVehicles();
   }
 
-  // Redigerer en eksisterende bil og opdaterer listen bagefter
   async function updateVehicle(
     id: string,
     v: Omit<Vehicle, "id" | "active" | "subscriptionName">,
@@ -163,7 +149,6 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
     await refreshVehicles();
   }
 
-  // Sletter en bil og opdaterer listen bagefter
   async function deleteVehicle(id: string) {
     if (!user) throw new Error("Ikke logget ind");
 

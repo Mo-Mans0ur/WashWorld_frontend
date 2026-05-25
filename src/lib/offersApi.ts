@@ -35,7 +35,6 @@ export function isOfferActive(
   return start.getTime() <= dayEnd.getTime() && end.getTime() >= dayStart.getTime();
 }
 
-/** Henter alle tilbud fra API'et og returnerer kun dem der er aktive i dag. */
 export async function fetchOffers(): Promise<Offer[]> {
   const data = await apiRequest<{ offers: Offer[] }>("/api/offers");
   const today = new Date();
