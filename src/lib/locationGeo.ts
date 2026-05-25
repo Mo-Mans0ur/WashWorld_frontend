@@ -1,5 +1,6 @@
-// locationGeo indeholder geografiske hjælpefunktioner til brug på kort- og listesiden.
-// Bruges bl.a. til at beregne afstand fra brugerens placering til nærmeste vaskehal.
+// locationGeo – geografiske hjælpefunktioner til afstandsberegning og åbningstidsformatering.
+// haversineKm() og formatKmDa() bruges af Map.tsx og LocationsList.tsx til afstandsvisning.
+// formatOpenHoursDisplay() og locationShortName() bruges af LocationPopupCard.tsx.
 
 const EARTH_RADIUS_KM = 6371;
 

@@ -1,5 +1,6 @@
-// src/lib/Api.ts — simple hente-funktioner der bruges af ældre dele af koden.
-// Nyere kode bruger locationsApi.ts og apiClient.ts i stedet.
+// Api.ts – simpel fetch-wrapper der stadig bruges af dashboard/page.tsx (fetchLocations).
+// Nyere kode bruger locationsApi.ts (Map, LocationsList) og apiClient.ts i stedet.
+// Undgå at tilføje nye funktioner her – brug apiClient.ts til alt nyt.
 
 // Henter alle vaskelokationer fra API'et (bruges på kort- og listesiden)
 export const fetchLocations = async () => {

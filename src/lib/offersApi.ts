@@ -1,7 +1,8 @@
-// offersApi – henter og filtrerer tilbud fra API'et.
+// offersApi – henter og filtrerer tilbud fra API'et (/api/offers).
+// fetchOffers() bruges af dashboard/page.tsx til at vise aktuelle tilbud i "Til dig"-sektionen.
 // Tilbud er kun aktive indenfor deres start- og slutdato (isOfferActive).
-// getOfferImageSrc konverterer rå base64-strenge fra databasen til et kilde-format
-// der kan bruges direkte i <img> og Next.js Image-komponenten.
+// getOfferImageSrc() bruges i NewsCard (dashboard/page.tsx) til at konvertere rå base64-strenge
+// fra databasen til et kilde-format der kan bruges direkte i <img> og Next.js Image-komponenten.
 import { apiRequest } from "@/lib/apiClient";
 import type { Offer } from "@/types/api";
 

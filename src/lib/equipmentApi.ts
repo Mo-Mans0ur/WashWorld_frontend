@@ -1,6 +1,6 @@
-// equipmentApi indeholder typer og API-kald til udstyr på vaskelokationer.
-// "Equipment" dækker vaskehaller, selvvask-pladser og støvsugere.
-// Bruges på lokationsdetaljesiden til at vise hvad der er ledigt.
+// equipmentApi – typer og API-kald til udstyr på vaskelokationer (vaskehaller, selvvask, støvsugere).
+// Bruger apiRequest() fra apiClient.ts til alle kald mod /api/location_equipment.
+// Bruges af details/page.tsx til at vise hvilke faciliteter der er til rådighed på en lokation.
 
 export type LocationEquipment = {
   location_equipment_id: string;

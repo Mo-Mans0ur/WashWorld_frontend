@@ -1,4 +1,5 @@
-// carsApi indeholder alle API-kald til brugerens biler.
+// carsApi indeholder alle API-kald til brugerens biler (hent, opret, opdater, slet).
+// Bruges udelukkende af VehiclesContext.tsx, som udstiller dataen via useVehicles()-hooken.
 // Alle funktioner bruger apiRequest() fra apiClient, som håndterer token og fejl automatisk.
 
 import { apiRequest } from "@/lib/apiClient";

@@ -1,9 +1,11 @@
-// useVehicles er en hjælpefunktion (hook) der giver nem adgang til køretøjslisten fra VehiclesContext.
+// useVehicles er en hjælpefunktion (hook) der giver nem adgang til køretøjslisten fra VehiclesContext.tsx.
+// VehiclesContext henter data via carsApi.ts og subscriptionsApi.ts og er monteret i Providers.tsx.
 import { useContext } from "react";
 import { VehiclesContext } from "@/context/VehiclesContext";
 
-// Returnerer vehicles[], isLoading, error, refreshVehicles(), addVehicle(), updateVehicle() og deleteVehicle().
-// Bruges på bil-siden og overalt hvor man skal vælge eller vise brugerens biler.
+// Returnerer vehicles[], isLoading, addVehicle(), updateVehicle() og deleteVehicle().
+// Bruges i: cars/page.tsx, cars/add/page.tsx, cars/edit/[id]/page.tsx,
+// dashboard/page.tsx (notifikationsklokke) og singlewash/page.tsx (bilvalg).
 export function useVehicles() {
   const ctx = useContext(VehiclesContext);
   if (!ctx) throw new Error("useVehicles must be used within VehiclesProvider");

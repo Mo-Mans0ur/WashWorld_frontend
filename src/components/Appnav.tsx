@@ -4,6 +4,7 @@
 //   1. Bundmenu (bottom nav) – altid synlig med links til Home, Kort, Profil og Menu-knap.
 //   2. Sidebar – skubbes ind fra højre når brugeren trykker Menu.
 //      Lukkes automatisk når brugeren navigerer til en ny side (useEffect på pathname).
+// Renderes af ScreenLayout.tsx. Bruger ROUTES (lib/routes.ts) til links og useAuth() til logout.
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";

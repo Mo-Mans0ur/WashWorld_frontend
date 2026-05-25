@@ -1,10 +1,10 @@
 "use client";
 
 // HandleSubscriptionPage – opret et nyt abonnement.
-// Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze.
-// Brugeren vælger køretøj og betalingsmetode via et "bottom sheet" (glider op nedefra).
-// Når formularen sendes, oprettes abonnementet i databasen via createSubscription()
-// og brugeren sendes til /profile. car_id knyttes til det valgte køretøj.
+// Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze (fra abonnement/page.tsx).
+// Bruger CarPickerSheet.tsx til bilvalg og createSubscription() fra subscriptionsApi.ts.
+// Henter brugerens biler via useVehicles() og autentificering via useAuth().
+// Efter vellykket oprettelse sendes brugeren til /profile.
 
 import { useMemo, useState } from "react";
 import Link from "next/link";

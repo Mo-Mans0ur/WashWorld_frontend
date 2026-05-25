@@ -1,5 +1,7 @@
 // LocationPopupCard – kort der viser navn, adresse, afstand og åbningstider for én vaskelokation.
-// Bruges i LocationsList (listevisning) og har samme udseende som popup-kortene på Mapbox-kortet.
+// Bruges af LocationsList.tsx (listevisning) og Map.tsx (popup ved klik på markør).
+// Importerer formatOpenHoursDisplay() og locationShortName() fra lib/locationGeo.ts.
+// Klikkes for at navigere til details/page.tsx via ROUTES.details(id).
 
 import Link from "next/link";
 import {

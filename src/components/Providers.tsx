@@ -1,9 +1,11 @@
 "use client";
 
 // Providers samler alle React Context-udbydere ét sted og wrapper app-indholdet.
-// Rækkefølgen er vigtig: AuthProvider skal ligge udenfor FavoritesProvider
-// fordi FavoritesProvider potentielt kan udvides til at bruge brugerId fra AuthContext.
+// Monteret i layout.tsx som wrapper rundt om hele appen.
+// Rækkefølgen er vigtig: AuthProvider → VehiclesProvider → FavoritesProvider,
+// fordi VehiclesContext og FavoritesContext begge afhænger af bruger-ID fra AuthContext.
 //
+// Indeholder: QueryClientProvider (TanStack), AuthContext, VehiclesContext, FavoritesContext.
 // Tilføj nye Context-udbydere her frem for i layout.tsx for at holde det overskueligt.
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

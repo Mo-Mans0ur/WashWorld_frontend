@@ -1,5 +1,7 @@
-// formatName indeholder hjælpefunktioner til at formatere brugernavne pænt.
-// Bruges i AuthContext og overalt hvor brugerens navn vises i UI'et.
+// formatName – hjælpefunktioner til at formatere brugernavne til visning.
+// getUserDisplayFirstName() og getUserDisplayFullName() bruges af AuthContext.tsx,
+// som udstiller dem via useAuth()-hooken (displayFirstName, displayFullName).
+// capitalizeName() bruges i updateprofile/page.tsx til at sætte stort forbogstav.
 import type { User } from "@/types/api";
 
 type UserNameFields = Pick<User, "user_firstname" | "user_lastname">;

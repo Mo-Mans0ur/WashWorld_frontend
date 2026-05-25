@@ -1,9 +1,10 @@
 // VehiclesContext giver alle sider og komponenter adgang til brugerens køretøjer.
-// Den henter biler og abonnementer fra API'et og kombinerer dem til ét samlet
-// Vehicle-objekt — fx om en bil har et aktivt abonnement.
+// Den henter biler via carsApi.ts og abonnementer via subscriptionsApi.ts, og kombinerer
+// dem til ét samlet Vehicle-objekt — fx om en bil har et aktivt abonnement.
+// VehiclesProvider er monteret i Providers.tsx → layout.tsx (indeni AuthProvider).
 //
-// Brug useVehicles() hook for at tilgå listen af køretøjer og funktioner
-// til at tilføje, redigere og slette dem.
+// Brug useVehicles()-hooken (hooks/useVehicles.ts) for at tilgå listen af køretøjer
+// og funktioner til at tilføje, redigere og slette dem.
 
 "use client";
 
