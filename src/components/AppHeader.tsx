@@ -30,7 +30,7 @@ export default function AppHeader() {
         alt="Wash World logo"
         width={85}
         height={30}
-        priority
+        loading="eager"
         style={{ width: "auto" }}
       />
     </header>

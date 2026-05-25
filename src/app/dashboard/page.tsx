@@ -101,6 +101,12 @@ export default function DashboardPage() {
     }, undefined, { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 });
   }, [locations]);
 
+  // Viser en animeret toast når klokken klikkes.
+  // Eksisterende timeouts ryddes først så toasten ikke overlapper sig selv hvis
+  // brugeren klikker hurtigt to gange. Tre faser styrer CSS-overgangen:
+  //   40 ms  → "enter" (toasten glider ind)
+  //   5000 ms → "exit"  (toasten begynder at glide ud)
+  //   5500 ms → toasten fjernes fra DOM
   function handleNotificationClick() {
     notificationToastTimeoutsRef.current.forEach((timeoutId) => {
       window.clearTimeout(timeoutId);
@@ -357,6 +363,7 @@ function NewsCard({ offer }: { offer: Offer }) {
           width={184}
           height={80}
           quality={75}
+          loading="eager"
         />
       )}
 

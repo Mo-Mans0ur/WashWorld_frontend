@@ -188,6 +188,9 @@ export default function UpdateProfilePage() {
     }
   }
 
+  // Sletter brugerens konto permanent via API'et og logger derefter ud lokalt.
+  // Brugeren sendes til login-siden. Hvis API-kaldet fejler vises en fejlbesked
+  // og bekræftelsesdialogboksen lukkes ikke – brugeren kan prøve igen.
   async function handleDeleteAccount() {
     if (!user || !token) return;
     setIsDeleting(true);
@@ -431,6 +434,7 @@ function PhoneInput({
   );
 }
 
+// Sektionsoverskrift med et rundt ikon til venstre – bruges til "Profiloplysninger" og "Adgangskode"
 function SectionTitle({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <div className="flex items-center gap-2">

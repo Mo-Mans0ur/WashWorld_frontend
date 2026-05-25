@@ -1,3 +1,7 @@
+// offersApi – henter og filtrerer tilbud fra API'et.
+// Tilbud er kun aktive indenfor deres start- og slutdato (isOfferActive).
+// getOfferImageSrc konverterer rå base64-strenge fra databasen til et kilde-format
+// der kan bruges direkte i <img> og Next.js Image-komponenten.
 import { apiRequest } from "@/lib/apiClient";
 import type { Offer } from "@/types/api";
 
@@ -30,6 +34,7 @@ export function isOfferActive(
   return start.getTime() <= dayEnd.getTime() && end.getTime() >= dayStart.getTime();
 }
 
+/** Henter alle tilbud fra API'et og returnerer kun dem der er aktive i dag. */
 export async function fetchOffers(): Promise<Offer[]> {
   const data = await apiRequest<{ offers: Offer[] }>("/api/offers");
   const today = new Date();
