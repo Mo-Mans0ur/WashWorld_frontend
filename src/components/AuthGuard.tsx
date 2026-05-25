@@ -1,5 +1,10 @@
 "use client";
 
+// AuthGuard – klient-side adgangskontrol der supplerer middleware.ts.
+// Middleware kan kun læse cookie-tokenet; AuthGuard verificerer at React-sessionen
+// (AuthContext) er korrekt indlæst og omdirigerer til /login hvis ikke.
+// Viser en spinner mens sessionen verificeres ved opstart.
+
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks";

@@ -1,3 +1,10 @@
+// middleware – server-side ruteguard der kører på Edge-runtime ved hvert sidebesøg.
+// Læser JWT-token fra cookie (sat af saveToken() i apiClient.ts) og:
+//   • Omdirigerer ikke-loggede brugere til /login for alle beskyttede ruter.
+//   • Omdirigerer allerede-loggede brugere væk fra /login og /signup til /dashboard.
+//   • Videresender alle andre kald uden ændringer.
+// AuthGuard.tsx udgør et supplerende klient-side lag der håndterer edge cases (fx udløbet token).
+
 import { NextRequest, NextResponse } from "next/server";
 
 const PUBLIC_ROUTES = new Set([

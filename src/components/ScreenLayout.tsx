@@ -1,4 +1,5 @@
 // ScreenLayout er skabelonen for alle sider i appen.
+// Wrapper alt indhold i AuthGuard, som håndterer klient-side adgangskontrol.
 // Den viser header og bundnavigation på alle sider undtagen login/signup og under-construction.
 // useNavVisibility() giver sider mulighed for at skjule navigationen programmatisk (fx 404-siden).
 

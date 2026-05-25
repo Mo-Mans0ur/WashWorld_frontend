@@ -3,7 +3,7 @@
 // HandleSubscriptionPage – opret et nyt abonnement.
 // Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze (fra abonnement/page.tsx).
 // Bruger CarPickerSheet.tsx til bilvalg og createSubscription() fra subscriptionsApi.ts.
-// Henter brugerens biler via useVehicles() og autentificering via useAuth().
+// Henter brugerens biler via useVehicles(). Adgangskontrol håndteres af middleware og AuthGuard.
 // Efter vellykket oprettelse sendes brugeren til /profile.
 
 import { useMemo, useState } from "react";

@@ -5,7 +5,7 @@ import { VehiclesContext } from "@/context/VehiclesContext";
 
 // Returnerer vehicles[], isLoading, addVehicle(), updateVehicle() og deleteVehicle().
 // Bruges i: cars/page.tsx, cars/add/page.tsx, cars/edit/[id]/page.tsx,
-// dashboard/page.tsx (notifikationsklokke) og singlewash/page.tsx (bilvalg).
+// abonnement/handlesubscription/page.tsx, dashboard/page.tsx og singlewash/page.tsx.
 export function useVehicles() {
   const ctx = useContext(VehiclesContext);
   if (!ctx) throw new Error("useVehicles must be used within VehiclesProvider");
