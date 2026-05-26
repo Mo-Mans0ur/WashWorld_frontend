@@ -12,7 +12,7 @@ import PageInfo from "@/components/shared/PageInfo";
 import {
   notificationPageContent,
   notificationSettings,
-} from "@/data/notificationData";
+} from "@/data/notifications/notificationData";
 import { ROUTES } from "@/lib/routes";
 
 type SettingsState = Record<string, boolean>;

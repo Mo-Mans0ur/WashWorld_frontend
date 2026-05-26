@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/solid";
 import PageInfo from "@/components/shared/PageInfo";
 import ReceiptActionList from "@/components/receipts/ReceiptActionList";
-import { receiptPageNames } from "@/data/receiptHistory";
+import { receiptPageNames } from "@/data/receipts/receiptHistory";
 import {
   formatWashDate,
   formatWashTime,

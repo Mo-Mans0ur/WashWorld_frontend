@@ -9,7 +9,7 @@ import { Bell } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { dashboardPageNames } from "@/data/dashboardData";
+import { dashboardPageNames } from "@/data/dashboard/dashboardData";
 import PageInfo from "@/components/shared/PageInfo";
 import FavoriteCard from "@/components/dashboard/FavoriteCard";
 import NewsCard from "@/components/dashboard/NewsCard";

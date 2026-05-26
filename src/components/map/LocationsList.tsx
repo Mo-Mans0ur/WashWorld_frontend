@@ -5,7 +5,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { MapLocation } from "@/data/washworldLocations";
+import type { MapLocation } from "@/types/location";
 import { fetchMapLocations } from "@/lib/locationsApi";
 import LocationPopupCard from "@/components/map/LocationPopupCard";
 import { formatKmDa, haversineKm } from "@/lib/locationGeo";

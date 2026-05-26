@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 import PageInfo from "@/components/shared/PageInfo";
 import WashDetail from "@/components/receipts/WashDetail";
 import SubscriptionDetail from "@/components/receipts/SubscriptionDetail";
-import { receiptPageNames } from "@/data/receiptHistory";
+import { receiptPageNames } from "@/data/receipts/receiptHistory";
 import { fetchWashLog } from "@/lib/washLogApi";
 import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
 import { fetchUserCars } from "@/lib/carsApi";

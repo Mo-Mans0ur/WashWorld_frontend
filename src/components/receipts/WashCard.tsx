@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CalendarDaysIcon, MapPinIcon } from "@heroicons/react/24/solid";
 import { LicensePlate } from "@/components/shared/LicensePlate";
-import { receiptPageNames } from "@/data/receiptHistory";
+import { receiptPageNames } from "@/data/receipts/receiptHistory";
 import {
   formatWashDate,
   formatWashTime,

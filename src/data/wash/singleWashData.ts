@@ -1,26 +1,7 @@
 // singleWashData – statiske data til enkelt-vask-flowet: tekster til de tre sider (valg, nummerplade, klargøring),
 // råd om klargøring inden vask og de tre vaskeprogram-planer (Guld, Premium, Brilliant) med featurer og priser.
 
-type PaymentPlanFeature = {
-  text: string;
-  level: 0 | 1 | 2;
-};
-
-export type PaymentPlan = {
-  slug: string;
-  name: string;
-  price: string;
-  firstMonth: string;
-  description: string;
-  features: PaymentPlanFeature[];
-};
-
-export type SingleWashAdviceItem = {
-  id: string;
-  title: string;
-  image: string;
-  alt: string;
-};
+import type { PaymentPlanFeature, PaymentPlan, SingleWashAdviceItem } from "@/types/wash";
 
 export const singleWashPageContent = {
   pageInfoTitle: "Enkelt vask",

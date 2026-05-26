@@ -24,9 +24,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AssistanceButton } from "@/components/buttons";
 import { CarIllustration, type WashStage } from "@/components/activewash/CarIllustration";
 import { CompletionModal } from "@/components/activewash/CompletionModal";
-import { saveLatestSingleWashReceipt } from "@/data/receiptHistory";
-import { paymentPlans } from "@/data/singleWashData";
-import { subscriptionPlans } from "@/data/subscriptionData";
+import { saveLatestSingleWashReceipt } from "@/data/receipts/receiptHistory";
+import { paymentPlans } from "@/data/wash/singleWashData";
+import { subscriptionPlans } from "@/data/subscriptions/subscriptionData";
 import { createWashLog } from "@/lib/washLogApi";
 import { ROUTES } from "@/lib/routes";
 

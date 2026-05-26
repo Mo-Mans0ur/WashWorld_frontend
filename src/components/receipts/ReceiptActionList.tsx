@@ -6,7 +6,7 @@ import {
   LifebuoyIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/solid";
-import { receiptActionNames } from "@/data/receiptHistory";
+import { receiptActionNames } from "@/data/receipts/receiptHistory";
 
 const receiptActionIcons: Record<string, React.ReactNode> = {
   "Download Kvittering": <ArrowDownTrayIcon className="h-5 w-5" />,

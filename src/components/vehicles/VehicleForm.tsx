@@ -8,8 +8,8 @@ import { Zap } from "lucide-react";
 import PageInfo from "@/components/shared/PageInfo";
 import CountrySelector, { type Country, EUROPEAN_COUNTRIES } from "@/components/shared/CountrySelector";
 import { Button } from "@/components/buttons";
-import { getPlateFormat } from "@/data/plateFormats";
-import { VEHICLE_TYPES } from "@/data/vehicleTypes";
+import { getPlateFormat } from "@/data/vehicles/plateFormats";
+import { VEHICLE_TYPES } from "@/types/vehicleTypes";
 import type { VehicleType } from "@/context/VehiclesContext";
 
 export type VehicleFormValues = {

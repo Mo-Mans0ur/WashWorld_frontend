@@ -16,9 +16,9 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getMissingProfileInfoState } from "@/data/profileData";
-import { subscriptionPageNames, subscriptionPlans } from "@/data/subscriptionData";
-import { washworldMapLocations } from "@/data/washworldLocations";
+import { getMissingProfileInfoState } from "@/data/profile/profileData";
+import { subscriptionPageNames, subscriptionPlans } from "@/data/subscriptions/subscriptionData";
+import { washworldMapLocations } from "@/data/location/washworldLocations";
 import { ROUTES } from "@/lib/routes";
 import PageInfo from "@/components/shared/PageInfo";
 import { PlanFeature } from "@/components/wash/PlanFeature";

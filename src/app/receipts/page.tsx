@@ -6,7 +6,7 @@
 import PageInfo from "@/components/shared/PageInfo";
 import WashCard from "@/components/receipts/WashCard";
 import SubscriptionCard from "@/components/receipts/SubscriptionCard";
-import { receiptPageNames } from "@/data/receiptHistory";
+import { receiptPageNames } from "@/data/receipts/receiptHistory";
 import { useAuth, useReceiptHistory } from "@/hooks";
 
 export default function Vaskehistorik() {

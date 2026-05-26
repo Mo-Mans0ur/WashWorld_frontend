@@ -17,7 +17,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/shared/PageInfo";
 import { PlanFeature } from "@/components/wash/PlanFeature";
-import { singleWashPageContent, paymentPlans } from "@/data/singleWashData";
+import { singleWashPageContent, paymentPlans } from "@/data/wash/singleWashData";
 import { ROUTES } from "@/lib/routes";
 import { usePlanCarousel } from "@/hooks";
 

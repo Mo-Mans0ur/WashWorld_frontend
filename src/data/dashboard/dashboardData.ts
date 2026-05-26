@@ -1,26 +1,7 @@
 // dashboardData – statiske data til dashboard-siden: tekster, eksempel-favoritter og nyheder/tilbud-kort.
 // dashboardFavoriteLocations bruges kun som fallback hvis API'et ikke returnerer favoritter.
 
-export type DashboardLocation = {
-  id: number;
-  image: string;
-  title: string;
-  address: {
-    street: string;
-    city: string;
-  };
-  coords: {
-    lat: number;
-    lng: number;
-  };
-};
-
-export type DashboardNewsItem = {
-  id: number;
-  image: string;
-  description: string;
-  imageClassName?: string;
-};
+import type { DashboardLocation, DashboardNewsItem } from "@/types/dashboard";
 
 export const dashboardPageNames = {
   userName: "Jeppe",

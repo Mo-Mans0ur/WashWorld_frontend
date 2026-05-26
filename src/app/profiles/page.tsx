@@ -22,7 +22,7 @@ import {
   profilePageNames,
   profileStamps,
   SAVED_PAYMENT_CARD_STORAGE_KEY,
-} from "@/data/profileData";
+} from "@/data/profile/profileData";
 import { useAuth, useSubscriptions, useAnimatedToast } from "@/hooks";
 import { deleteSubscription } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";

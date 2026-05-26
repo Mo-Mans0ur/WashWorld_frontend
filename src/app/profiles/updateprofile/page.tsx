@@ -11,7 +11,7 @@ import InputField from "@/components/profile/InputField";
 import PhoneInput from "@/components/profile/PhoneInput";
 import SectionTitle from "@/components/profile/SectionTitle";
 import { Button } from "@/components/buttons";
-import { profileUpdatePageContent } from "@/data/profileData";
+import { profileUpdatePageContent } from "@/data/profile/profileData";
 import { useUpdateProfile } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
 

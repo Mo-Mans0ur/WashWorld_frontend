@@ -30,7 +30,7 @@ import {
 import MapControls from "./MapControls";
 import ViewToggle from "./ViewToggle";
 import { ROUTES } from "@/lib/routes";
-import type { MapLocation } from "@/data/washworldLocations";
+import type { MapLocation } from "@/types/location";
 import { fetchMapLocations } from "@/lib/locationsApi";
 import {
   formatKmDa,

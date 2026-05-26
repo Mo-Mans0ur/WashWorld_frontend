@@ -3,9 +3,9 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getSubscriptionPlanBySlug } from "@/data/subscriptionData";
-import { paymentOptions, paymentPageContent } from "@/data/paymentData";
-import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
+import { getSubscriptionPlanBySlug } from "@/data/subscriptions/subscriptionData";
+import { paymentOptions, paymentPageContent } from "@/data/payment/paymentData";
+import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profile/profileData";
 import { ROUTES } from "@/lib/routes";
 
 type StoredPaymentCard = { cardNumber: string; expiry: string; name: string };

@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import ErrorPageButton from "../../components/shared/ErrorPageButton";
-import { unsupportedPageData } from "@/data/errorPagesData";
+import { unsupportedPageData } from "@/data/shared/errorPagesData";
 
 export default function UnsupportedPage() {
   return (

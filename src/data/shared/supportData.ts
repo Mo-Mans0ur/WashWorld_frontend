@@ -1,22 +1,7 @@
 // supportData – data til kundeservicesiden: kontaktkort (ring, skriv, aktiv vask) og FAQ-spørgsmål.
 
-import { washworldMapLocations } from "@/data/washworldLocations";
-
-export type SupportContactCard = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  description?: string;
-  actionLabel: string;
-  actionType: "call" | "message" | "urgent";
-  href?: string;
-};
-
-export type SupportFaqItem = {
-  id: string;
-  question: string;
-  answer: string;
-};
+import type { SupportContactCard, SupportFaqItem } from "@/types/support";
+import { washworldMapLocations } from "@/data/location/washworldLocations";
 
 export const supportPageContent = {
   pageInfoTitle: "Kundeservice",

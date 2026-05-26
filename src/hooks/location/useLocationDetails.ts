@@ -21,7 +21,7 @@ import {
   type LocationEquipment,
 } from "@/lib/equipmentApi";
 import { fetchLocationById } from "@/lib/locationsApi";
-import type { MapLocation } from "@/data/washworldLocations";
+import type { MapLocation } from "@/types/location";
 
 type LoadStatus = "loading" | "error" | "ready";
 

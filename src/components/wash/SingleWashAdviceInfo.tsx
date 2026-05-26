@@ -8,7 +8,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Info, X } from "lucide-react";
 
-import { singleWashAdviceContent } from "@/data/singleWashData";
+import { singleWashAdviceContent } from "@/data/wash/singleWashData";
 
 export default function SingleWashAdviceInfo() {
   const [isOpen, setIsOpen] = useState(false);

@@ -9,8 +9,8 @@ import { CircleHelp, CreditCard, Lock, Plus } from "lucide-react";
 import PageInfo from "@/components/shared/PageInfo";
 import PaymentMethodCard from "@/components/payment/PaymentMethodCard";
 import ContinueButton from "@/components/shared/ContinueButton";
-import { paymentPageContent } from "@/data/paymentData";
-import { subscriptionPaymentPageContent } from "@/data/subscriptionData";
+import { paymentPageContent } from "@/data/payment/paymentData";
+import { subscriptionPaymentPageContent } from "@/data/subscriptions/subscriptionData";
 import { useSubscriptionPayment, paymentMethods } from "@/hooks/subscriptions/useSubscriptionPayment";
 
 export default function SubscriptionBetalingPage() {

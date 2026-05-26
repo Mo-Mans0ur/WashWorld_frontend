@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/shared/PageInfo";
 import SingleWashAdviceInfo from "../../../components/wash/SingleWashAdviceInfo";
 import ContinueButton from "@/components/shared/ContinueButton";
-import { singleWashPlatePageContent } from "@/data/singleWashData";
+import { singleWashPlatePageContent } from "@/data/wash/singleWashData";
 import { ROUTES } from "@/lib/routes";
 
 export default function SingleWashPlatePage() {

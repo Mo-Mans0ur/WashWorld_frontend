@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { dashboardPageNames } from "@/data/dashboardData";
+import { dashboardPageNames } from "@/data/dashboard/dashboardData";
 import { ROUTES } from "@/lib/routes";
 
 export default function FavoriteCard({

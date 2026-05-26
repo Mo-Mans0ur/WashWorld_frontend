@@ -3,7 +3,7 @@
 // fetchLocationById() bruges af details/page.tsx til at vise én lokations detaljer.
 // mapApiRowToMapLocation() konverterer rå API-rækker til det MapLocation-format som kortet forventer.
 // Koordinatvalidering sikrer at kun gyldige danske koordinater vises på kortet.
-import type { MapLocation } from "../data/washworldLocations";
+import type { MapLocation } from "@/types/location";
 
 export type ApiLocationRow = {
   location_id: string;

@@ -2,37 +2,7 @@
 // Indeholder badges, menupunkter, klippekort-stempler og hjælpefunktionen getMissingProfileInfoState
 // der bruges til at vise en toast hvis brugeren mangler bil eller betalingskort.
 
-export type ProfileBadge = {
-  id: number;
-  label: string;
-  description: string;
-  achieved: boolean;
-  image: string;
-  lockedImage: string;
-};
-
-export type ProfileMenuItem = {
-  label: string;
-  href: string;
-  iconKey: "sparkles" | "calendar" | "credit-card" | "bell" | "question-mark";
-};
-
-export type ProfileStamp = {
-  label: string;
-  filled: boolean;
-};
-
-export type ProfileVehicle = {
-  id: string;
-  plateNumber: string;
-  name: string;
-};
-
-export type ProfilePaymentCard = {
-  id: string;
-  brand: string;
-  last4: string;
-};
+import type { ProfileBadge, ProfileMenuItem, ProfileStamp, ProfileVehicle, ProfilePaymentCard } from "@/types/profile";
 
 export const SAVED_PAYMENT_CARD_STORAGE_KEY = "washworld-saved-payment-card";
 

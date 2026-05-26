@@ -1,13 +1,7 @@
 // notificationData – tekster og standardindstillinger til notifikationssiden.
 // notificationSettings definerer de fire notifikationstyper brugeren kan til/fra-koble.
 
-export type NotificationSetting = {
-  id: string;
-  title: string;
-  description: string;
-  enabled: boolean;
-  accent: "green" | "orange";
-};
+import type { NotificationSetting } from "@/types/notifications";
 
 export const notificationPageContent = {
   pageInfoTitle: "Notifikationer",
