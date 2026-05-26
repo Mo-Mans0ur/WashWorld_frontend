@@ -15,12 +15,12 @@ export const ROUTES = {
 
   // Main
   dashboard: "/dashboard",
-  profile: "/profile",
-  profileUpdated: "/profile?updated=1",
-  profileUpdatedPreferences: "/profile?updated=preferences",
-  updateProfile: "/profile/updateprofile",
-  notifications: "/notifikationer",
-  customerService: "/kundeservice",
+  profile: "/profiles",
+  profileUpdated: "/profiles?updated=1",
+  profileUpdatedPreferences: "/profiles?updated=preferences",
+  updateProfile: "/profiles/updateprofile",
+  notifications: "/notifications",
+  customerService: "/customer-service",
 
   // Locations
   map: "/locations/map",
@@ -29,32 +29,32 @@ export const ROUTES = {
 
   // Single wash flow
   singlewash: "/singlewash",
-  paymentSettings: "/betaling",
-  savePaymentCard: "/betaling?saveCard=true",
+  paymentSettings: "/payments",
+  savePaymentCard: "/payments?saveCard=true",
   payment: (plan: string, plate?: string, carId?: string, locationId?: string, equipmentId?: string) =>
-    `/betaling?plan=${plan}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
+    `/payments?plan=${plan}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
   licensePlate: (plan: string, payment: string, plate?: string, carId?: string) =>
-    `/singlewash/nummerplade?plan=${plan}&payment=${payment}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+    `/singlewash/licenseplate?plan=${plan}&payment=${payment}${plate ? `&plate=${encodeURIComponent(plate)}` : ""}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
   startWash: (plan: string, payment: string, plate: string, carId?: string, locationId?: string, equipmentId?: string) =>
-    `/singlewash/startvask?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
+    `/singlewash/startwash?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
   activeWash: (plan: string, payment: string, plate: string, carId?: string, locationId?: string, equipmentId?: string) =>
     `/activewash?plan=${plan}&payment=${payment}&plate=${encodeURIComponent(plate)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${locationId ? `&location=${encodeURIComponent(locationId)}` : ""}${equipmentId ? `&equipment=${encodeURIComponent(equipmentId)}` : ""}`,
   activeWashSubscription: (location: string, equipment: string, carId?: string) =>
     `/activewash?subscription=true&location=${location}&equipment=${equipment}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
   startWashSubscription: (location: string, equipment: string, carId?: string) =>
-    `/singlewash/startvask?subscription=true&location=${encodeURIComponent(location)}&equipment=${encodeURIComponent(equipment)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
+    `/singlewash/startwash?subscription=true&location=${encodeURIComponent(location)}&equipment=${encodeURIComponent(equipment)}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}`,
 
   // Self wash
   selfWash: (location: string, equipment: string) =>
     `/selfwash?location=${location}&equipment=${equipment}`,
 
   // Subscription flow
-  subscription: "/abonnement",
-  subscriptionForCar: (carId: string) => `/abonnement?carId=${encodeURIComponent(carId)}`,
+  subscription: "/subscriptions",
+  subscriptionForCar: (carId: string) => `/subscriptions?carId=${encodeURIComponent(carId)}`,
   subscriptionPayment: (plan: string, carId?: string, allLocations?: boolean, locationId?: string) =>
-    `/abonnement/betaling?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}${locationId ? `&locationId=${encodeURIComponent(locationId)}` : ""}`,
+    `/subscriptions/payment?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}${locationId ? `&locationId=${encodeURIComponent(locationId)}` : ""}`,
   subscriptionConfirmation: (plan: string, carId?: string, allLocations?: boolean, locationId?: string) =>
-    `/abonnement/handlesubscription?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}${locationId ? `&locationId=${encodeURIComponent(locationId)}` : ""}`,
+    `/subscriptions/newsubscription?plan=${plan}${carId ? `&carId=${encodeURIComponent(carId)}` : ""}${allLocations ? "&allLocations=true" : ""}${locationId ? `&locationId=${encodeURIComponent(locationId)}` : ""}`,
 
   // Vehicles
   cars: "/cars",

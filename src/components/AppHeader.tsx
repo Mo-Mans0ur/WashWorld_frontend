@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-const ROOT_PATHS = ["/dashboard", "/locations/map", "/profile"];
+const ROOT_PATHS = ["/dashboard", "/locations/map", "/profiles"];
 
 export default function AppHeader() {
   const router = useRouter();
