@@ -7,40 +7,29 @@
 // Toast-besked vises kortvarigt når brugeren vender tilbage fra updateprofile med ?updated=1.
 // Opsigelsesbekræftelse håndteres med en inline modal der kalder deleteSubscription().
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
 import Image from "next/image";
 import {
-  Sparkles,
-  Calendar,
-  CreditCard,
-  Bell,
-  HelpCircle,
   Ticket,
   Star,
-  ChevronRight,
   MoreVertical,
   ArrowLeftRight,
   XCircle,
+  CreditCard,
 } from "lucide-react";
 import {
   profileBadges,
-  profileMenuItems,
   profilePageNames,
   profileStamps,
+  SAVED_PAYMENT_CARD_STORAGE_KEY,
 } from "@/data/profileData";
-import { useAuth } from "@/context/AuthContext";
-import { fetchSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
+import { useAuth } from "@/hooks";
+import { fetchUserSubscriptions, deleteSubscription } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";
-
-const menuItemIcons = {
-  sparkles: <Sparkles size={20} />,
-  calendar: <Calendar size={20} />,
-  "credit-card": <CreditCard size={20} />,
-  bell: <Bell size={20} />,
-  "question-mark": <HelpCircle size={20} />,
-};
+import { ROUTES } from "@/lib/routes";
 
 // Formaterer en ISO-dato til dansk månedsnavn + årstal, fx "maj 2024"
 function formatMemberSince(dateStr: string): string {
@@ -54,44 +43,52 @@ function formatRenewalDate(dateStr: string): string {
   return date.toLocaleDateString("da-DK");
 }
 
+function getSubscriptionCarLabel(sub: Subscription): string | null {
+  if (!sub.car_id) return null;
+  const name = sub.car_name?.trim();
+  if (name) return name;
+  if (sub.car_license_plate?.trim()) return sub.car_license_plate.trim();
+  return null;
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, logout } = useAuth();
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const { user, logout, displayFullName } = useAuth();
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [showBadges, setShowBadges] = useState(false);
   const [activeBadgeId, setActiveBadgeId] = useState<number | null>(null);
   const [showUpdatedMessage, setShowUpdatedMessage] = useState(false);
   const [updatedMessagePhase, setUpdatedMessagePhase] = useState<
     "idle" | "pre-enter" | "enter" | "exit"
   >("idle");
-  const [subscriptionMenuOpen, setSubscriptionMenuOpen] = useState(false);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const subscriptionMenuRef = useRef<HTMLDivElement>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<Subscription | null>(null);
+  const [savedCardNumber, setSavedCardNumber] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+      if (!raw) return null;
+      return (JSON.parse(raw) as { cardNumber: string }).cardNumber ?? null;
+    } catch {
+      return null;
+    }
+  });
 
-  // Hent abonnementer når brugeren er klar. Vi viser det aktive abonnement,
-  // eller det første i listen hvis ingen har status "aktiv".
   useEffect(() => {
     if (!user) return;
-    fetchSubscriptions()
-      .then((subs) => setSubscription(subs.find((s) => s.subscriptions_status === "aktiv") ?? subs[0] ?? null))
+    fetchUserSubscriptions(user.user_id)
+      .then((subs) => setSubscriptions(subs))
       .catch(() => {});
   }, [user]);
 
-  // Luk abonnements-dropdown-menuen når brugeren klikker uden for den
   useEffect(() => {
-    if (!subscriptionMenuOpen) return;
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        subscriptionMenuRef.current &&
-        !subscriptionMenuRef.current.contains(e.target as Node)
-      ) {
-        setSubscriptionMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [subscriptionMenuOpen]);
+    if (!openMenuId) return;
+    function handleClickOutside() { setOpenMenuId(null); }
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [openMenuId]);
+
   const revealBadges = () => setShowBadges(true);
   const badges = profileBadges;
   const activeBadge =
@@ -125,7 +122,7 @@ export default function ProfilePage() {
     const clearTimeoutId = window.setTimeout(() => {
       setShowUpdatedMessage(false);
       setUpdatedMessagePhase("idle");
-      router.replace("/profile");
+      router.replace(ROUTES.profile);
     }, 2350);
 
     return () => {
@@ -149,88 +146,10 @@ export default function ProfilePage() {
 
         <PageInfo
           text={profilePageNames.title}
-          userName={user ? `${user.user_firstname} ${user.user_lastname}` : ""}
+          userName={displayFullName}
         />
 
         <section className="space-y-4 p-4 pt-4">
-          {/* Abonnement — øverst, ingen titel, alt inde i kortet */}
-          <article className="relative rounded-[3px] bg-(--white-white) shadow-2xl">
-            {subscription ? (
-              <div className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="text-sm font-semibold text-neutral-600">
-                    Nuværende plan
-                  </p>
-                  <p className="text-lg font-bold text-natural-800">
-                    {subscription.subscriptions_name}
-                  </p>
-                  {subscription.subscriptions_next_billing_date && (
-                    <p className="mt-0.5 text-xs font-semibold text-neutral-600">
-                      Fornyes d. {formatRenewalDate(subscription.subscriptions_next_billing_date)}
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
-                    Aktiv
-                  </span>
-                  <div ref={subscriptionMenuRef} className="relative">
-                    <button
-                      type="button"
-                      aria-label="Abonnement muligheder"
-                      onClick={() => setSubscriptionMenuOpen((v) => !v)}
-                      className="flex h-8 w-8 items-center justify-center text-neutral-500"
-                    >
-                      <MoreVertical size={20} />
-                    </button>
-                    {subscriptionMenuOpen && (
-                      <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSubscriptionMenuOpen(false);
-                            router.push("/abonnement");
-                          }}
-                          className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
-                        >
-                          <ArrowLeftRight size={15} className="text-(--brand-green-01)" />
-                          Skift abonnement
-                        </button>
-                        <div className="h-px bg-neutral-200" />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSubscriptionMenuOpen(false);
-                            setShowCancelConfirm(true);
-                          }}
-                          className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
-                        >
-                          <XCircle size={15} />
-                          Opsig abonnement
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="px-4 py-3">
-                  <p className="text-sm font-semibold text-neutral-600">Nuværende plan</p>
-                  <p className="text-lg font-bold text-neutral-400">Intet abonnement</p>
-                </div>
-                <div className="flex items-center justify-end border-t border-neutral-200">
-                  <button
-                    type="button"
-                    onClick={() => router.push("/abonnement")}
-                    className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
-                  >
-                    Tilføj
-                  </button>
-                </div>
-              </>
-            )}
-          </article>
 
           {/* Bruger-kort */}
           <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
@@ -248,7 +167,7 @@ export default function ProfilePage() {
 
               <div className="min-w-0 flex-1">
                 <h2 className="truncate text-2xl font-bold text-natural-800">
-                  {user ? `${user.user_firstname} ${user.user_lastname}` : "—"}
+                  {user ? displayFullName : "—"}
                 </h2>
                 <p className="mt-0.5 text-sm font-semibold text-neutral-600">
                   {user?.user_email ?? "—"}
@@ -263,14 +182,130 @@ export default function ProfilePage() {
               <p className="flex px-4 py-3 text-xs font-semibold items-center text-neutral-600">
                 {profilePageNames.memberSinceLabel} {user?.user_created_at ? formatMemberSince(user.user_created_at) : "—"}
               </p>
-              <button
-                type="button"
-                onClick={() => router.push("/profile/updateprofile")}
-                className="h-11 min-w-45 bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
+              <Link
+                href={ROUTES.updateProfile}
+                className="flex h-11 min-w-45 items-center justify-center bg-(--brand-green-01) px-5 text-xl font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
               >
                 {profilePageNames.editProfile}
-              </button>
+              </Link>
             </div>
+          </article>
+
+          
+          {/* Abonnementer */}
+          <article className="relative rounded-[3px] bg-(--white-white) shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
+              <p className="text-sm font-semibold text-neutral-600">Abonnementer</p>
+              <Link
+                href={ROUTES.subscription}
+                className="flex h-8 min-w-24 items-center justify-center bg-(--brand-green-01) px-3 text-sm font-bold text-white [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
+              >
+                Tilføj
+              </Link>
+            </div>
+
+            {subscriptions.length === 0 ? (
+              <p className="px-4 py-3 text-sm font-semibold text-neutral-400">Intet abonnement</p>
+            ) : (
+              <div className="divide-y divide-neutral-200">
+                {subscriptions.map((sub) => {
+                  const carLabel = getSubscriptionCarLabel(sub);
+                  return (
+                  <div key={sub.subscription_id} className="flex items-center justify-between px-4 py-3">
+                    <div>
+                      <p className="text-base font-bold text-neutral-800">{sub.subscriptions_name}</p>
+                      {carLabel && (
+                        <p className="mt-0.5 text-xs font-semibold text-neutral-600">
+                          {carLabel}
+                        </p>
+                      )}
+                      {sub.subscriptions_next_billing_date && (
+                        <p className="mt-0.5 text-xs font-semibold text-neutral-500">
+                          Fornyes d. {formatRenewalDate(sub.subscriptions_next_billing_date)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`rounded-full px-3 py-1 text-xs font-bold ${sub.subscriptions_status === "aktiv" ? "bg-emerald-50 text-emerald-600" : "bg-neutral-100 text-neutral-500"}`}>
+                        {sub.subscriptions_status === "aktiv" ? "Aktiv" : sub.subscriptions_status}
+                      </span>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          aria-label="Abonnement muligheder"
+                          onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sub.subscription_id ? null : sub.subscription_id); }}
+                          className="flex h-8 w-8 items-center justify-center text-neutral-500"
+                        >
+                          <MoreVertical size={20} />
+                        </button>
+                        {openMenuId === sub.subscription_id && (
+                          <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
+                            <Link
+                              href={ROUTES.subscription}
+                              onClick={() => setOpenMenuId(null)}
+                              className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
+                            >
+                              <ArrowLeftRight size={15} className="text-(--brand-green-01)" />
+                              Skift abonnement
+                            </Link>
+                            <div className="h-px bg-neutral-200" />
+                            <button
+                              type="button"
+                              onClick={() => { setOpenMenuId(null); setCancelTarget(sub); }}
+                              className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+                            >
+                              <XCircle size={15} />
+                              Opsig abonnement
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  );
+                })}
+              </div>
+            )}
+          </article>
+
+          {/* Betalingskort */}
+          <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-(--brand-green-01) text-white">
+                  <CreditCard size={16} />
+                </span>
+                <p className="text-sm font-semibold text-neutral-600">Betalingskort</p>
+              </div>
+              <Link
+                href={ROUTES.savePaymentCard}
+                className="flex h-8 min-w-24 items-center justify-center bg-(--brand-green-01) px-3 text-sm font-bold text-white [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
+              >
+                {savedCardNumber ? "Rediger" : "Tilføj"}
+              </Link>
+            </div>
+            {savedCardNumber ? (
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <CreditCard size={20} className="text-neutral-400 shrink-0" />
+                  <p className="text-sm font-semibold text-neutral-700">
+                    **** **** **** {savedCardNumber.replace(/\s/g, "").slice(-4)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.localStorage.removeItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+                    setSavedCardNumber(null);
+                  }}
+                  className="text-xs font-bold text-red-500"
+                >
+                  Fjern
+                </button>
+              </div>
+            ) : (
+              <p className="px-4 py-3 text-sm font-semibold text-neutral-400">Intet gemt kort</p>
+            )}
           </article>
 
           {/* Klippekort */}
@@ -376,28 +411,6 @@ export default function ProfilePage() {
             </div>
           </article>
 
-          {/* Menu-punkter */}
-          <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-md">
-            {profileMenuItems.map((item, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => router.push(item.href)}
-                className="flex w-full items-center border-b border-neutral-200 px-4 py-2.5 text-left last:border-b-0"
-              >
-                <span className="flex items-center gap-2.5 text-sm font-bold text-neutral-800">
-                  <span className="text-(--brand-green-01)">
-                    {menuItemIcons[item.iconKey]}
-                  </span>
-                  {item.label}
-                </span>
-                <span className="ml-auto text-(--brand-green-01)">
-                  <ChevronRight size={20} />
-                </span>
-              </button>
-            ))}
-          </article>
-
           {/* Knapper */}
           <button
             type="button"
@@ -407,27 +420,21 @@ export default function ProfilePage() {
             {profilePageNames.logout}
           </button>
 
-          <button
-            type="button"
-            className="mx-auto block w-[78%] rounded-[3px] bg-red-600 py-2.5 text-xl font-bold text-white shadow-md"
-          >
-            {profilePageNames.deleteAccount}
-          </button>
+
         </section>
       </main>
 
-      {showCancelConfirm && (
+      {cancelTarget && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 px-6">
           <div className="w-full max-w-sm rounded-[3px] bg-white p-6 shadow-2xl">
             <h2 className="text-lg font-bold text-neutral-800">Opsig abonnement?</h2>
             <p className="mt-2 text-sm font-semibold text-neutral-600">
-              Er du sikker på, at du vil opsige dit abonnement? Det udløber ved
-              næste fornyelsesdato.
+              Er du sikker på, at du vil opsige <span className="font-bold text-neutral-800">{cancelTarget.subscriptions_name}</span>? Det udløber ved næste fornyelsesdato.
             </p>
             <div className="mt-5 flex gap-3">
               <button
                 type="button"
-                onClick={() => setShowCancelConfirm(false)}
+                onClick={() => setCancelTarget(null)}
                 className="flex-1 rounded-lg border border-neutral-300 py-2.5 text-sm font-bold text-neutral-700"
               >
                 Annuller
@@ -435,11 +442,9 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={async () => {
-                  if (subscription) {
-                    await deleteSubscription(subscription.subscription_id).catch(() => {});
-                    setSubscription(null);
-                  }
-                  setShowCancelConfirm(false);
+                  await deleteSubscription(cancelTarget.subscription_id).catch(() => {});
+                  setSubscriptions((prev) => prev.filter((s) => s.subscription_id !== cancelTarget.subscription_id));
+                  setCancelTarget(null);
                 }}
                 className="flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-bold text-white"
               >

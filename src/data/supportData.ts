@@ -1,3 +1,5 @@
+// supportData – data til kundeservicesiden: kontaktkort (ring, skriv, aktiv vask) og FAQ-spørgsmål.
+
 import { washworldMapLocations } from "@/data/washworldLocations";
 
 export type SupportContactCard = {

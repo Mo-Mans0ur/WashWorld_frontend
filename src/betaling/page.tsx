@@ -1,3 +1,5 @@
+// BetalingPage – side til valg og tilføjelse af betalingsmetoder.
+// Siden er endnu ikke implementeret fuldt ud – indholdsområdet er reserveret til betalingskort-komponenter.
 import AppHeader from "@/components/AppHeader";
 import ScreenLayout from "@/components/ScreenLayout";
 import PageInfo from "@/components/PageInfo";

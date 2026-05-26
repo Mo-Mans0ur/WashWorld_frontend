@@ -1,3 +1,6 @@
+// dashboardData – statiske data til dashboard-siden: tekster, eksempel-favoritter og nyheder/tilbud-kort.
+// dashboardFavoriteLocations bruges kun som fallback hvis API'et ikke returnerer favoritter.
+
 export type DashboardLocation = {
   id: number;
   image: string;
@@ -33,9 +36,9 @@ export const dashboardPageNames = {
   notificationToastMessageBoth:
     "Udfyld dine biloplysninger og dit betalingskort i din profil, så du er klar til næste vask.",
   notificationToastMessageVehicle:
-    "Tilføj din bil i din profil, så du er klar til næste vask.",
+    "Gå til Mine køretøjer og tilføj din bil, så du er klar til næste vask.",
   notificationToastMessageCard:
-    "Tilføj et betalingskort i din profil, så du er klar til næste vask.",
+    "Gå til din profil og tilføj et betalingskort, så du er klar til næste vask.",
   notificationToastButton: "Gå til profil",
 } as const;
 

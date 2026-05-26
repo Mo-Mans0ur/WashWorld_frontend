@@ -1,60 +1,175 @@
+// VehiclesContext giver alle sider og komponenter adgang til brugerens køretøjer.
+// Den henter biler via carsApi.ts og abonnementer via subscriptionsApi.ts, og kombinerer
+// dem til ét samlet Vehicle-objekt — fx om en bil har et aktivt abonnement.
+// VehiclesProvider er monteret i Providers.tsx → layout.tsx (indeni AuthProvider).
+//
+// Brug useVehicles()-hooken (hooks/useVehicles.ts) for at tilgå listen af køretøjer
+// og funktioner til at tilføje, redigere og slette dem.
+
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useAuth } from "@/hooks";
+import {
+  createCar,
+  deleteCar,
+  fetchUserCars,
+  updateCar,
+} from "@/lib/carsApi";
+import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
+import type { Car, Subscription } from "@/types/api";
+
+export type VehicleType = "car" | "motorcycle" | "truck" | "bus";
+
+const VEHICLE_TYPES: VehicleType[] = ["car", "motorcycle", "truck", "bus"];
+
+function normalizeVehicleType(value: string | undefined): VehicleType {
+  if (value && VEHICLE_TYPES.includes(value as VehicleType)) {
+    return value as VehicleType;
+  }
+  return "car";
+}
 
 export type Vehicle = {
-  id: number;
+  id: string;
   name: string;
   plate: string;
   countryCode: string;
   active: boolean;
+  subscriptionName: string | null;
   isEV: boolean;
+  vehicleType: VehicleType;
 };
-
-const INITIAL_VEHICLES: Vehicle[] = [
-  { id: 1, name: "Primær", plate: "AF 22 454", countryCode: "DK", active: true, isEV: false },
-  { id: 2, name: "Secondær", plate: "AF 67 802", countryCode: "DK", active: false, isEV: false },
-];
 
 type VehiclesContextType = {
   vehicles: Vehicle[];
-  addVehicle: (v: Omit<Vehicle, "id">) => void;
-  updateVehicle: (id: number, v: Omit<Vehicle, "id">) => void;
-  deleteVehicle: (id: number) => void;
-  setActiveVehicle: (id: number) => void;
+  isLoading: boolean;
+  error: string | null;
+  refreshVehicles: () => Promise<void>;
+  addVehicle: (v: Omit<Vehicle, "id" | "active" | "subscriptionName">) => Promise<void>;
+  updateVehicle: (
+    id: string,
+    v: Omit<Vehicle, "id" | "active" | "subscriptionName">,
+  ) => Promise<void>;
+  deleteVehicle: (id: string) => Promise<void>;
 };
 
-const VehiclesContext = createContext<VehiclesContextType | null>(null);
+export const VehiclesContext = createContext<VehiclesContextType | null>(null);
+
+function toCarPayload(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
+  return {
+    car_license_plate: v.plate,
+    car_name: v.name.trim() || undefined,
+    car_is_ev: v.isEV,
+    car_country_code: v.countryCode,
+    car_vehicle_type: v.vehicleType,
+  };
+}
+
+function mapCarsToVehicles(
+  cars: Car[],
+  subscriptions: Subscription[],
+): Vehicle[] {
+  return cars.map((car, index) => {
+    const activeSubscription = subscriptions.find(
+      (s) => s.car_id === car.car_id && s.subscriptions_status === "aktiv",
+    );
+    const displayName =
+      car.car_name?.trim() ||
+      (index === 0 ? "Primær" : `Bil ${index + 1}`);
+
+    return {
+      id: car.car_id,
+      name: displayName,
+      plate: car.car_license_plate,
+      countryCode: car.car_country_code || "DK",
+      active: Boolean(activeSubscription),
+      subscriptionName: activeSubscription?.subscriptions_name ?? null,
+      isEV: Boolean(car.car_is_ev),
+      vehicleType: normalizeVehicleType(car.car_vehicle_type),
+    };
+  });
+}
 
 export function VehiclesProvider({ children }: { children: ReactNode }) {
-  const [vehicles, setVehicles] = useState<Vehicle[]>(INITIAL_VEHICLES);
+  const { user, isLoading: authLoading } = useAuth();
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  function addVehicle(v: Omit<Vehicle, "id">) {
-    const id = Date.now();
-    setVehicles((prev) => [...prev, { ...v, id }]);
+  const refreshVehicles = useCallback(async () => {
+    if (!user) {
+      setVehicles([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [cars, subscriptions] = await Promise.all([
+        fetchUserCars(user.user_id),
+        fetchUserSubscriptions(user.user_id).catch(() => [] as Subscription[]),
+      ]);
+      setVehicles(mapCarsToVehicles(cars, subscriptions));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Kunne ikke hente køretøjer");
+      setVehicles([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    refreshVehicles();
+  }, [authLoading, refreshVehicles]);
+
+  async function addVehicle(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {
+    if (!user) throw new Error("Ikke logget ind");
+
+    await createCar(user.user_id, toCarPayload(v));
+    await refreshVehicles();
   }
 
-  function updateVehicle(id: number, v: Omit<Vehicle, "id">) {
-    setVehicles((prev) => prev.map((x) => (x.id === id ? { ...v, id } : x)));
+  async function updateVehicle(
+    id: string,
+    v: Omit<Vehicle, "id" | "active" | "subscriptionName">,
+  ) {
+    if (!user) throw new Error("Ikke logget ind");
+
+    await updateCar(user.user_id, id, toCarPayload(v));
+    await refreshVehicles();
   }
 
-  function deleteVehicle(id: number) {
-    setVehicles((prev) => prev.filter((x) => x.id !== id));
-  }
+  async function deleteVehicle(id: string) {
+    if (!user) throw new Error("Ikke logget ind");
 
-  function setActiveVehicle(id: number) {
-    setVehicles((prev) => prev.map((x) => ({ ...x, active: x.id === id })));
+    await deleteCar(user.user_id, id);
+    await refreshVehicles();
   }
 
   return (
-    <VehiclesContext.Provider value={{ vehicles, addVehicle, updateVehicle, deleteVehicle, setActiveVehicle }}>
+    <VehiclesContext.Provider
+      value={{
+        vehicles,
+        isLoading,
+        error,
+        refreshVehicles,
+        addVehicle,
+        updateVehicle,
+        deleteVehicle,
+      }}
+    >
       {children}
     </VehiclesContext.Provider>
   );
 }
 
-export function useVehicles() {
-  const ctx = useContext(VehiclesContext);
-  if (!ctx) throw new Error("useVehicles must be used within VehiclesProvider");
-  return ctx;
-}

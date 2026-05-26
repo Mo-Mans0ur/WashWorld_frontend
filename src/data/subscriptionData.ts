@@ -1,3 +1,7 @@
+// subscriptionData – data og tekster til abonnementssiderne.
+// subscriptionPlans definerer de tre abonnementstyper (Guld, Premium, Brilliant) med priser, produktId'er og featurer.
+// getSubscriptionPlanBySlug() bruges til at hente det valgte abonnement baseret på URL-parameteren.
+
 export type SubscriptionFeature = {
   text: string;
   level: number;
@@ -7,6 +11,9 @@ export type SubscriptionPlan = {
   slug: "guld" | "premium" | "brilliant";
   name: string;
   price: string;
+  priceNumber: number;
+  singleWashPrice: number;
+  productId: string;
   firstMonth: string;
   description: string;
   features: SubscriptionFeature[];
@@ -52,6 +59,9 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     slug: "guld",
     name: "Guld",
     price: "139kr./ md.",
+    priceNumber: 139,
+    singleWashPrice: 59,
+    productId: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
     firstMonth: "Første måned 99kr.",
     description: "God og effektiv",
     features: [
@@ -73,6 +83,9 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     slug: "premium",
     name: "Premium",
     price: "169kr./ md.",
+    priceNumber: 169,
+    singleWashPrice: 89,
+    productId: "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5",
     firstMonth: "Første måned 129kr.",
     description: "Ekstra grundig",
     features: [
@@ -94,6 +107,9 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     slug: "brilliant",
     name: "Brilliant",
     price: "199kr./ md.",
+    priceNumber: 199,
+    singleWashPrice: 119,
+    productId: "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6",
     firstMonth: "Første måned 159kr.",
     description: "Bedste vask året rundt",
     features: [
@@ -125,6 +141,7 @@ export const subscriptionPaymentMethods: SubscriptionOption[] = [
   { value: "wallet", label: "Apple Pay / Google Pay" },
 ];
 
+// Finder et abonnementsplan ud fra dets slug (fx "guld"), eller returnerer Guld som standard.
 export function getSubscriptionPlanBySlug(slug: string) {
   return (
     subscriptionPlans.find((plan) => plan.slug === slug) || subscriptionPlans[0]

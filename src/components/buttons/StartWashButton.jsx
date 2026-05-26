@@ -1,20 +1,23 @@
+// StartWashButton – knappen der starter vasken på selvvask-siden.
+// Skifter udseende og deaktiveres automatisk baseret på maskinens status: Ledig (grøn), Optaget (gul) eller Ud af drift (rød).
+
 const STATUS_CONFIG = {
   Ledig: {
     disabled: false,
     label: "Start vask",
-    gradient: "bg-[linear-gradient(100deg,var(--brand-green-02)_0%,var(--brand-green-02)_52%,var(--color-grey-01)_52%,var(--color-grey-01)_100%)]",
+    gradient: "bg-[linear-gradient(60deg,var(--brand-green-02)_0%,var(--brand-green-02)_52%,var(--color-grey-01)_52%,var(--color-grey-01)_100%)]",
     hint: null,
   },
   Optaget: {
     disabled: true,
     label: "Optaget",
-    gradient: "bg-[linear-gradient(100deg,#f59e0b_0%,#f59e0b_52%,#d1d5db_52%,#d1d5db_100%)]",
+    gradient: "bg-[linear-gradient(60deg,#f59e0b_0%,#f59e0b_52%,#d1d5db_52%,#d1d5db_100%)]",
     hint: "Vælg en ledig maskine for at starte vask",
   },
   "Ud af drift": {
     disabled: true,
     label: "Ud af drift",
-    gradient: "bg-[linear-gradient(100deg,#ef4444_0%,#ef4444_52%,#d1d5db_52%,#d1d5db_100%)]",
+    gradient: "bg-[linear-gradient(60deg,#ef4444_0%,#ef4444_52%,#d1d5db_52%,#d1d5db_100%)]",
     hint: "Denne maskine er ikke tilgængelig",
   },
 };

@@ -1,3 +1,7 @@
+// profileData – statiske data og tekster til profilsiden og profil-opdateringssiden.
+// Indeholder badges, menupunkter, klippekort-stempler og hjælpefunktionen getMissingProfileInfoState
+// der bruges til at vise en toast hvis brugeren mangler bil eller betalingskort.
+
 export type ProfileBadge = {
   id: number;
   label: string;
@@ -44,11 +48,11 @@ export const profileUser = {
 
 export const profilePageNames = {
   title: "Profil",
-  memberSinceLabel: "Meldlem siden:",
+  memberSinceLabel: "Medlem siden:",
   editProfile: "Rediger profil",
   updatedMessage: "Brugeroplysninger opdateret",
   preferencesUpdatedMessage: "Bruger præferencer ændret",
-  clipCardTitle: "klippekort",
+  clipCardTitle: "Klippekort",
   clipCardProgress: "3 ud af 5 vaske",
   badgesTitle: "Badges",
   badgesSubtitle: "Dine optjente badges",
@@ -134,7 +138,7 @@ export const profileBadges: ProfileBadge[] = [
 ];
 
 export const profileMenuItems: ProfileMenuItem[] = [
-  { label: "Mine biler", href: "mine biler", iconKey: "sparkles" },
+  { label: "Mine biler", href: "cars", iconKey: "sparkles" },
   { label: "Vaskehistorik", href: "vaskehistorik", iconKey: "calendar" },
   {
     label: "Betaling og kort",
@@ -148,7 +152,7 @@ export const profileMenuItems: ProfileMenuItem[] = [
 export const profileUpdatePageContent = {
   pageInfoTitle: "Profil",
   profileSectionTitle: "Profil",
-  passwordSectionTitle: "Adgangskode",
+  passwordSectionTitle: "Nulstil din adgangskode",
   memberSinceLabel: "Medlem siden",
   fields: {
     firstName: {
@@ -197,6 +201,7 @@ export const profileVehicles: ProfileVehicle[] = [];
 
 export const profilePaymentCards: ProfilePaymentCard[] = [];
 
+// Tjekker om brugeren mangler bil eller betalingskort og returnerer en status der bruges til dashboard-toasten.
 export function getMissingProfileInfoState() {
   const missingVehicle = profileVehicles.length === 0;
   const hasStoredPaymentCard =

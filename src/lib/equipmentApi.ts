@@ -1,3 +1,7 @@
+// equipmentApi – typer og API-kald til udstyr på vaskelokationer (vaskehaller, selvvask, støvsugere).
+// fetchLocationEquipment bruger en direkte fetch() uden token, da udstyrdata er offentligt tilgængeligt.
+// Bruges af details/page.tsx til at vise hvilke faciliteter der er til rådighed på en lokation.
+
 export type LocationEquipment = {
   location_equipment_id: string;
   location_id: string;

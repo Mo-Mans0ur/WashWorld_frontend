@@ -1,12 +1,18 @@
+// AbonnementPage – valg og oprettelse af abonnement.
+// Brugeren vælger abonnementstype (Guld/Premium/Brilliant), om det gælder alle lokationer,
+// og hvilken lokation de ønsker at vaske ved. Herefter sendes de til betaling eller bekræftelse.
+
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { getMissingProfileInfoState } from "@/data/profileData";
 import {
   subscriptionPageNames,
   subscriptionPlans,
 } from "@/data/subscriptionData";
+import { washworldMapLocations } from "@/data/washworldLocations";
+import { ROUTES } from "@/lib/routes";
 import PageInfo from "@/components/PageInfo";
 
 const PLANS = ["Guld", "Premium", "Brilliant"];
@@ -17,12 +23,17 @@ export default function AbonnementPage() {
     "right",
   );
   const [animKey, setAnimKey] = useState(0);
+  const [allLocations, setAllLocations] = useState(false);
+  const [selectedLocationId, setSelectedLocationId] = useState("");
+  const [locationError, setLocationError] = useState(false);
 
   const selectedPlan = PLANS[selectedIndex];
   const currentPlan = subscriptionPlans.find(
     (plan) => plan.name === selectedPlan,
   );
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const carId = searchParams.get("carId") ?? undefined;
   const { missingPaymentCard } = getMissingProfileInfoState();
 
   function handleSelectPlan(index: number) {
@@ -33,14 +44,20 @@ export default function AbonnementPage() {
   }
 
   function handleCreateSubscription() {
+    if (!allLocations && !selectedLocationId) {
+      setLocationError(true);
+      return;
+    }
+    setLocationError(false);
+
+    const locationId = allLocations ? undefined : selectedLocationId;
+
     if (missingPaymentCard) {
-      router.push(`/abonnement/betaling?plan=${selectedPlan.toLowerCase()}`);
+      router.push(ROUTES.subscriptionPayment(selectedPlan.toLowerCase(), carId, allLocations, locationId));
       return;
     }
 
-    router.push(
-      `/abonnement/handlesubscription?plan=${selectedPlan.toLowerCase()}`,
-    );
+    router.push(ROUTES.subscriptionConfirmation(selectedPlan.toLowerCase(), carId, allLocations, locationId));
   }
 
   return (
@@ -117,6 +134,53 @@ export default function AbonnementPage() {
                 ))}
               </div>
             </div>
+
+            <label className="mx-5 mb-2 flex cursor-pointer items-start gap-3 rounded-[3px] border border-(--brand-green-01)/30 bg-(--brand-green-01)/5 px-3 py-2.5">
+              <input
+                type="checkbox"
+                checked={allLocations}
+                onChange={(e) => {
+                  setAllLocations(e.target.checked);
+                  if (e.target.checked) setLocationError(false);
+                }}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-(--brand-green-01)"
+              />
+              <span className="text-left text-[0.75rem] font-semibold leading-snug text-black">
+                Adgang til alle WashWorlds{" "}
+                <span className="font-bold text-(--brand-green-01)">+10 kr/md.</span>
+              </span>
+            </label>
+
+            {!allLocations && (
+              <div className="mx-5 mb-4">
+                <p className="mb-1 text-[0.7rem] font-semibold text-black/60">
+                  Vælg hvilken WashWorld du vil vaske hos
+                </p>
+                <div className={`relative rounded-[3px] border ${locationError ? "border-red-400 bg-red-50" : "border-(--brand-green-01)/30 bg-(--brand-green-01)/5"}`}>
+                  <select
+                    value={selectedLocationId}
+                    onChange={(e) => {
+                      setSelectedLocationId(e.target.value);
+                      setLocationError(false);
+                    }}
+                    className="w-full appearance-none bg-transparent py-2.5 pl-3 pr-8 text-[0.75rem] font-semibold text-black"
+                  >
+                    <option value="">-- Vælg lokation --</option>
+                    {washworldMapLocations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[0.7rem] text-(--brand-green-01)">▾</span>
+                </div>
+                {locationError && (
+                  <p className="mt-1 text-[0.7rem] font-semibold text-red-500">
+                    Vælg venligst en lokation for at fortsætte
+                  </p>
+                )}
+              </div>
+            )}
 
             <button
               type="button"

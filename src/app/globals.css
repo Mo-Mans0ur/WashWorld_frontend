@@ -98,8 +98,7 @@ body {
 }
 
 .app-screen {
-  width: 430px;
-  min-width: 430px;
+  width: 100%;
   max-width: 430px;
   height: 100vh;
   display: flex;

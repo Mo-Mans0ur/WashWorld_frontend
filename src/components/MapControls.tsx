@@ -1,3 +1,5 @@
+// MapControls – knapper placeret oven på kortet til at skifte dag/nat-tema og centrere kortet på brugerens position.
+
 'use client'
 
 type MapControlsProps = {

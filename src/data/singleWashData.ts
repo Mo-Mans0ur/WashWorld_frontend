@@ -1,3 +1,6 @@
+// singleWashData – statiske data til enkelt-vask-flowet: tekster til de tre sider (valg, nummerplade, klargøring),
+// råd om klargøring inden vask og de tre vaskeprogram-planer (Guld, Premium, Brilliant) med featurer og priser.
+
 type PaymentPlanFeature = {
   text: string;
   level: 0 | 1 | 2;
@@ -53,7 +56,7 @@ export const singleWashReadyPageContent = {
   infoText:
     "Kør langsomt frem til anlægget og følg vejledningen på skærmen. Når bilen står korrekt, kan du starte vasken.",
   illustrationAlt: "Bil med kørselsinstruktioner",
-  ctaLabel: "Når du klar tryk",
+  ctaLabel: "Tryk start når du er klar",
   startButton: "Start vask",
 } as const;
 

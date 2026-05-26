@@ -1,31 +1,33 @@
 "use client";
 
 // HandleSubscriptionPage – opret et nyt abonnement.
-// Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze.
-// Brugeren vælger køretøj og betalingsmetode via et "bottom sheet" (glider op nedefra).
-// Når formularen sendes, oprettes abonnementet i databasen via createSubscription()
-// og brugeren sendes til /profile. car_id sendes ikke med, da køretøjer endnu
-// ikke er lagret i databasen (ville give FK-fejl).
+// Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze (fra abonnement/page.tsx).
+// Bruger CarPickerSheet.tsx til bilvalg og createSubscription() fra subscriptionsApi.ts.
+// Henter brugerens biler via useVehicles(). Adgangskontrol håndteres af middleware og AuthGuard.
+// Efter vellykket oprettelse sendes brugeren til /profile.
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SAVED_PAYMENT_CARD_STORAGE_KEY } from "@/data/profileData";
-import { useVehicles } from "@/context/VehiclesContext";
+import { useVehicles } from "@/hooks";
 import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
-  subscriptionPaymentMethods,
-  subscriptionVehicles,
 } from "@/data/subscriptionData";
 import PageInfo from "@/components/PageInfo";
+import BottomSheet from "@/components/BottomSheet";
+import { Button } from "@/components/buttons";
 import { createSubscription } from "@/lib/subscriptionsApi";
+import { ROUTES } from "@/lib/routes";
 
 export default function HandleSubscriptionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { vehicles } = useVehicles();
+  const { vehicles, refreshVehicles } = useVehicles();
 
   const planKey = (searchParams.get("plan") || "guld").toLowerCase();
+  const preselectedCarId = searchParams.get("carId") ?? null;
   const activePlan = useMemo(
     () => getSubscriptionPlanBySlug(planKey),
     [planKey],
@@ -41,6 +43,7 @@ export default function HandleSubscriptionPage() {
   );
   const hasSavedVehicle = savedVehicleOptions.length > 0;
   const initialVehicleValue =
+    (preselectedCarId && savedVehicleOptions.find((o) => o.value === preselectedCarId)?.value) ??
     savedVehicleOptions.find(
       (option) =>
         option.value ===
@@ -48,15 +51,26 @@ export default function HandleSubscriptionPage() {
     )?.value ??
     savedVehicleOptions[0]?.value ??
     "";
-  const hasSavedPaymentCard =
-    typeof window !== "undefined" &&
-    window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY) !== null;
-  const vehicleOptions = hasSavedVehicle
-    ? savedVehicleOptions
-    : subscriptionVehicles.filter((item) => item.value);
+  const [savedCard] = useState<{ cardNumber: string; expiry: string; name: string } | null>(() => {
+    if (typeof window === "undefined") return null;
+    const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
+    if (!raw) return null;
+    try { return JSON.parse(raw); }
+    catch { return null; }
+  });
+
+  const paymentMethods = useMemo(() => {
+    const last4 = savedCard?.cardNumber.replace(/\s/g, "").slice(-4);
+    return [
+      { value: "card", label: last4 ? `Kort •••• ${last4}` : "Kreditkort" },
+      { value: "mobilepay", label: "MobilePay" },
+      { value: "wallet", label: "Apple Pay / Google Pay" },
+    ];
+  }, [savedCard]);
+  const vehicleOptions = savedVehicleOptions;
 
   const [vehicle, setVehicle] = useState(initialVehicleValue);
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState(() => savedCard ? "card" : "");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [activeSheet, setActiveSheet] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
@@ -66,8 +80,7 @@ export default function HandleSubscriptionPage() {
     ? vehicleOptions.find((option) => option.value === vehicle)?.label
     : "";
   const selectedPaymentMethodLabel = paymentMethod
-    ? subscriptionPaymentMethods.find((item) => item.value === paymentMethod)
-        ?.label
+    ? paymentMethods.find((item) => item.value === paymentMethod)?.label
     : "";
 
   // Alle tre betingelser skal være opfyldt for at aktivere send-knappen
@@ -100,6 +113,7 @@ export default function HandleSubscriptionPage() {
 
     try {
       await createSubscription({
+        car_id: vehicle,
         subscription_name: activePlan.name,
         subscription_price: priceRaw,
         subscription_status: "aktiv",
@@ -107,7 +121,8 @@ export default function HandleSubscriptionPage() {
         subscription_end_date: formatDate(endDate),
         subscription_next_billing_date: formatDate(nextBilling),
       });
-      router.push("/profile");
+      await refreshVehicles();
+      router.push(ROUTES.profile);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Kunne ikke oprette abonnement");
       setIsSubmitting(false);
@@ -120,8 +135,6 @@ export default function HandleSubscriptionPage() {
     activeSheet === "vehicle"
       ? subscriptionPageNames.vehicleSheetTitle
       : subscriptionPageNames.paymentSheetTitle;
-  const sheetOptions =
-    activeSheet === "vehicle" ? vehicleOptions : subscriptionPaymentMethods;
 
   // Gemmer den valgte værdi i den korrekte state og lukker sheetet
   function selectFromSheet(value) {
@@ -175,21 +188,38 @@ export default function HandleSubscriptionPage() {
 
           <div className="mx-auto mt-3.5 flex w-full max-w-72 flex-col gap-1.5">
             <div>
-              <div className={`relative flex h-9.5 items-center overflow border bg-(--white-white) ${vehicle ? "border-(--brand-green-01)" : attempted ? "border-red-400" : "border-(--color-grey-02)"}`}>
-                <span className={`pl-2 pr-1 ${vehicle ? "text-(--brand-green-01)" : "text-(--color-grey-01)"}`}>
-                  <CarIcon />
-                </span>
-                <span className={`flex-1 truncate pr-20 text-[1rem] font-semibold ${vehicle ? "text-black" : "text-(--color-grey-01)"}`}>
-                  {selectedVehicleLabel || subscriptionPageNames.vehiclePlaceholder}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setActiveSheet("vehicle")}
-                  className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
-                >
-                  {subscriptionPageNames.selectButton}
-                </button>
-              </div>
+              {hasSavedVehicle ? (
+                <div className="relative flex h-9.5 items-center overflow border border-(--brand-green-01) bg-(--white-white)">
+                  <span className="pl-2 pr-1 text-(--brand-green-01)">
+                    <CarIcon />
+                  </span>
+                  <span className="flex-1 truncate pr-4 text-[1rem] font-semibold text-black">
+                    {selectedVehicleLabel || subscriptionPageNames.vehiclePlaceholder}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSheet("vehicle")}
+                    className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
+                  >
+                    {subscriptionPageNames.selectButton}
+                  </button>
+                </div>
+              ) : (
+                <div className="relative flex h-9.5 items-center overflow border border-(--color-grey-02) bg-(--white-white)">
+                  <span className="pl-2 pr-1 text-(--color-grey-01)">
+                    <CarIcon />
+                  </span>
+                  <span className="flex-1 pr-4 text-[1rem] font-semibold text-(--color-grey-01)">
+                    Ingen køretøjer tilknyttet
+                  </span>
+                  <Link
+                    href={ROUTES.addCar}
+                    className="absolute top-2.25 -right-px -bottom-px flex min-w-19 items-center justify-center bg-(--brand-green-01) px-3 text-center text-[1rem] font-bold text-white [clip-path:polygon(16%_0,100%_0,100%_100%,0_100%)]"
+                  >
+                    + Tilføj
+                  </Link>
+                </div>
+              )}
               {attempted && !vehicle && (
                 <p className="mt-1 text-xs font-semibold text-red-400">Vælg venligst et køretøj</p>
               )}
@@ -238,54 +268,60 @@ export default function HandleSubscriptionPage() {
           )}
 
           <div className="mx-auto mt-5.5 w-full max-w-69">
-            <button
+            <Button
+              variant="primary"
+              size="lg"
               type="button"
               onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`h-8.5 w-full text-[1.45rem] font-semibold text-white [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)] transition-opacity ${canSubmit && !isSubmitting ? "bg-(--brand-green-01)" : "bg-(--color-grey-01) opacity-60 cursor-not-allowed"}`}
+              disabled={!canSubmit || isSubmitting}
+              className="w-full"
             >
               {isSubmitting ? "Opretter..." : subscriptionPageNames.submitButton}
-            </button>
+            </Button>
           </div>
         </div>
       </main>
 
-      <div
-        className={`absolute inset-0 z-40 transition ${
-          isSheetOpen ? "pointer-events-auto" : "pointer-events-none"
-        }`}
-      >
-        <button
-          type="button"
-          aria-label="Luk vælger"
-          onClick={() => setActiveSheet(null)}
-          className={`absolute inset-0 bg-(--color-overlay-dark-45) transition-opacity ${
-            isSheetOpen ? "opacity-100" : "opacity-0"
-          }`}
-        />
-
-        <div
-          className={`absolute right-0 bottom-0 left-0 rounded-t-3xl bg-(--white-white) px-5 pt-4 pb-6 text-black shadow-2xl transition-transform duration-300 ease-out ${
-            isSheetOpen ? "translate-y-0" : "translate-y-full"
-          }`}
-        >
-          <div className="mx-auto mb-4 h-1.5 w-16 rounded-full bg-(--color-grey-02)" />
-          <h3 className="text-[1.15rem] font-bold">{sheetTitle}</h3>
-
-          <div className="mt-4 space-y-2">
-            {sheetOptions.map((item) => (
-              <button
-                key={item.value}
-                type="button"
-                onClick={() => selectFromSheet(item.value)}
-                className="w-full rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left text-[1rem] font-semibold"
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <BottomSheet isOpen={isSheetOpen} title={sheetTitle} onClose={() => setActiveSheet(null)}>
+        {activeSheet === "vehicle" ? (
+          vehicles.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => selectFromSheet(String(v.id))}
+              className="flex w-full items-center gap-3 rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left active:bg-neutral-100"
+            >
+              <div className="flex h-8 shrink-0 overflow-hidden border-2 border-neutral-800 bg-white text-neutral-950">
+                <span className="flex w-5 items-center justify-center bg-[#327fc2]" />
+                <span className="flex items-center px-2.5 text-[13px] font-bold tracking-[0.08em]">
+                  {v.plate}
+                </span>
+              </div>
+              {v.name && v.name !== v.plate && (
+                <span className="flex-1 truncate text-sm font-semibold text-neutral-600">
+                  {v.name}
+                </span>
+              )}
+              <span className={`ml-auto shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                v.subscriptionName ? "bg-emerald-400 text-emerald-900" : "bg-neutral-300 text-neutral-600"
+              }`}>
+                {v.subscriptionName ?? "Ingen abonnement"}
+              </span>
+            </button>
+          ))
+        ) : (
+          paymentMethods.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => selectFromSheet(item.value)}
+              className="w-full rounded-xl border border-(--color-grey-02) bg-(--color-surface) px-4 py-3 text-left text-[1rem] font-semibold"
+            >
+              {item.label}
+            </button>
+          ))
+        )}
+      </BottomSheet>
     </div>
   );
 }

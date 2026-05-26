@@ -1,57 +1,92 @@
+// FavoritesContext holder styr på hvilke vaskelocations brugeren har gemt som favoritter.
+// Listen hentes fra API'et første gang brugeren logger ind, og opdateres straks i UI'et
+// (optimistic update) når brugeren trykker stjerne — selv hvis netværket er langsomt.
+//
+// Brug useFavorites() hook for at tjekke om en lokation er favorit og for at skifte den.
+
 "use client";
 
-// FavoritesContext giver hele appen adgang til brugerens favoritvaskehaller.
-// Favoritter gemmes i localStorage så de overlever en side-genindlæsning uden login.
-// Brug useFavorites() hook i en komponent for at læse eller ændre favoritter.
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { apiRequest } from "@/lib/apiClient";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-
-// Nøgle brugt til at gemme favoritter i localStorage
-const STORAGE_KEY = "washworld-favorites";
-
+// Det som FavoritesContext stiller til rådighed for resten af appen
 type FavoritesContextType = {
-  favorites: string[];                  // liste af location_id strenge
-  isFavorite: (id: string) => boolean; // tjekker om en lokation er i favoritter
-  toggleFavorite: (id: string) => void; // tilføjer eller fjerner en lokation
+  favorites: string[];                          // Liste af lokations-ID'er som er gemt som favoritter
+  isFavorite: (id: string) => boolean;          // Tjekker om en given lokation er favorit
+  toggleFavorite: (id: string) => Promise<void>; // Tilføjer eller fjerner en favorit
 };
 
-const FavoritesContext = createContext<FavoritesContextType | null>(null);
+export const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const auth = useContext(AuthContext);
   const [favorites, setFavorites] = useState<string[]>([]);
+  // loadedForRef holder styr på hvilken bruger vi sidst hentede favoritter for,
+  // så vi ikke henter dem igen unødvendigt hvis komponenten re-renderer
+  const loadedForRef = useRef<string | null>(null);
 
-  // Indlæs gemte favoritter fra localStorage når appen starter.
-  // Kører kun én gang (tom afhængighedsarray), og fejler lydstille hvis
-  // localStorage indeholder ugyldig JSON.
+  // Henter favoritter fra API'et første gang en bruger er logget ind.
+  // Nulstiller listen hvis brugeren logger ud.
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setFavorites(JSON.parse(stored));
-    } catch {}
-  }, []);
+    const userId = auth?.user?.user_id ?? null;
 
-  // Tilføjer id'et hvis det ikke allerede er der, ellers fjernes det.
-  // Opdaterer både React-state og localStorage atomisk via setState-callback,
-  // så vi altid skriver den nyeste version og ikke en forældet snapshot.
-  function toggleFavorite(id: string) {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
+    if (!userId || !auth?.token) {
+      setFavorites([]);
+      loadedForRef.current = null;
+      return;
+    }
+
+    // Undgå dobbelthentning for samme bruger
+    if (loadedForRef.current === userId) return;
+    loadedForRef.current = userId;
+
+    apiRequest<{ favorites: string[] }>(`/api/users/${userId}/favorites`)
+      .then((data) => setFavorites(data.favorites))
+      .catch(() => setFavorites([]));
+  }, [auth?.user?.user_id, auth?.token]);
+
+  // Tilføjer eller fjerner en lokation fra favoritlisten.
+  // Opdaterer UI'et med det samme (optimistic update) og ruller tilbage hvis API-kaldet fejler.
+  async function toggleFavorite(id: string) {
+    const userId = auth?.user?.user_id;
+    if (!userId) return;
+
+    const isCurrentlyFav = favorites.includes(id);
+
+    // Opdater UI'et med det samme så det føles hurtigt
+    setFavorites((prev) =>
+      isCurrentlyFav ? prev.filter((f) => f !== id) : [...prev, id],
+    );
+
+    try {
+      if (isCurrentlyFav) {
+        // Fjern fra favoritter
+        await apiRequest(`/api/users/${userId}/favorites/${id}`, { method: "DELETE" });
+      } else {
+        // Tilføj til favoritter
+        await apiRequest(`/api/users/${userId}/favorites`, {
+          method: "POST",
+          body: { location_id: id },
+        });
+      }
+    } catch {
+      // Hvis API-kaldet fejler, fortryd den optimistiske opdatering
+      setFavorites((prev) =>
+        isCurrentlyFav ? [...prev, id] : prev.filter((f) => f !== id),
+      );
+    }
   }
 
   return (
-    <FavoritesContext.Provider value={{ favorites, isFavorite: (id) => favorites.includes(id), toggleFavorite }}>
+    <FavoritesContext.Provider
+      value={{
+        favorites,
+        isFavorite: (id) => favorites.includes(id),
+        toggleFavorite,
+      }}
+    >
       {children}
     </FavoritesContext.Provider>
   );
-}
-
-// Custom hook – kaster en fejl hvis den bruges uden for FavoritesProvider,
-// så man opdager konfigurationsfejl tidligt under udvikling.
-export function useFavorites() {
-  const ctx = useContext(FavoritesContext);
-  if (!ctx) throw new Error("useFavorites skal bruges inden i FavoritesProvider");
-  return ctx;
 }

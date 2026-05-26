@@ -1,3 +1,7 @@
+// SingleWashPlatePage – nummerpladeregistrering til enkelt vask.
+// Viser en scanning-animation og lader brugeren bekræfte eller manuelt indtaste nummerplade.
+// Nummerplade sendes videre som URL-parameter til startvask-siden.
+
 "use client";
 
 import Image from "next/image";
@@ -6,21 +10,23 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import PageInfo from "@/components/PageInfo";
 import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
+import ContinueButton from "@/components/ContinueButton";
 import { singleWashPlatePageContent } from "@/data/singleWashData";
+import { ROUTES } from "@/lib/routes";
 
 export default function SingleWashPlatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [plateNumber, setPlateNumber] = useState("DB 43 234");
+  const prefilledPlate = searchParams.get("plate") ?? "";
+  const [plateNumber, setPlateNumber] = useState(prefilledPlate || "DB 43 234");
 
   const selectedPlan = searchParams.get("plan") ?? "guld";
   const selectedPayment = searchParams.get("payment") ?? "card";
+  const carId = searchParams.get("carId") ?? undefined;
   const scanningTitle = singleWashPlatePageContent.title.replace(/\.\.\.$/, "");
 
   function handleContinue() {
-    router.push(
-      `/singlewash/startvask?plan=${selectedPlan}&payment=${selectedPayment}&plate=${encodeURIComponent(plateNumber)}`,
-    );
+    router.push(ROUTES.startWash(selectedPlan, selectedPayment, plateNumber, carId));
   }
 
   return (
@@ -32,8 +38,6 @@ export default function SingleWashPlatePage() {
       />
 
       <section className="relative flex flex-1 flex-col px-7 pt-8 pb-5 text-white">
-          <SingleWashAdviceInfo />
-
           <h1
             className="mt-20 text-center text-[2.1rem] font-bold leading-tight"
             aria-label={singleWashPlatePageContent.title}
@@ -58,9 +62,12 @@ export default function SingleWashPlatePage() {
           </div>
 
           <div className="mx-auto mt-12 w-full max-w-81.5">
-            <label className="mb-2 block text-center text-[1.1rem] font-bold text-white">
-              {singleWashPlatePageContent.manualLabel}
-            </label>
+            <div className="mb-2 flex items-center justify-center gap-2">
+              <label className="text-[1.1rem] font-bold text-white">
+                {singleWashPlatePageContent.manualLabel}
+              </label>
+              <SingleWashAdviceInfo />
+            </div>
 
             <input
               type="text"
@@ -74,14 +81,9 @@ export default function SingleWashPlatePage() {
           </div>
 
           <div className="mt-auto pt-12">
-            <button
-              type="button"
-              onClick={handleContinue}
-              disabled={!plateNumber.trim()}
-              className="w-full bg-(--brand-green-01) px-4 py-1 font-bold text-2xl text-white shadow-[0_6px_12px_rgba(0,0,0,0.18)] transition disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.99] [clip-path:polygon(0_0,100%_0,94%_100%,0_100%)]"
-            >
+            <ContinueButton onClick={handleContinue} disabled={!plateNumber.trim()}>
               {singleWashPlatePageContent.buttons.continue}
-            </button>
+            </ContinueButton>
           </div>
         </section>
     </div>

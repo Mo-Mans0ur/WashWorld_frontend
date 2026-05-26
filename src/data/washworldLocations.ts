@@ -1,4 +1,6 @@
-// Midlertidig datakilde til kortet, indtil vi henter lokationer fra backend.
+// washworldLocations.ts – definerer MapLocation-typen og indlæser lokationer fra washworld-locations.json.
+// MapLocation bruges af Map.tsx, LocationsList.tsx og locationsApi.ts.
+// JSON-filen er en fallback/lokal kopi; live data hentes i stedet via locationsApi.ts → /api/locations.
 
 import washworldLocationsJson from '../../washworld-locations.json'
 

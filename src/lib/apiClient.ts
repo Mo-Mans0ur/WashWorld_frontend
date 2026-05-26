@@ -22,11 +22,15 @@ function getToken(): string | null {
 }
 
 export function saveToken(token: string): void {
-  if (typeof window !== "undefined") localStorage.setItem("token", token);
+  if (typeof window === "undefined") return;
+  localStorage.setItem("token", token);
+  document.cookie = `token=${encodeURIComponent(token)}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 }
 
 export function clearToken(): void {
-  if (typeof window !== "undefined") localStorage.removeItem("token");
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("token");
+  document.cookie = "token=; path=/; max-age=0";
 }
 
 type RequestOptions = {

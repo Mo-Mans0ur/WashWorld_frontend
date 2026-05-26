@@ -1,3 +1,6 @@
+// paymentData – statiske data til betalingssiderne: betalingsmetoder (kort, MobilePay, wallet, kontaktløs)
+// og alle labels/tekster til betalingsformularerne. Importeres af betaling/page.tsx og abonnement/betaling/page.tsx.
+
 export const paymentOptions = [
   {
     title: "Kreditkort",

@@ -1,3 +1,6 @@
+// SingleWashAdviceInfo – info-knap der åbner et modalt slideshow med råd om klargøring inden enkelt vask.
+// Viser billeder og tekst trin for trin (fx "Fold spejle ind", "Åbn antenne") og lukkes med X eller "Luk"-knappen.
+
 "use client";
 
 import Image from "next/image";
@@ -19,11 +22,13 @@ export default function SingleWashAdviceInfo() {
     setModalRoot(document.querySelector(".app-screen"));
   }, []);
 
+  // Lukker modalen og nulstiller til første trin så næste åbning starter forfra.
   function handleClose() {
     setIsOpen(false);
     setActiveIndex(0);
   }
 
+  // Går til næste råd, eller lukker modalen hvis det er det sidste råd.
   function handleContinue() {
     if (isLastItem) {
       handleClose();
@@ -39,9 +44,9 @@ export default function SingleWashAdviceInfo() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={singleWashAdviceContent.openLabel}
-        className="absolute right-7 top-9 flex h-12 w-12 items-center justify-center rounded-full bg-[#59da25] text-[#6f7680] shadow-[0_10px_20px_rgba(0,0,0,0.18)] transition active:scale-95"
+        className="text-black transition active:scale-95"
       >
-        <Info className="h-7 w-7" strokeWidth={3} />
+        <Info size={20} />
       </button>
 
       {isOpen && modalRoot

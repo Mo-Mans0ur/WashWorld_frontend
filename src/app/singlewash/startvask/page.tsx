@@ -1,3 +1,7 @@
+// SingleWashStartPage – klargøringssiden inden vasken begynder.
+// Viser en bil-animation og en stor Start Vask-knap.
+// Understøtter både enkelt vask (plan + betaling) og abonnements-vask.
+
 "use client";
 
 import Image from "next/image";
@@ -7,20 +11,27 @@ import PageInfo from "@/components/PageInfo";
 import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
 import StartWashButton from "@/components/buttons/StartWashButton";
 import { singleWashReadyPageContent } from "@/data/singleWashData";
+import { ROUTES } from "@/lib/routes";
 
 export default function SingleWashStartPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const isSubscription = searchParams.get("subscription") === "true";
   const selectedPlan = searchParams.get("plan") ?? "guld";
   const selectedPayment = searchParams.get("payment") ?? "card";
   const plateNumber = searchParams.get("plate") ?? "";
+  const carId = searchParams.get("carId") ?? undefined;
+  const locationId = searchParams.get("location") ?? undefined;
+  const equipmentId = searchParams.get("equipment") ?? undefined;
   const pageTitle = singleWashReadyPageContent.title.replace(/\.\.\.$/, "");
 
   function handleStartWash() {
-    router.push(
-      `/activewash?plan=${selectedPlan}&payment=${selectedPayment}&plate=${encodeURIComponent(plateNumber)}`,
-    );
+    if (isSubscription) {
+      router.push(ROUTES.activeWashSubscription(locationId ?? "", equipmentId ?? "", carId));
+    } else {
+      router.push(ROUTES.activeWash(selectedPlan, selectedPayment, plateNumber, carId, locationId, equipmentId));
+    }
   }
 
   return (
@@ -32,8 +43,6 @@ export default function SingleWashStartPage() {
       />
 
       <section className="relative flex flex-1 flex-col px-7 pt-8 pb-24 text-white">
-        <SingleWashAdviceInfo />
-
         <h1 className="mx-auto mt-20 max-w-66 text-[2.1rem] font-bold leading-tight">
           {pageTitle}
         </h1>
@@ -55,9 +64,12 @@ export default function SingleWashStartPage() {
         </div>
 
         <div className="mt-auto flex flex-col items-center pt-14 text-center">
-          <p className="text-[1rem] font-bold text-white">
-            {singleWashReadyPageContent.ctaLabel}
-          </p>
+          <div className="flex items-center justify-center gap-2">
+            <p className="text-[1rem] font-bold text-white">
+              {singleWashReadyPageContent.ctaLabel}
+            </p>
+            <SingleWashAdviceInfo />
+          </div>
 
           <div className="mt-3 flex w-full justify-center">
             <StartWashButton onClick={handleStartWash} status="ready" />

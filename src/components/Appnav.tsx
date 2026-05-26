@@ -4,6 +4,7 @@
 //   1. Bundmenu (bottom nav) – altid synlig med links til Home, Kort, Profil og Menu-knap.
 //   2. Sidebar – skubbes ind fra højre når brugeren trykker Menu.
 //      Lukkes automatisk når brugeren navigerer til en ny side (useEffect på pathname).
+// Renderes af ScreenLayout.tsx. Bruger ROUTES (lib/routes.ts) til links og useAuth() til logout.
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,8 +21,11 @@ import {
   LifeBuoy,
   ChevronRight,
   LogOut,
+  History,
+  Bell,
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks";
+import { ROUTES } from "@/lib/routes";
 
 export default function AppNav() {
   const pathname = usePathname();
@@ -35,11 +39,33 @@ export default function AppNav() {
 
   // Sidebar-menupunkter – tilføj/fjern her for at ændre indholdet af menuen
   const subMenuItems = [
-    { label: "Mine Køretøjer", href: "/biler", icon: Car },
-    { label: "Betalingsoplysninger", href: "/betaling", icon: CreditCard },
-    { label: "Abonnement", href: "/abonnement", icon: BadgeCheck },
-    { label: "Hjælp", href: "/hjaelp", icon: LifeBuoy },
+    { label: "Mine Køretøjer", href: ROUTES.cars, icon: Car },
+    { label: "Betalingsoplysninger", href: ROUTES.savePaymentCard, icon: CreditCard },
+    { label: "Abonnement", href: ROUTES.subscription, icon: BadgeCheck },
+    { label: "Forbrug", href: ROUTES.washHistory, icon: History },
+    { label: "Notifikationer", href: ROUTES.notifications, icon: Bell },
+    { label: "Hjælp", href: ROUTES.customerService, icon: LifeBuoy },
   ];
+
+  const menuRoutePrefixes = subMenuItems.map(({ href }) => href.split("?")[0]);
+
+  const isHomeActive = pathname === ROUTES.dashboard;
+  const isMapActive =
+    pathname.startsWith("/locations") || pathname.startsWith("/details");
+  const isProfileActive = pathname.startsWith(ROUTES.profile);
+  const isMenuActive =
+    menuOpen ||
+    menuRoutePrefixes.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`),
+    );
+
+  function bottomNavClass(active: boolean) {
+    return `flex h-full flex-col items-center justify-center gap-1 transition-colors ${
+      active
+        ? "text-(--brand-green-01)"
+        : "text-white/70 hover:text-white"
+    }`;
+  }
 
   return (
     <>
@@ -60,16 +86,14 @@ export default function AppNav() {
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Sidebarens header med luk-knap */}
-        <div className="flex items-center justify-between px-5 pt-8 pb-5 border-b border-white/10">
-          <span className="text-white/40 text-xs font-mono uppercase tracking-widest">
-            Menu
-          </span>
+        {/* Log ud-knap øverst i sidebaren */}
+        <div className="px-3 pt-8 pb-3 border-b border-white/10">
           <button
-            onClick={() => setMenuOpen(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white/70 hover:text-white hover:border-white/50 transition-all"
+            onClick={logout}
+            className="flex w-full items-center gap-3 px-3 py-3.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-white/5 transition-all group"
           >
-            <X size={14} strokeWidth={2.5} />
+            <LogOut size={18} className="group-hover:text-red-300 transition-colors" />
+            <span className="text-[0.95rem] font-semibold">Log ud</span>
           </button>
         </div>
 
@@ -99,14 +123,14 @@ export default function AppNav() {
           ))}
         </nav>
 
-        {/* Log ud-knap i bunden af sidebaren – kalder logout() fra AuthContext */}
+        {/* Luk-knap i bunden af sidebaren */}
         <div className="mt-auto px-3 pb-6 border-t border-white/10 pt-4">
           <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 px-3 py-3.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-white/5 transition-all group"
+            onClick={() => setMenuOpen(false)}
+            className="flex w-full items-center justify-left gap-3 px-3 py-3.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all"
           >
-            <LogOut size={18} className="group-hover:text-red-300 transition-colors" />
-            <span className="text-[0.95rem] font-semibold">Log ud</span>
+            <X size={18} strokeWidth={2.5} />
+            <span className="text-[0.95rem] font-semibold">Luk menu</span>
           </button>
         </div>
       </div>
@@ -115,32 +139,44 @@ export default function AppNav() {
           iPhone home-indikatoren så ikoner ikke gemmes bag den. */}
       <nav className="absolute bottom-0 left-0 right-0 z-30 flex h-22 w-full items-center justify-around bg-(--color-black) pb-[env(safe-area-inset-bottom)] shadow-2xl">
         <Link
-          href="/dashboard"
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
+          href={ROUTES.dashboard}
+          className={bottomNavClass(isHomeActive)}
+          aria-current={isHomeActive ? "page" : undefined}
         >
-          <Home size={26} />
-          <span className="text-xs">Home</span>
+          <Home size={26} strokeWidth={isHomeActive ? 2.5 : 2} />
+          <span className={`text-xs ${isHomeActive ? "font-bold" : "font-medium"}`}>
+            Home
+          </span>
         </Link>
         <Link
-          href="/locations/map"
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
+          href={ROUTES.map}
+          className={bottomNavClass(isMapActive)}
+          aria-current={isMapActive ? "page" : undefined}
         >
-          <MapPin size={26} />
-          <span className="text-xs">Kort</span>
+          <MapPin size={26} strokeWidth={isMapActive ? 2.5 : 2} />
+          <span className={`text-xs ${isMapActive ? "font-bold" : "font-medium"}`}>
+            Kort
+          </span>
         </Link>
         <Link
-          href="/profile"
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white"
+          href={ROUTES.profile}
+          className={bottomNavClass(isProfileActive)}
+          aria-current={isProfileActive ? "page" : undefined}
         >
-          <User size={26} />
-          <span className="text-xs">Profil</span>
+          <User size={26} strokeWidth={isProfileActive ? 2.5 : 2} />
+          <span className={`text-xs ${isProfileActive ? "font-bold" : "font-medium"}`}>
+            Profil
+          </span>
         </Link>
         <button
           onClick={() => setMenuOpen(true)}
-          className="flex h-full flex-col items-center justify-center gap-1 text-white/70 hover:text-white focus:outline-none"
+          className={`${bottomNavClass(isMenuActive)} focus:outline-none`}
+          aria-current={isMenuActive ? "page" : undefined}
         >
-          <Menu size={26} />
-          <span className="text-xs">Menu</span>
+          <Menu size={26} strokeWidth={isMenuActive ? 2.5 : 2} />
+          <span className={`text-xs ${isMenuActive ? "font-bold" : "font-medium"}`}>
+            Menu
+          </span>
         </button>
       </nav>
     </>

@@ -17,17 +17,23 @@ import {
 import type { User } from "@/types/api";
 import { fetchAuthUser } from "@/lib/api/auth";
 import { saveToken, clearToken } from "@/lib/apiClient";
+import {
+  getUserDisplayFirstName,
+  getUserDisplayFullName,
+} from "@/lib/formatName";
 
 type AuthContextType = {
   token: string | null;
   user: User | null;
+  displayFirstName: string;
+  displayFullName: string;
   isLoading: boolean;        // true mens session verificeres ved opstart
   login: (token: string, user: User) => void;
   logout: () => void;
   isAuthenticated: boolean;  // bekvem shorthand: token && user er begge sat
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
@@ -62,6 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Vis cachede data med det samme mens vi venter på API'et
+      // Sørg for at cookie også er sat, så middleware kender session
+      saveToken(storedToken);
       setToken(storedToken);
       setUser(storedUser);
 
@@ -114,6 +122,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         token,
         user,
+        displayFirstName: getUserDisplayFirstName(user),
+        displayFullName: getUserDisplayFullName(user),
         isLoading,
         login,
         logout,
@@ -125,9 +135,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Custom hook – kaster en fejl hvis den bruges uden for AuthProvider.
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth skal bruges inden i AuthProvider");
-  return ctx;
-}

@@ -12,17 +12,17 @@ import { useRouter } from "next/navigation";
 import {
   Check,
   ChevronDown,
-  Eye,
-  EyeOff,
-  Lock,
-  LogOut,
+  KeyRound,
   UserRound,
 } from "lucide-react";
+import Link from "next/link";
 
 import PageInfo from "@/components/PageInfo";
+import { Button } from "@/components/buttons";
 import { profileUpdatePageContent } from "@/data/profileData";
-import { useAuth } from "@/context/AuthContext";
-import { updateAuthUser } from "@/lib/api/auth";
+import { useAuth } from "@/hooks";
+import { updateAuthUser, deleteAuthUser } from "@/lib/api/auth";
+import { ROUTES } from "@/lib/routes";
 import { EUROPEAN_COUNTRIES, PHONE_DIAL_CODES } from "@/components/CountrySelector";
 
 type FormState = {
@@ -31,8 +31,6 @@ type FormState = {
   email: string;
   dialCode: string;
   localPhone: string;
-  newPassword: string;
-  confirmPassword: string;
 };
 
 // Splitter et gemt telefonnummer som "+45 12345678" i landekode og lokalnummer.
@@ -48,32 +46,57 @@ function parsePhone(stored: string): { dialCode: string; localPhone: string } {
   return { dialCode: "+45", localPhone: stored.replace(/^\+\d+\s*/, "") };
 }
 
-// Validerer kun selve nummeret uden landekode. Striphenter mellemrum og bindestreger
-// så brugeren frit kan taste "12 34 56 78" eller "12-34-56-78".
-function validateLocalPhone(local: string): string | null {
+// Forventede længder (antal cifre) for lokale numre per landekode.
+// Lande med ét gyldigt antal angives som [n, n], ellers [min, max].
+const PHONE_LENGTH_BY_DIAL_CODE: Record<string, [number, number]> = {
+  "+45": [8, 8],   // Danmark
+  "+46": [7, 10],  // Sverige
+  "+47": [8, 8],   // Norge
+  "+358": [5, 12], // Finland
+  "+354": [7, 7],  // Island
+  "+44": [7, 10],  // UK
+  "+49": [3, 12],  // Tyskland
+  "+33": [9, 9],   // Frankrig
+  "+34": [9, 9],   // Spanien
+  "+39": [6, 11],  // Italien
+  "+31": [9, 9],   // Holland
+  "+32": [8, 9],   // Belgien
+  "+41": [9, 9],   // Schweiz
+  "+43": [4, 13],  // Østrig
+  "+48": [9, 9],   // Polen
+};
+
+// Validerer selve nummeret uden landekode ud fra dialCode.
+// Brugeren kan frit taste "12 34 56 78" eller "12-34-56-78" — mellemrum og
+// bindestreger strippes inden tjekket.
+function validateLocalPhone(local: string, dialCode: string): string | null {
   const digits = local.replace(/[\s\-]/g, "");
   if (!digits) return "Telefonnummer er påkrævet";
-  if (!/^\d+$/.test(digits)) return "Kun tal er tilladt";
-  if (digits.length < 6) return "For kort (min. 6 cifre)";
-  if (digits.length > 12) return "For langt (max. 12 cifre)";
+  if (!/^\d+$/.test(digits)) return "Kun cifre, mellemrum og bindestreger er tilladt";
+  const [min, max] = PHONE_LENGTH_BY_DIAL_CODE[dialCode] ?? [6, 12];
+  if (digits.length < min || digits.length > max) {
+    return min === max
+      ? `${dialCode}-numre skal være præcis ${min} cifre (du har ${digits.length})`
+      : `${dialCode}-numre skal være ${min}–${max} cifre (du har ${digits.length})`;
+  }
   return null;
 }
 
 export default function UpdateProfilePage() {
   const router = useRouter();
-  const { user, login, logout, token } = useAuth();
+  const { user, login, logout, token, displayFullName } = useAuth();
   const [formState, setFormState] = useState<FormState>({
     firstName: "",
     lastName: "",
     email: "",
     dialCode: "+45",
     localPhone: "",
-    newPassword: "",
-    confirmPassword: "",
   });
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Forudfyld formularen med brugerens nuværende data fra AuthContext.
   // Kodeordfelterne efterlades tomme – udfyldes kun hvis brugeren ønsker at skifte kodeord.
@@ -86,8 +109,6 @@ export default function UpdateProfilePage() {
       email: user.user_email,
       dialCode,
       localPhone,
-      newPassword: "",
-      confirmPassword: "",
     });
   }, [user]);
 
@@ -99,33 +120,25 @@ export default function UpdateProfilePage() {
   async function handleSave() {
     if (!user || !token) return;
 
-    // Valider telefonnummer og kodeord lokalt før API-kaldet
-    const phoneValidation = validateLocalPhone(formState.localPhone);
+    const phoneValidation = validateLocalPhone(formState.localPhone, formState.dialCode);
     if (phoneValidation) {
       setPhoneError(phoneValidation);
-      return;
-    }
-    if (formState.newPassword && formState.newPassword !== formState.confirmPassword) {
-      setError("Kodeordene matcher ikke");
       return;
     }
 
     setIsSaving(true);
     setError(null);
     try {
-      // Saml landekode og lokalnummer til ét felt uden mellemrum i selve nummeret
       const fullPhone = `${formState.dialCode} ${formState.localPhone.replace(/[\s\-]/g, "")}`;
       const updated = await updateAuthUser(user.user_id, {
         user_firstname: formState.firstName,
         user_lastname: formState.lastName,
         user_email: formState.email,
         user_phone: fullPhone,
-        // Kodeord sendes kun med hvis brugeren har udfyldt feltet
-        ...(formState.newPassword ? { user_password: formState.newPassword } : {}),
       });
       // Opdater AuthContext med de nye brugerdata så resten af appen ser de nye værdier
       login(token, updated);
-      router.push("/profile?updated=1");
+      router.push(ROUTES.profileUpdated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kunne ikke gemme ændringer");
     } finally {
@@ -133,11 +146,27 @@ export default function UpdateProfilePage() {
     }
   }
 
+  async function handleDeleteAccount() {
+    if (!user || !token) return;
+    setIsDeleting(true);
+    setError(null);
+    try {
+      await deleteAuthUser(user.user_id);
+      logout();
+      router.push(ROUTES.login);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kunne ikke slette konto");
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   return (
     <div className="min-h-full">
       <PageInfo
         text={profileUpdatePageContent.pageInfoTitle}
-        userName={user ? `${user.user_firstname} ${user.user_lastname}` : ""}
+        userName={displayFullName}
       />
 
       <section className="space-y-4 px-4 pb-6 pt-3">
@@ -198,30 +227,19 @@ export default function UpdateProfilePage() {
 
         <article className="rounded-[3px] bg-(--white-white) shadow-2xl p-5">
           <SectionTitle
-            icon={<Lock className="h-4 w-4" strokeWidth={2.4} />}
+            icon={<KeyRound className="h-4 w-4" strokeWidth={2.4} />}
             title={profileUpdatePageContent.passwordSectionTitle}
           />
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <InputField
-              label={profileUpdatePageContent.fields.newPassword.label}
-              type="password"
-              placeholder={profileUpdatePageContent.fields.newPassword.placeholder}
-              value={formState.newPassword}
-              onChange={(value) => handleInputChange("newPassword", value)}
-              hasTrailingIcon
-            />
-            <InputField
-              label={profileUpdatePageContent.fields.confirmPassword.label}
-              type="password"
-              placeholder={profileUpdatePageContent.fields.confirmPassword.placeholder}
-              value={formState.confirmPassword}
-              onChange={(value) => handleInputChange("confirmPassword", value)}
-              hasTrailingIcon
-            />
-          </div>
-          <p className="mt-3 text-xs font-semibold text-neutral-500">
-            {profileUpdatePageContent.passwordHint}
+          <p className="mt-3 text-sm text-neutral-500">
+            Vi sender et link til din email, som du kan bruge til at vælge en ny adgangskode.
+          </p>
+          <p className="mt-2 text-sm text-neutral-500">
+            <Link
+              href={ROUTES.resetPassword}
+              className="font-semibold text-(--color-secondary) hover:underline"
+            >
+              Nulstil din adgangskode her
+            </Link>
           </p>
         </article>
 
@@ -229,24 +247,58 @@ export default function UpdateProfilePage() {
           {error && (
             <p className="text-center text-sm font-semibold text-red-500">{error}</p>
           )}
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="flex h-12 w-full items-center justify-center gap-2 bg-(--brand-green-01) font-semibold text-white [clip-path:polygon(0_0,100%_0,96%_100%,0_100%)] disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 font-semibold disabled:opacity-60"
           >
             <Check className="h-4.5 w-4.5" strokeWidth={2.5} />
             {isSaving ? "Gemmer..." : profileUpdatePageContent.buttons.save}
-          </button>
+          </Button>
 
-          <button
-            type="button"
-            onClick={logout}
-            className="flex h-12 w-full items-center justify-center gap-2 bg-red-600 font-semibold text-white [clip-path:polygon(0_0,100%_0,96%_100%,0_100%)]"
-          >
-            <LogOut className="h-4.5 w-4.5" strokeWidth={2.5} />
-            {profileUpdatePageContent.buttons.logout}
-          </button>
+          {!showDeleteConfirm ? (
+            <Button
+              variant="danger"
+              size="lg"
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={isSaving}
+              className="flex w-full items-center justify-center gap-2 font-semibold disabled:opacity-60"
+            >
+              Slet konto
+            </Button>
+          ) : (
+            <div className="rounded-[3px] border border-red-200 bg-red-50 p-4 space-y-3">
+              <p className="text-sm font-semibold text-red-700 text-center">
+                Er du sikker? Denne handling kan ikke fortrydes.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="flex-1 font-semibold disabled:opacity-60"
+                >
+                  Annuller
+                </Button>
+                <Button
+                  variant="danger"
+                  size="md"
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                  className="flex-1 font-semibold disabled:opacity-60"
+                >
+                  {isDeleting ? "Sletter..." : "Ja, slet konto"}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
@@ -347,54 +399,25 @@ function SectionTitle({ icon, title }: { icon: ReactNode; title: string }) {
 
 type InputFieldProps = {
   label: string;
-  type?: "text" | "email" | "tel" | "password";
+  type?: "text" | "email" | "tel";
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
-  hasTrailingIcon?: boolean;
 };
 
-// InputField – generisk inputfelt med label og valgfrit vis/skjul-ikon til kodeordfelter.
-function InputField({
-  label,
-  type = "text",
-  placeholder,
-  value,
-  onChange,
-  hasTrailingIcon = false,
-}: InputFieldProps) {
-  const [showPassword, setShowPassword] = useState(false);
-  const isPasswordField = type === "password";
-  const inputType = hasTrailingIcon && isPasswordField && showPassword ? "text" : type;
-
+function InputField({ label, type = "text", placeholder, value, onChange }: InputFieldProps) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-semibold text-neutral-600">
         {label}
       </span>
-      <div className="relative">
-        <input
-          type={inputType}
-          placeholder={placeholder}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="h-11 w-full border border-neutral-300 bg-(--white-white) px-3 text-sm font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01)"
-        />
-        {hasTrailingIcon && (
-          <button
-            type="button"
-            onClick={() => setShowPassword((current) => !current)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400"
-            aria-label={showPassword ? "Skjul adgangskode" : "Vis adgangskode"}
-          >
-            {showPassword ? (
-              <EyeOff className="h-4.5 w-4.5" strokeWidth={2.2} />
-            ) : (
-              <Eye className="h-4.5 w-4.5" strokeWidth={2.2} />
-            )}
-          </button>
-        )}
-      </div>
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-11 w-full border border-neutral-300 bg-(--white-white) px-3 text-sm font-semibold text-neutral-700 outline-none placeholder:text-neutral-400 focus:border-(--brand-green-01)"
+      />
     </label>
   );
 }

@@ -1,3 +1,7 @@
+// locationGeo – geografiske hjælpefunktioner til afstandsberegning og åbningstidsformatering.
+// haversineKm() og formatKmDa() bruges af Map.tsx og LocationsList.tsx til afstandsvisning.
+// formatOpenHoursDisplay() og locationShortName() bruges af LocationPopupCard.tsx.
+
 const EARTH_RADIUS_KM = 6371;
 
 function toRadians(deg: number): number {

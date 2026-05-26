@@ -1,8 +1,14 @@
+// LocationPopupCard – kort der viser navn, adresse, afstand og åbningstider for én vaskelokation.
+// Bruges af LocationsList.tsx (listevisning) og Map.tsx (popup ved klik på markør).
+// Importerer formatOpenHoursDisplay() og locationShortName() fra lib/locationGeo.ts.
+// Klikkes for at navigere til details/page.tsx via ROUTES.details(id).
+
 import Link from "next/link";
 import {
   formatOpenHoursDisplay,
   locationShortName,
 } from "@/lib/locationGeo";
+import { ROUTES } from "@/lib/routes";
 
 type LocationPopupCardProps = {
   locationId: string;
@@ -33,7 +39,7 @@ export default function LocationPopupCard({
           {formatOpenHoursDisplay(openHours)}
         </p>
         <Link
-          href={`/details?id=${encodeURIComponent(locationId)}`}
+          href={ROUTES.details(locationId)}
           className="washworld-popup-more"
         >
           Se mere

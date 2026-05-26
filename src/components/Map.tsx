@@ -1,3 +1,7 @@
+// Map – kortkomponenten der bruger Mapbox GL til at vise alle WashWorld-vaskelokationer på et interaktivt kort.
+// Henter lokationer fra API'et, sporer brugerens GPS-position og tegner en kørende rute til en valgt destination.
+// Dag/nat-lystema kan skiftes med knappen i hjørnet. Rute-panelet i bunden viser vejvisning trin for trin.
+
 "use client";
 
 import {
@@ -7,11 +11,25 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  ArrowUpLeft,
+  ArrowUpRight,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+  Navigation,
+  RotateCcw,
+} from "lucide-react";
 import MapControls from "./MapControls";
 import ViewToggle from "./ViewToggle";
+import { ROUTES } from "@/lib/routes";
 import type { MapLocation } from "../data/washworldLocations";
 import { fetchMapLocations } from "../lib/locationsApi";
 import {
@@ -25,6 +43,51 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 type LightPreset = "day" | "night";
 
+type RouteStep = {
+  instruction: string;
+  distanceM: number;
+  maneuverType: string;
+  maneuverModifier?: string;
+};
+
+type RouteInfo = {
+  steps: RouteStep[];
+  totalDistanceM: number;
+  totalDurationS: number;
+};
+
+// Formaterer en afstand i meter til dansk tekst: under 1 km vises i meter, ellers i km.
+function formatDistance(meters: number): string {
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1).replace(".", ",")} km`;
+}
+
+// Formaterer en varighed i sekunder til dansk tekst: fx "12 min" eller "1 t 5 min".
+function formatDuration(seconds: number): string {
+  const mins = Math.round(seconds / 60);
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h} t` : `${h} t ${m} min`;
+}
+
+// Viser det rette pil-ikon til et vejvisnings-trin baseret på manøvretype og retning.
+function StepIcon({ type, modifier }: { type: string; modifier?: string }) {
+  if (type === "depart") return <Navigation className="h-4 w-4" />;
+  if (type === "arrive") return <MapPin className="h-4 w-4" />;
+  switch (modifier) {
+    case "left":
+    case "sharp left": return <ArrowLeft className="h-4 w-4" />;
+    case "right":
+    case "sharp right": return <ArrowRight className="h-4 w-4" />;
+    case "slight left": return <ArrowUpLeft className="h-4 w-4" />;
+    case "slight right": return <ArrowUpRight className="h-4 w-4" />;
+    case "uturn": return <RotateCcw className="h-4 w-4" />;
+    default: return <ArrowUp className="h-4 w-4" />;
+  }
+}
+
+// Sikrer tekst mod XSS ved at erstatte HTML-specialtegn inden de indsættes i popup-HTML.
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
@@ -33,6 +96,7 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
+// Opretter et WashWorld SVG-pin-element der bruges som markør for vaskelokationer på kortet.
 function createPrimaryPin(): HTMLImageElement {
   const img = document.createElement("img");
   img.src = "/washworld-pin.svg";
@@ -42,12 +106,14 @@ function createPrimaryPin(): HTMLImageElement {
   return img;
 }
 
+// Opretter en blå pulserende cirkel der viser brugerens aktuelle GPS-position på kortet.
 function createUserLocationPin(): HTMLDivElement {
   const el = document.createElement("div");
   el.className = "washworld-user-location-pin";
   return el;
 }
 
+// Opretter brugerens positionsmarkør første gang, og flytter den ved efterfølgende GPS-opdateringer.
 function updateUserLocationMarker(
   map: mapboxgl.Map,
   markerRef: MutableRefObject<mapboxgl.Marker | null>,
@@ -65,6 +131,7 @@ function updateUserLocationMarker(
   markerRef.current.setLngLat(lngLat);
 }
 
+// Sætter en klik-lytter på "Se mere"-linket i en popup så det åbner detaljesiden via React Router i stedet for en fuld side-genindlæsning.
 function bindDetailsLink(
   popup: mapboxgl.Popup,
   locationId: string,
@@ -80,6 +147,7 @@ function bindDetailsLink(
   });
 }
 
+// Tilføjer et WashWorld-pin til kortet for hver lokation. Klik åbner en popup med navn, adresse, afstand og åbningstider.
 function addLocationMarkers(
   map: mapboxgl.Map,
   locations: MapLocation[],
@@ -161,6 +229,7 @@ function addLocationMarkers(
   });
 }
 
+// Zoomer og centrer kortet så alle vaskelokationer er synlige på én gang ved første indlæsning.
 function fitMapToLocations(map: mapboxgl.Map, locations: MapLocation[]): void {
   if (locations.length === 0) return;
   const bounds = new mapboxgl.LngLatBounds();
@@ -168,35 +237,49 @@ function fitMapToLocations(map: mapboxgl.Map, locations: MapLocation[]): void {
   map.fitBounds(bounds, { padding: 56, maxZoom: 8.5 });
 }
 
+// Henter en kørende rute fra Mapbox Directions API og tegner den som en grøn linje på kortet.
+// Returnerer rutens trin, samlet afstand og estimeret køretid.
 async function drawRoute(
   map: mapboxgl.Map,
   from: [number, number],
   to: [number, number],
-): Promise<void> {
-  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from[0]},${from[1]};${to[0]},${to[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+): Promise<RouteInfo | null> {
+  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from[0]},${from[1]};${to[0]},${to[1]}?geometries=geojson&steps=true&language=da&access_token=${mapboxgl.accessToken}`;
 
   const res = await fetch(url);
   const json = await res.json();
-  const route = json.routes?.[0]?.geometry;
-  if (!route) return;
+  const route = json.routes?.[0];
+  if (!route) return null;
 
   if (map.getSource("route")) {
-    (map.getSource("route") as mapboxgl.GeoJSONSource).setData(route);
-    return;
+    (map.getSource("route") as mapboxgl.GeoJSONSource).setData(route.geometry);
+  } else {
+    map.addSource("route", { type: "geojson", data: route.geometry });
+    map.addLayer({
+      id: "route",
+      type: "line",
+      source: "route",
+      layout: { "line-join": "round", "line-cap": "round" },
+      paint: {
+        "line-color": "#00b140",
+        "line-width": 5,
+        "line-opacity": 0.85,
+      },
+    });
   }
 
-  map.addSource("route", { type: "geojson", data: route });
-  map.addLayer({
-    id: "route",
-    type: "line",
-    source: "route",
-    layout: { "line-join": "round", "line-cap": "round" },
-    paint: {
-      "line-color": "#00b140",
-      "line-width": 5,
-      "line-opacity": 0.85,
-    },
-  });
+  const steps: RouteStep[] = (route.legs?.[0]?.steps ?? []).map((step: any) => ({
+    instruction: step.maneuver.instruction,
+    distanceM: step.distance,
+    maneuverType: step.maneuver.type,
+    maneuverModifier: step.maneuver.modifier,
+  }));
+
+  return {
+    steps,
+    totalDistanceM: route.distance,
+    totalDurationS: route.duration,
+  };
 }
 
 export default function Map() {
@@ -217,6 +300,9 @@ export default function Map() {
     "loading",
   );
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+  const [routePanelOpen, setRoutePanelOpen] = useState(true);
+  const [locationStatus, setLocationStatus] = useState<"pending" | "ok" | "error">("pending");
 
   useEffect(() => {
     const orig = Element.prototype.releasePointerCapture;
@@ -245,21 +331,65 @@ export default function Map() {
   }, []);
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lngLat: [number, number] = [
-          pos.coords.longitude,
-          pos.coords.latitude,
-        ];
-        userLngLatRef.current = lngLat;
-        const map = mapRef.current;
-        if (map) updateUserLocationMarker(map, userMarkerRef, lngLat);
-      },
-      () => { userLngLatRef.current = null; },
-      { enableHighAccuracy: false, maximumAge: 120_000, timeout: 12_000 },
-    );
-  }, []);
+    if (!navigator.geolocation) {
+      setLocationStatus("error");
+      return;
+    }
+
+    let locationOk = false;
+
+    function onLocationSuccess(pos: GeolocationPosition) {
+      const lngLat: [number, number] = [pos.coords.longitude, pos.coords.latitude];
+      userLngLatRef.current = lngLat;
+      if (!locationOk) {
+        locationOk = true;
+        setLocationStatus("ok");
+      }
+      const map = mapRef.current;
+      if (!map) return;
+      updateUserLocationMarker(map, userMarkerRef, lngLat);
+      if (destLat && destLng && !routeDrawnRef.current && map.isStyleLoaded()) {
+        const to: [number, number] = [parseFloat(destLng), parseFloat(destLat)];
+        routeDrawnRef.current = true;
+        drawRoute(map, lngLat, to).then((info) => {
+          if (info) { setRouteInfo(info); }
+          const bounds = new mapboxgl.LngLatBounds().extend(lngLat).extend(to);
+          map.fitBounds(bounds, { padding: 80 });
+        });
+      }
+    }
+
+    // Forsøg med høj nøjagtighed (GPS på mobil), fald tilbage til lav nøjagtighed
+    // (WiFi/netværk) hvis det fejler — typisk på desktop uden GPS.
+    // watchPosition giver løbende opdateringer så markøren følger med.
+    let watchId: number | null = null;
+
+    const startWatch = (highAccuracy: boolean) => {
+      watchId = navigator.geolocation.watchPosition(
+        onLocationSuccess,
+        () => {
+          if (highAccuracy) {
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            startWatch(false);
+          } else {
+            userLngLatRef.current = null;
+            setLocationStatus("error");
+          }
+        },
+        {
+          enableHighAccuracy: highAccuracy,
+          maximumAge: 0,
+          timeout: 10_000,
+        },
+      );
+    };
+
+    startWatch(true);
+
+    return () => {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    };
+  }, [destLat, destLng]);
 
   useEffect(() => {
     if (loadStatus !== "ready") return;
@@ -284,7 +414,7 @@ export default function Map() {
         locations,
         () => userLngLatRef.current,
         (locationId) =>
-          router.push(`/details?id=${encodeURIComponent(locationId)}`),
+          router.push(ROUTES.details(locationId)),
       );
 
       if (userLngLatRef.current) {
@@ -296,7 +426,10 @@ export default function Map() {
         const to: [number, number] = [parseFloat(destLng), parseFloat(destLat)];
         routeDrawnRef.current = true;
 
-        drawRoute(map, userLngLatRef.current, to).then(() => {
+        drawRoute(map, userLngLatRef.current, to).then((info) => {
+          if (info) {
+            setRouteInfo(info);
+          }
           const bounds = new mapboxgl.LngLatBounds()
             .extend(userLngLatRef.current!)
             .extend(to);
@@ -343,7 +476,7 @@ export default function Map() {
     navigator.geolocation.getCurrentPosition(
       (pos) => focus([pos.coords.longitude, pos.coords.latitude]),
       () => {},
-      { enableHighAccuracy: false, maximumAge: 120_000, timeout: 12_000 },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 },
     );
   };
 
@@ -387,6 +520,70 @@ export default function Map() {
           visibility: loadStatus === "ready" ? "visible" : "hidden",
         }}
       />
+
+      {destLat && destLng && locationStatus === "error" && !routeInfo && (
+        <div className="absolute bottom-0 left-0 right-0 z-10 rounded-t-lg bg-white px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.18)]">
+          <p className="text-sm font-bold text-black">Kunne ikke hente din lokation</p>
+          <p className="mt-1 text-xs text-gray-500">
+            Tillad lokationsadgang i din browser og prøv igen.
+          </p>
+        </div>
+      )}
+
+      {routeInfo && routeInfo.steps[0] && typeof document !== "undefined" && (() => {
+        const target = document.querySelector(".app-screen");
+        if (!target) return null;
+        return createPortal(
+          <div className="absolute bottom-22 left-0 right-0 z-20 overflow-hidden bg-white shadow-[0_-4px_24px_rgba(0,0,0,0.15)]">
+            <button
+              type="button"
+              onClick={() => setRoutePanelOpen((o) => !o)}
+              className="flex w-full items-center justify-center py-1.5"
+              aria-label={routePanelOpen ? "Skjul vejvisning" : "Vis vejvisning"}
+            >
+              {routePanelOpen ? (
+                <ChevronDown className="h-4 w-4 text-black/30" />
+              ) : (
+                <ChevronUp className="h-4 w-4 text-black/30" />
+              )}
+            </button>
+
+            {routePanelOpen && (
+              <>
+                <div className="flex items-center gap-3 px-4 pb-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[3px] bg-(--brand-green-01) text-white">
+                    <StepIcon type={routeInfo.steps[0].maneuverType} modifier={routeInfo.steps[0].maneuverModifier} />
+                  </div>
+                  <span className="flex-1 text-sm font-semibold leading-snug text-black">
+                    {routeInfo.steps[0].instruction}
+                  </span>
+                  {routeInfo.steps[0].distanceM > 0 && (
+                    <span className="shrink-0 text-sm font-bold text-black/40">
+                      {formatDistance(routeInfo.steps[0].distanceM)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 border-t border-black/10 px-4 py-2">
+                  <div className="flex h-7 items-center rounded-[3px] bg-(--brand-green-01) px-2.5">
+                    <span className="text-xs font-bold text-white">{formatDuration(routeInfo.totalDurationS)}</span>
+                  </div>
+                  <span className="text-xs font-semibold text-black/40">{formatDistance(routeInfo.totalDistanceM)} i alt</span>
+                </div>
+              </>
+            )}
+
+            {!routePanelOpen && (
+              <div className="flex items-center gap-2 px-4 pb-2">
+                <div className="flex h-7 items-center rounded-[3px] bg-(--brand-green-01) px-2.5">
+                  <span className="text-xs font-bold text-white">{formatDuration(routeInfo.totalDurationS)}</span>
+                </div>
+                <span className="text-xs font-semibold text-black/40">{formatDistance(routeInfo.totalDistanceM)} i alt</span>
+              </div>
+            )}
+          </div>,
+          target,
+        );
+      })()}
     </div>
   );
 }

@@ -1,3 +1,6 @@
+// PaymentMethodCard – et valgkort for én betalingsmetode (fx MobilePay, kort eller wallet).
+// Viser logo, navn og beskrivelse. En grøn ring og flueben indikerer det valgte alternativ.
+
 import Image from "next/image";
 
 export default function PaymentMethodCard({ method, selected, onClick }) {

@@ -5,13 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { Bell } from "lucide-react";
-import { dashboardNewsItems, dashboardPageNames } from "@/data/dashboardData";
-import { getMissingProfileInfoState } from "@/data/profileData";
+import { dashboardPageNames } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
+import { fetchOffers, getOfferImageSrc } from "@/lib/offersApi";
+import type { Offer } from "@/types/api";
 import { formatLocationAddress } from "@/lib/locationsApi";
-import { useFavorites } from "@/context/FavoritesContext";
-import { useAuth } from "@/context/AuthContext";
+import { useFavorites, useAuth, useVehicles } from "@/hooks";
+import { ROUTES } from "@/lib/routes";
 
 // Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
 function getDistanceInKm(
@@ -32,9 +33,17 @@ function getDistanceInKm(
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  const { hasMissingProfileInfo, missingPaymentCard, missingVehicle } =
-    getMissingProfileInfoState();
+  const { displayFirstName } = useAuth();
+  const { vehicles, isLoading: vehiclesLoading } = useVehicles();
+  const [missingPaymentCard, setMissingPaymentCard] = useState(false);
+
+  useEffect(() => {
+    setMissingPaymentCard(
+      window.localStorage.getItem("washworld-saved-payment-card") === null,
+    );
+  }, []);
+  const missingVehicle = !vehiclesLoading && vehicles.length === 0;
+  const hasMissingProfileInfo = missingVehicle || missingPaymentCard;
   const { favorites } = useFavorites();
   // TanStack Query henter alle lokationer fra API'et og cacher dem automatisk.
   // isLoading er true mens det første kald er i gang – bruges til at vise "Henter...".
@@ -43,6 +52,12 @@ export default function DashboardPage() {
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ["locations"],
     queryFn: fetchLocations,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: offers = [], isLoading: offersLoading } = useQuery({
+    queryKey: ["offers"],
+    queryFn: fetchOffers,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -79,7 +94,7 @@ export default function DashboardPage() {
 
       setLocationsWithDistance(withDistances);
       setNearestLocation(withDistances[0]);
-    });
+    }, undefined, { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 });
   }, [locations]);
 
   function handleNotificationClick() {
@@ -137,7 +152,7 @@ export default function DashboardPage() {
           </p>
           <div className="mt-3 flex justify-end">
             <Link
-              href="/profile"
+              href={ROUTES.profile}
               className="flex h-11 items-center justify-center bg-(--brand-green-01) pl-5 pr-4 text-[0.92rem] font-bold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]"
             >
               {dashboardPageNames.notificationToastButton}
@@ -146,21 +161,21 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
-      <button
-        type="button"
-        onClick={handleNotificationClick}
-        aria-label="Åbn notifikationer"
-        className={`absolute right-8 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${hasMissingProfileInfo ? "notification-bell-active" : "hover:bg-white/16"}`}
-      >
-        <span className={hasMissingProfileInfo ? "notification-bell-icon" : ""}>
-          <Bell className="h-6 w-6" strokeWidth={2.3} />
-        </span>
-        <span
-          className={`absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-(--color-secondary) transition ${hasMissingProfileInfo ? "notification-bell-dot" : "opacity-100"}`}
-        />
-      </button>
+      {hasMissingProfileInfo && (
+        <button
+          type="button"
+          onClick={handleNotificationClick}
+          aria-label="Åbn notifikationer"
+          className="notification-bell-active absolute right-8 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition"
+        >
+          <span className="notification-bell-icon">
+            <Bell className="h-6 w-6" strokeWidth={2.3} />
+          </span>
+          <span className="notification-bell-dot absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-(--color-secondary)" />
+        </button>
+      )}
 
-      <PageInfo userName={user?.user_firstname ?? ""} />
+      <PageInfo userName={displayFirstName} />
 
       {/* Nærmeste vaskehal med link til kort */}
       <section className="px-8 pt-10">
@@ -198,8 +213,8 @@ export default function DashboardPage() {
           <Link
             href={
               nearestLocation
-                ? `/locations/map?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
-                : "/locations/map"
+                ? `${ROUTES.map}?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
+                : ROUTES.map
             }
             className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[3px] bg-(--white-white) shadow-md"
             title={dashboardPageNames.currentLocationButtonAlt}
@@ -245,12 +260,18 @@ export default function DashboardPage() {
         </h3>
 
         <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-          {dashboardNewsItems.map((newsItem) => (
-            <NewsCard
-              key={newsItem.id}
-              image={newsItem.image}
-              description={newsItem.description}
-            />
+          {offersLoading && (
+            <p className="px-2 text-sm font-semibold text-neutral-500">
+              Henter tilbud...
+            </p>
+          )}
+          {!offersLoading && offers.length === 0 && (
+            <p className="px-2 text-sm font-semibold text-neutral-500">
+              Ingen aktuelle tilbud
+            </p>
+          )}
+          {offers.map((offer) => (
+            <NewsCard key={offer.offer_id} offer={offer} />
           ))}
         </div>
       </section>
@@ -273,7 +294,7 @@ function FavoriteCard({
 }) {
   return (
     <Link
-      href={`/details?id=${encodeURIComponent(locationId)}`}
+      href={ROUTES.details(locationId)}
       className="relative h-32 w-36 shrink-0 overflow-hidden rounded-[3px] bg-black shadow-lg border-2 border-(--brand-green-01) block"
     >
       <Image
@@ -299,37 +320,45 @@ function FavoriteCard({
         </p>
 
         <div className="absolute -right-px -bottom-px h-6">
-          <button className="flex h-full items-center justify-end rounded-none border-0 bg-(--brand-green-01) pl-6 pr-2 text-xs leading-none font-bold text-white [clip-path:polygon(24%_0,101%_0,101%_101%,0_101%)]">
+          <span className="flex h-full items-center justify-end bg-(--brand-green-01) pl-6 pr-2 text-xs leading-none font-bold text-white [clip-path:polygon(24%_0,101%_0,101%_101%,0_101%)]">
             {dashboardPageNames.favoriteCardButton}
-          </button>
+          </span>
         </div>
       </div>
     </Link>
   );
 }
 
-// Kort der viser en nyhed med billede og beskrivelse
-function NewsCard({
-  image,
-  description,
-}: {
-  image: string;
-  description: string;
-}) {
+// Kort der viser et tilbud med billede (base64 fra DB) og beskrivelse
+function NewsCard({ offer }: { offer: Offer }) {
+  const imageSrc = getOfferImageSrc(offer.offer_photo_base64);
+  const isDataUrl = imageSrc.startsWith("data:");
+
   return (
-    <article className="w-46 shrink-0 overflow-hidden rounded-[3px] border-white/90 bg-white shadow-md">
-      <Image
-        src={image}
-        alt={description}
-        className="w-full h-20 object-cover"
-        width={184}
-        height={80}
-        quality={75}
-      />
+    <Link
+      href={ROUTES.underConstruction}
+      className="w-46 shrink-0 overflow-hidden rounded-[3px] border-white/90 bg-white shadow-md block"
+    >
+      {isDataUrl ? (
+        <img
+          src={imageSrc}
+          alt={offer.offer_description}
+          className="h-20 w-full object-cover"
+        />
+      ) : (
+        <Image
+          src={imageSrc}
+          alt={offer.offer_description}
+          className="h-20 w-full object-cover"
+          width={184}
+          height={80}
+          quality={75}
+        />
+      )}
 
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">
-        {description}
+        {offer.offer_description}
       </p>
-    </article>
+    </Link>
   );
 }
