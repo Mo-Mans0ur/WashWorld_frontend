@@ -6,7 +6,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type FormEvent, useState, useEffect } from "react";
+import { type FormEvent, useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/buttons";
 import { ROUTES } from "@/lib/routes";
@@ -20,7 +20,7 @@ function getInputStyle(value: string) {
   return "border-2 border-green-400";
 }
 
-export default function ResetPasswordConfirmPage() {
+function ResetPasswordConfirmForm() {
   const searchParams = useSearchParams();
   const resetKey = searchParams.get("key") ?? "";
 
@@ -157,5 +157,13 @@ export default function ResetPasswordConfirmPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordConfirmPage() {
+  return (
+    <Suspense>
+      <ResetPasswordConfirmForm />
+    </Suspense>
   );
 }
