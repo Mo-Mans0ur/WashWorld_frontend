@@ -20,8 +20,8 @@ import { getMissingProfileInfoState } from "@/data/profileData";
 import { subscriptionPageNames, subscriptionPlans } from "@/data/subscriptionData";
 import { washworldMapLocations } from "@/data/washworldLocations";
 import { ROUTES } from "@/lib/routes";
-import PageInfo from "@/components/PageInfo";
-import { PlanFeature } from "@/components/PlanFeature";
+import PageInfo from "@/components/shared/PageInfo";
+import { PlanFeature } from "@/components/wash/PlanFeature";
 import { usePlanCarousel } from "@/hooks";
 
 const PLANS = ["Guld", "Premium", "Brilliant"];

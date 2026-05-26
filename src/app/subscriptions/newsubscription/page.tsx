@@ -1,10 +1,7 @@
 "use client";
 
 // HandleSubscriptionPage – opret et nyt abonnement.
-// Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze (fra abonnement/page.tsx).
-// Bruger CarPickerSheet.tsx til bilvalg og createSubscription() fra subscriptionsApi.ts.
-// Henter brugerens biler via useVehicles(). Adgangskontrol håndteres af middleware og AuthGuard.
-// Efter vellykket oprettelse sendes brugeren til /profile.
+// Siden modtager valgt plan via URL-parameteren ?plan=guld|sølv|bronze.
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -15,11 +12,31 @@ import {
   getSubscriptionPlanBySlug,
   subscriptionPageNames,
 } from "@/data/subscriptionData";
-import PageInfo from "@/components/PageInfo";
-import BottomSheet from "@/components/BottomSheet";
+import PageInfo from "@/components/shared/PageInfo";
+import BottomSheet from "@/components/shared/BottomSheet";
 import { Button } from "@/components/buttons";
 import { createSubscription } from "@/lib/subscriptionsApi";
 import { ROUTES } from "@/lib/routes";
+
+// Kompakt bil-ikon til køretøjsvælgeren
+function CarIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4.5 w-4.5" aria-hidden="true">
+      <path d="M4.7 13.2h14.6l-1-3.3a2 2 0 0 0-1.9-1.4H7.6a2 2 0 0 0-1.9 1.4l-1 3.3Zm-.7 1.5A2 2 0 0 1 6 13h12a2 2 0 0 1 2 1.7l.4 2.8a.75.75 0 0 1-.75.85h-1.4a.75.75 0 0 1-.75-.75V17H6.5v.55a.75.75 0 0 1-.75.75H4.35a.75.75 0 0 1-.75-.85L4 14.7Z" />
+      <circle cx="7.6" cy="15.5" r="1" />
+      <circle cx="16.4" cy="15.5" r="1" />
+    </svg>
+  );
+}
+
+// Kompakt kreditkort-ikon til betalingsvælgeren
+function CardIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4.5 w-4.5" aria-hidden="true">
+      <path d="M3.5 6.25A1.75 1.75 0 0 1 5.25 4.5h13.5a1.75 1.75 0 0 1 1.75 1.75v11.5a1.75 1.75 0 0 1-1.75 1.75H5.25a1.75 1.75 0 0 1-1.75-1.75V6.25Zm1.5 2v2h14v-2H5Zm0 4v5.5h14v-5.5H5Z" />
+    </svg>
+  );
+}
 
 export default function HandleSubscriptionPage() {
   const router = useRouter();
@@ -28,35 +45,29 @@ export default function HandleSubscriptionPage() {
 
   const planKey = (searchParams.get("plan") || "guld").toLowerCase();
   const preselectedCarId = searchParams.get("carId") ?? null;
-  const activePlan = useMemo(
-    () => getSubscriptionPlanBySlug(planKey),
-    [planKey],
-  );
+  const activePlan = useMemo(() => getSubscriptionPlanBySlug(planKey), [planKey]);
 
   const savedVehicleOptions = useMemo(
-    () =>
-      vehicles.map((vehicle) => ({
-        value: String(vehicle.id),
-        label: `${vehicle.plate} - ${vehicle.name}`,
-      })),
+    () => vehicles.map((vehicle) => ({
+      value: String(vehicle.id),
+      label: `${vehicle.plate} - ${vehicle.name}`,
+    })),
     [vehicles],
   );
   const hasSavedVehicle = savedVehicleOptions.length > 0;
   const initialVehicleValue =
     (preselectedCarId && savedVehicleOptions.find((o) => o.value === preselectedCarId)?.value) ??
     savedVehicleOptions.find(
-      (option) =>
-        option.value ===
-        String(vehicles.find((savedVehicle) => savedVehicle.active)?.id),
+      (option) => option.value === String(vehicles.find((v) => v.active)?.id),
     )?.value ??
     savedVehicleOptions[0]?.value ??
     "";
+
   const [savedCard] = useState<{ cardNumber: string; expiry: string; name: string } | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = window.localStorage.getItem(SAVED_PAYMENT_CARD_STORAGE_KEY);
     if (!raw) return null;
-    try { return JSON.parse(raw); }
-    catch { return null; }
+    try { return JSON.parse(raw); } catch { return null; }
   });
 
   const paymentMethods = useMemo(() => {
@@ -67,7 +78,6 @@ export default function HandleSubscriptionPage() {
       { value: "wallet", label: "Apple Pay / Google Pay" },
     ];
   }, [savedCard]);
-  const vehicleOptions = savedVehicleOptions;
 
   const [vehicle, setVehicle] = useState(initialVehicleValue);
   const [paymentMethod, setPaymentMethod] = useState(() => savedCard ? "card" : "");
@@ -76,15 +86,15 @@ export default function HandleSubscriptionPage() {
   const [attempted, setAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const selectedVehicleLabel = vehicle
-    ? vehicleOptions.find((option) => option.value === vehicle)?.label
-    : "";
-  const selectedPaymentMethodLabel = paymentMethod
-    ? paymentMethods.find((item) => item.value === paymentMethod)?.label
-    : "";
 
-  // Alle tre betingelser skal være opfyldt for at aktivere send-knappen
+  const selectedVehicleLabel = vehicle ? savedVehicleOptions.find((o) => o.value === vehicle)?.label : "";
+  const selectedPaymentMethodLabel = paymentMethod ? paymentMethods.find((m) => m.value === paymentMethod)?.label : "";
   const canSubmit = Boolean(vehicle) && Boolean(paymentMethod) && acceptedTerms;
+  const isSheetOpen = activeSheet !== null;
+  const sheetTitle =
+    activeSheet === "vehicle"
+      ? subscriptionPageNames.vehicleSheetTitle
+      : subscriptionPageNames.paymentSheetTitle;
 
   // MariaDB forventer datetime i formatet "YYYY-MM-DD HH:MM:SS"
   function formatDate(d: Date): string {
@@ -93,7 +103,6 @@ export default function HandleSubscriptionPage() {
 
   async function handleSubmit() {
     if (!vehicle || !paymentMethod || !acceptedTerms) {
-      // Sæt attempted til true for at vise valideringsfejl på tomme felter
       setAttempted(true);
       return;
     }
@@ -129,32 +138,16 @@ export default function HandleSubscriptionPage() {
     }
   }
 
-  // activeSheet styrer hvilket "bottom sheet" der er åbent: "vehicle", "payment" eller null (lukket)
-  const isSheetOpen = activeSheet !== null;
-  const sheetTitle =
-    activeSheet === "vehicle"
-      ? subscriptionPageNames.vehicleSheetTitle
-      : subscriptionPageNames.paymentSheetTitle;
-
   // Gemmer den valgte værdi i den korrekte state og lukker sheetet
-  function selectFromSheet(value) {
-    if (activeSheet === "vehicle") {
-      setVehicle(value);
-    }
-
-    if (activeSheet === "payment") {
-      setPaymentMethod(value);
-    }
-
+  function selectFromSheet(value: string) {
+    if (activeSheet === "vehicle") setVehicle(value);
+    if (activeSheet === "payment") setPaymentMethod(value);
     setActiveSheet(null);
   }
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      <PageInfo
-        text={subscriptionPageNames.createTitle}
-        userName=""
-      />
+      <PageInfo text={subscriptionPageNames.createTitle} userName="" />
       <main className="flex-1 overflow-y-auto px-6 pt-3.5 pb-4 text-white scrollbar-hide">
         <h1 className="text-center text-[2rem] font-bold leading-tight">
           {subscriptionPageNames.createTitleLineOne}
@@ -166,15 +159,9 @@ export default function HandleSubscriptionPage() {
         </p>
 
         <div className="mx-auto mt-3.5 w-full max-w-74 bg-(--brand-green-01) px-4 py-6 text-center shadow-lg">
-          <h2 className="text-[2rem] font-bold leading-none">
-            {activePlan.name}
-          </h2>
-          <p className="mt-1.5 text-[1rem] font-bold leading-none">
-            {activePlan.price}
-          </p>
-          <p className="mt-1 text-[1.2rem] font-bold leading-none">
-            {activePlan.firstMonth}
-          </p>
+          <h2 className="text-[2rem] font-bold leading-none">{activePlan.name}</h2>
+          <p className="mt-1.5 text-[1rem] font-bold leading-none">{activePlan.price}</p>
+          <p className="mt-1 text-[1.2rem] font-bold leading-none">{activePlan.firstMonth}</p>
         </div>
 
         <p className="mx-auto mt-2 max-w-74 text-center text-[0.95rem] leading-tight">
@@ -190,9 +177,7 @@ export default function HandleSubscriptionPage() {
             <div>
               {hasSavedVehicle ? (
                 <div className="relative flex h-9.5 items-center overflow border border-(--brand-green-01) bg-(--white-white)">
-                  <span className="pl-2 pr-1 text-(--brand-green-01)">
-                    <CarIcon />
-                  </span>
+                  <span className="pl-2 pr-1 text-(--brand-green-01)"><CarIcon /></span>
                   <span className="flex-1 truncate pr-4 text-[1rem] font-semibold text-black">
                     {selectedVehicleLabel || subscriptionPageNames.vehiclePlaceholder}
                   </span>
@@ -206,9 +191,7 @@ export default function HandleSubscriptionPage() {
                 </div>
               ) : (
                 <div className="relative flex h-9.5 items-center overflow border border-(--color-grey-02) bg-(--white-white)">
-                  <span className="pl-2 pr-1 text-(--color-grey-01)">
-                    <CarIcon />
-                  </span>
+                  <span className="pl-2 pr-1 text-(--color-grey-01)"><CarIcon /></span>
                   <span className="flex-1 pr-4 text-[1rem] font-semibold text-(--color-grey-01)">
                     Ingen køretøjer tilknyttet
                   </span>
@@ -246,6 +229,7 @@ export default function HandleSubscriptionPage() {
               )}
             </div>
           </div>
+
           <label className="mx-auto mt-2.5 flex w-full max-w-72 items-center justify-center gap-2 text-[0.95rem] font-semibold text-(--white-white)">
             <input
               type="checkbox"
@@ -255,9 +239,7 @@ export default function HandleSubscriptionPage() {
             />
             <span>
               {subscriptionPageNames.termsPrefix}{" "}
-              <a href="#" className="text-(--color-secondary)">
-                {subscriptionPageNames.termsLinkLabel}
-              </a>
+              <a href="#" className="text-(--color-secondary)">{subscriptionPageNames.termsLinkLabel}</a>
             </span>
           </label>
 
@@ -293,14 +275,10 @@ export default function HandleSubscriptionPage() {
             >
               <div className="flex h-8 shrink-0 overflow-hidden border-2 border-neutral-800 bg-white text-neutral-950">
                 <span className="flex w-5 items-center justify-center bg-[#327fc2]" />
-                <span className="flex items-center px-2.5 text-[13px] font-bold tracking-[0.08em]">
-                  {v.plate}
-                </span>
+                <span className="flex items-center px-2.5 text-[13px] font-bold tracking-[0.08em]">{v.plate}</span>
               </div>
               {v.name && v.name !== v.plate && (
-                <span className="flex-1 truncate text-sm font-semibold text-neutral-600">
-                  {v.name}
-                </span>
+                <span className="flex-1 truncate text-sm font-semibold text-neutral-600">{v.name}</span>
               )}
               <span className={`ml-auto shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                 v.subscriptionName ? "bg-emerald-400 text-emerald-900" : "bg-neutral-300 text-neutral-600"
@@ -323,35 +301,5 @@ export default function HandleSubscriptionPage() {
         )}
       </BottomSheet>
     </div>
-  );
-}
-
-function CarIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className="h-4.5 w-4.5"
-      aria-hidden="true"
-    >
-      <path d="M4.7 13.2h14.6l-1-3.3a2 2 0 0 0-1.9-1.4H7.6a2 2 0 0 0-1.9 1.4l-1 3.3Zm-.7 1.5A2 2 0 0 1 6 13h12a2 2 0 0 1 2 1.7l.4 2.8a.75.75 0 0 1-.75.85h-1.4a.75.75 0 0 1-.75-.75V17H6.5v.55a.75.75 0 0 1-.75.75H4.35a.75.75 0 0 1-.75-.85L4 14.7Z" />
-      <circle cx="7.6" cy="15.5" r="1" />
-      <circle cx="16.4" cy="15.5" r="1" />
-    </svg>
-  );
-}
-
-function CardIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className="h-4.5 w-4.5"
-      aria-hidden="true"
-    >
-      <path d="M3.5 6.25A1.75 1.75 0 0 1 5.25 4.5h13.5a1.75 1.75 0 0 1 1.75 1.75v11.5a1.75 1.75 0 0 1-1.75 1.75H5.25a1.75 1.75 0 0 1-1.75-1.75V6.25Zm1.5 2v2h14v-2H5Zm0 4v5.5h14v-5.5H5Z" />
-    </svg>
   );
 }

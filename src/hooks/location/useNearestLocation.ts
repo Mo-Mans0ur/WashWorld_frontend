@@ -28,6 +28,7 @@ export function useNearestLocation(locations: ApiLocationRow[]) {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        setLocationError(false); // Ryd fejl sat af en tidligere tom-lokations-kørsel
         const { latitude, longitude } = pos.coords;
 
         const withDistances: LocationWithDistance[] = locations

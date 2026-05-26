@@ -1,37 +1,13 @@
 // Vaskehistorik (receipts/page.tsx) – viser brugerens alle tidligere vaske og abonnementer.
 // Poster hentes og kombineres af useReceiptHistory og vises som kronologisk liste af kort.
-//
-// Hooks der bruges:
-//   useAuth()           → henter user.user_id som bruges til at hente data
-//   useReceiptHistory() → kalder washLogApi, subscriptionsApi og carsApi parallelt og
-//                         kombinerer dem til én sorteret ReceiptItem-liste
-//
-// Komponenter der bruges:
-//   PageInfo         → sidetitel øverst
-//   LicensePlate     → viser nummerpladen på hvert kvitteringskort (components/LicensePlate.tsx)
-//   WashCard         → kort for en enkelt vask (defineret nedenfor)
-//   SubscriptionCard → kort for et abonnement (defineret nedenfor)
-//
-// Hvert ReceiptItem har kind = "wash" eller kind = "subscription"
-// som afgør hvilket kort der vises. Detaljeknappen linker til receipts/details/page.tsx.
 
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import PageInfo from "@/components/PageInfo";
-import { LicensePlate } from "@/components/LicensePlate";
-import { CalendarDaysIcon, MapPinIcon } from "@heroicons/react/24/solid";
+import PageInfo from "@/components/shared/PageInfo";
+import WashCard from "@/components/receipts/WashCard";
+import SubscriptionCard from "@/components/receipts/SubscriptionCard";
 import { receiptPageNames } from "@/data/receiptHistory";
-import {
-  formatWashDate,
-  formatWashTime,
-  washLogIcon,
-  formatPrice,
-  type ReceiptItem,
-} from "@/lib/washLogApi";
 import { useAuth, useReceiptHistory } from "@/hooks";
-import { ROUTES } from "@/lib/routes";
 
 export default function Vaskehistorik() {
   const { user } = useAuth();
@@ -44,7 +20,7 @@ export default function Vaskehistorik() {
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         <main className="space-y-3 px-5 py-4">
           {isLoading && (
-            <p className="text-center text-sm font-semibold text-neutral-500">
+            <p className="text-center text-sm font-semibold text-white">
               Henter kvitteringer...
             </p>
           )}
@@ -54,7 +30,7 @@ export default function Vaskehistorik() {
             </p>
           )}
           {!isLoading && !error && items.length === 0 && (
-            <p className="text-center text-sm font-semibold text-neutral-500">
+            <p className="text-center text-sm font-semibold text-white">
               Ingen kvitteringer endnu.
             </p>
           )}
@@ -69,140 +45,5 @@ export default function Vaskehistorik() {
         </main>
       </div>
     </div>
-  );
-}
-
-function WashCard({ item }: { item: Extract<ReceiptItem, { kind: "wash" }> }) {
-  const { entry } = item;
-  const locationText =
-    entry.location_address && entry.location_zipcode
-      ? `${entry.location_address}, ${entry.location_zipcode}`
-      : entry.location_name ?? "—";
-
-  return (
-    <article className="relative w-full overflow-hidden rounded-[3px] bg-white text-left shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
-      <div className="flex items-start gap-3 px-3 pb-2 pt-3">
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden bg-white">
-          <Image
-            src={washLogIcon(entry.product_name)}
-            alt={entry.product_name ?? "Vask"}
-            fill
-            className="object-cover"
-            sizes="48px"
-          />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 pr-2">
-              <h3 className="text-[15px] font-bold text-neutral-950">
-                {entry.product_name ?? "Enkelt vask"}
-              </h3>
-              <div className="mt-1.5 space-y-0.5">
-                <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-600">
-                  <MapPinIcon className="h-3 w-3 shrink-0 text-neutral-500" />
-                  <span className="truncate">{locationText}</span>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-600">
-                  <CalendarDaysIcon className="h-3 w-3 shrink-0 text-neutral-500" />
-                  <span>
-                    {formatWashDate(entry.wash_log_start_time)} ·{" "}
-                    {formatWashTime(entry.wash_log_start_time)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
-              <span className="whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-emerald-400 text-emerald-900">
-                Gennemført
-              </span>
-              <p className="text-[18px] font-bold text-neutral-950">
-                {formatPrice(entry.product_price)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="h-px bg-neutral-200" />
-
-      <div className="flex items-end justify-between gap-3 px-3 pb-3 pt-3 pr-36">
-        <LicensePlate plate={entry.car_license_plate} />
-      </div>
-
-      <Link
-        href={`${ROUTES.washHistoryDetails}?kind=wash&id=${entry.wash_log_id}`}
-        className="absolute bottom-0 right-0 inline-flex h-10 items-center bg-(--brand-green-01) px-4 text-sm font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
-      >
-        {receiptPageNames.detailButton}
-      </Link>
-    </article>
-  );
-}
-
-function SubscriptionCard({ item }: { item: Extract<ReceiptItem, { kind: "subscription" }> }) {
-  const { entry } = item;
-  const isActive = entry.subscriptions_status === "aktiv";
-
-  return (
-    <article className="relative w-full overflow-hidden rounded-[3px] bg-white text-left shadow-[0_8px_18px_rgba(0,0,0,0.08)]">
-      <div className="flex items-start gap-3 px-3 pb-2 pt-3">
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden bg-white">
-          <Image
-            src="/icons/EnkeltVaskIcon.png"
-            alt="Abonnement"
-            fill
-            className="object-cover"
-            sizes="48px"
-          />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 pr-2">
-              <h3 className="text-[15px] font-bold text-neutral-950">
-                {entry.subscriptions_name}
-              </h3>
-              <div className="mt-1.5">
-                <div className="flex items-center gap-1 text-[10px] font-semibold text-neutral-600">
-                  <CalendarDaysIcon className="h-3 w-3 shrink-0 text-neutral-500" />
-                  <span>
-                    {formatWashDate(entry.subscriptions_start_date)} ·{" "}
-                    {formatWashTime(entry.subscriptions_start_date)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="flex shrink-0 flex-col items-end gap-2 pt-0.5">
-              <span
-                className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                  isActive
-                    ? "bg-emerald-400 text-emerald-900"
-                    : "bg-neutral-300 text-neutral-600"
-                }`}
-              >
-                {isActive ? "Aktiv" : entry.subscriptions_status}
-              </span>
-              <p className="text-[18px] font-bold text-neutral-950">
-                {formatPrice(entry.subscriptions_price)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="h-px bg-neutral-200" />
-
-      <div className="flex items-end justify-between gap-3 px-3 pb-3 pt-3 pr-36">
-        <LicensePlate plate={entry.car_license_plate} />
-      </div>
-
-      <Link
-        href={`${ROUTES.washHistoryDetails}?kind=subscription&id=${entry.subscription_id}`}
-        className="absolute bottom-0 right-0 inline-flex h-10 items-center bg-(--brand-green-01) px-4 text-sm font-bold text-white [clip-path:polygon(12%_0,100%_0,100%_100%,0_100%)]"
-      >
-        {receiptPageNames.detailButton}
-      </Link>
-    </article>
   );
 }

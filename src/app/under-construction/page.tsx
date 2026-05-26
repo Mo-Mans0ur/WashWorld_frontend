@@ -2,7 +2,7 @@
 // Linker tilbage til dashboard så brugeren ikke sidder fast.
 
 import Image from "next/image";
-import ErrorPageButton from "../../components/ErrorPageButton";
+import ErrorPageButton from "../../components/shared/ErrorPageButton";
 import { underConstructionPageData } from "@/data/errorPagesData";
 
 export default function UnderConstructionPage() {

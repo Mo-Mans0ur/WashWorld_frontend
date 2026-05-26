@@ -28,8 +28,8 @@ export default function AppHeader() {
       <Image
         src="/logos/washworld-white.png"
         alt="Wash World logo"
-        width={85}
-        height={30}
+        width={75}
+        height={24}
         loading="eager"
         style={{ width: "auto" }}
       />

@@ -7,9 +7,9 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock } from "lucide-react";
-import PageInfo from "@/components/PageInfo";
-import PaymentMethodCard from "@/components/PaymentMethodCard";
-import ContinueButton from "@/components/ContinueButton";
+import PageInfo from "@/components/shared/PageInfo";
+import PaymentMethodCard from "@/components/payment/PaymentMethodCard";
+import ContinueButton from "@/components/shared/ContinueButton";
 import KortFormular from "@/components/payment/KortFormular";
 import MobilePayFormular from "@/components/payment/MobilePayFormular";
 import WalletFormular from "@/components/payment/WalletFormular";

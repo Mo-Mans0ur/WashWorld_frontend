@@ -5,8 +5,8 @@
 // children: indeholder den aktuelle side som Next.js injicerer automatisk.
 
 import "./globals.css";
-import Providers from "@/components/Providers";
-import ScreenLayout from "@/components/ScreenLayout";
+import Providers from "@/components/layout/Providers";
+import ScreenLayout from "@/components/layout/ScreenLayout";
 
 export const metadata = {
   title: "Create Next App",

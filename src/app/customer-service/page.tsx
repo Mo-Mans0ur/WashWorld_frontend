@@ -14,7 +14,7 @@ import {
   Plus,
 } from "lucide-react";
 
-import PageInfo from "@/components/PageInfo";
+import PageInfo from "@/components/shared/PageInfo";
 import {
   supportContactCards,
   supportFaqItems,

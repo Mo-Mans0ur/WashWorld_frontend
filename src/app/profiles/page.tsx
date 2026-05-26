@@ -1,57 +1,35 @@
 // ProfilePage (profiles/page.tsx) – brugerens profilside.
 // Viser brugerkort, abonnementsliste, betalingskort, klippekort og badges.
 //
-// Hooks der bruges:
-//   useAuth()           → henter user-objekt (email, telefon, oprettelsesdato) og logout-funktion
-//   useSubscriptions()  → henter brugerens abonnementer fra API'et (subscriptionsApi.ts)
-//   useAnimatedToast()  → viser en kort "Profil opdateret"-besked når man vender tilbage fra updateprofile
-//   useClickOutside()   → lukker abonnements-dropdown-menuen når man klikker udenfor (SubscriptionRow)
-//
-// Komponenter der bruges:
-//   PageInfo         → sidetitel med brugerens fulde navn
-//   ConfirmModal     → bekræftelsesdialog til opsigelse af abonnement (components/ConfirmModal.tsx)
-//   SubscriptionRow  → én række i abonnementslisten med dropdown-menu (defineret nedenfor)
-//   Stamp            → enkelt klippekorts-stempel (defineret nedenfor)
-//
 // ?updated=1 i URL'en sættes af updateprofile/page.tsx efter en vellykket profilopdatering.
 // Toasten vises og URL'en renses bagefter så beskeden ikke dukker op igen ved genindlæsning.
 // Betalingskort gemmes i localStorage under nøglen SAVED_PAYMENT_CARD_STORAGE_KEY (profileData.ts).
 
 "use client";
 
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import PageInfo from "@/components/PageInfo";
-import { ConfirmModal } from "@/components/ConfirmModal";
 import Image from "next/image";
-import { Ticket, Star, MoreVertical, ArrowLeftRight, XCircle, CreditCard } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Ticket, Star, CreditCard } from "lucide-react";
+
+import PageInfo from "@/components/shared/PageInfo";
+import { ConfirmModal } from "@/components/shared/ConfirmModal";
+import SubscriptionRow from "@/components/profile/SubscriptionRow";
+import Stamp from "@/components/profile/Stamp";
 import {
   profileBadges,
   profilePageNames,
   profileStamps,
   SAVED_PAYMENT_CARD_STORAGE_KEY,
 } from "@/data/profileData";
-import { useAuth, useSubscriptions, useAnimatedToast, useClickOutside } from "@/hooks";
+import { useAuth, useSubscriptions, useAnimatedToast } from "@/hooks";
 import { deleteSubscription } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";
 import { ROUTES } from "@/lib/routes";
 
 function formatMemberSince(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("da-DK", { month: "long", year: "numeric" });
-}
-
-function formatRenewalDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("da-DK");
-}
-
-function getSubscriptionCarLabel(sub: Subscription): string | null {
-  if (!sub.car_id) return null;
-  const name = sub.car_name?.trim();
-  if (name) return name;
-  if (sub.car_license_plate?.trim()) return sub.car_license_plate.trim();
-  return null;
 }
 
 export default function ProfilePage() {
@@ -115,7 +93,7 @@ export default function ProfilePage() {
 
         <section className="space-y-4 p-4 pt-4">
 
-          {/* User card */}
+          {/* Brugerkort */}
           <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
             <div className="flex items-start gap-3 px-4 py-3">
               <div className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-(--brand-green-01) text-3xl text-white">
@@ -145,7 +123,7 @@ export default function ProfilePage() {
             </div>
           </article>
 
-          {/* Subscriptions */}
+          {/* Abonnementer */}
           <article className="relative rounded-[3px] bg-(--white-white) shadow-2xl">
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
               <p className="text-sm font-semibold text-neutral-600">Abonnementer</p>
@@ -176,7 +154,7 @@ export default function ProfilePage() {
             )}
           </article>
 
-          {/* Payment card */}
+          {/* Betalingskort */}
           <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200">
               <div className="flex items-center gap-2">
@@ -216,7 +194,7 @@ export default function ProfilePage() {
             )}
           </article>
 
-          {/* Clip card */}
+          {/* Klippekort */}
           <article className="overflow-hidden rounded-[3px] bg-(--white-white) shadow-2xl">
             <div className="px-4 py-3">
               <div className="flex items-center gap-2">
@@ -327,97 +305,6 @@ export default function ProfilePage() {
           onCancel={() => setCancelTarget(null)}
         />
       )}
-    </div>
-  );
-}
-
-function SubscriptionRow({
-  sub,
-  menuOpen,
-  onMenuToggle,
-  onCloseMenu,
-  onCancel,
-}: {
-  sub: Subscription;
-  menuOpen: boolean;
-  onMenuToggle: () => void;
-  onCloseMenu: () => void;
-  onCancel: () => void;
-}) {
-  const menuRef = useRef<HTMLDivElement>(null);
-  useClickOutside(menuRef, onCloseMenu, menuOpen);
-
-  const carLabel = getSubscriptionCarLabel(sub);
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <div>
-        <p className="text-base font-bold text-neutral-800">{sub.subscriptions_name}</p>
-        {carLabel && (
-          <p className="mt-0.5 text-xs font-semibold text-neutral-600">{carLabel}</p>
-        )}
-        {sub.subscriptions_next_billing_date && (
-          <p className="mt-0.5 text-xs font-semibold text-neutral-500">
-            Fornyes d. {formatRenewalDate(sub.subscriptions_next_billing_date)}
-          </p>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-bold ${
-            sub.subscriptions_status === "aktiv"
-              ? "bg-emerald-50 text-emerald-600"
-              : "bg-neutral-100 text-neutral-500"
-          }`}
-        >
-          {sub.subscriptions_status === "aktiv" ? "Aktiv" : sub.subscriptions_status}
-        </span>
-        <div ref={menuRef} className="relative">
-          <button
-            type="button"
-            aria-label="Abonnement muligheder"
-            onClick={(e) => { e.stopPropagation(); onMenuToggle(); }}
-            className="flex h-8 w-8 items-center justify-center text-neutral-500"
-          >
-            <MoreVertical size={20} />
-          </button>
-          {menuOpen && (
-            <div className="absolute right-0 top-9 z-50 w-48 overflow-hidden rounded-md bg-white shadow-xl ring-1 ring-black/10">
-              <Link
-                href={ROUTES.subscription}
-                onClick={onCloseMenu}
-                className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
-              >
-                <ArrowLeftRight size={15} className="text-(--brand-green-01)" />
-                Skift abonnement
-              </Link>
-              <div className="h-px bg-neutral-200" />
-              <button
-                type="button"
-                onClick={onCancel}
-                className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
-              >
-                <XCircle size={15} />
-                Opsig abonnement
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Stamp({ filled = false, children }: { filled?: boolean; children: React.ReactNode }) {
-  return (
-    <div
-      className={`flex h-11 w-11 items-center justify-center rounded-full border-2 text-lg text-white font-bold ${
-        filled
-          ? "border-emerald-400 bg-emerald-500 text-white"
-          : "border-neutral-500 bg-neutral-400 text-neutral-700 border-dashed"
-      }`}
-    >
-      {children}
     </div>
   );
 }

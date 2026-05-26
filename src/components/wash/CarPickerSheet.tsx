@@ -4,7 +4,7 @@
 "use client";
 
 import Link from "next/link";
-import BottomSheet from "@/components/BottomSheet";
+import BottomSheet from "@/components/shared/BottomSheet";
 import type { Car, Subscription } from "@/types/api";
 
 interface CarPickerSheetProps {

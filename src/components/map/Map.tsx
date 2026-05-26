@@ -30,14 +30,14 @@ import {
 import MapControls from "./MapControls";
 import ViewToggle from "./ViewToggle";
 import { ROUTES } from "@/lib/routes";
-import type { MapLocation } from "../data/washworldLocations";
-import { fetchMapLocations } from "../lib/locationsApi";
+import type { MapLocation } from "@/data/washworldLocations";
+import { fetchMapLocations } from "@/lib/locationsApi";
 import {
   formatKmDa,
   formatOpenHoursDisplay,
   haversineKm,
   locationShortName,
-} from "../lib/locationGeo";
+} from "@/lib/locationGeo";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 

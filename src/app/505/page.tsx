@@ -2,7 +2,7 @@
 // Har samme visuelle stil som 404-siden: mørkegrøn baggrund med hvidt WashWorld-logo og en tilbage-knap.
 
 import Image from "next/image";
-import ErrorPageButton from "../../components/ErrorPageButton";
+import ErrorPageButton from "../../components/shared/ErrorPageButton";
 import { unsupportedPageData } from "@/data/errorPagesData";
 
 export default function UnsupportedPage() {

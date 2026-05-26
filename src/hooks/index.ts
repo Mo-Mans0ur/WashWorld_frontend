@@ -14,15 +14,19 @@
 //   useSubscriptions   → henter brugerens abonnementer (bruges på profil og detalje-side)
 //   useLocationDetails → henter lokationsdata + udstyr for én lokation (bruges på details-siden)
 //   usePlanCarousel    → styrer planvalg (Guld/Premium/Brilliant), slideretning og animKey (subscriptions + singlewash)
+//   useUpdateProfile         → formular-logik til profil-redigering (formState, gem, slet konto)
+//   useSubscriptionPayment   → betalingstilstand og logik til abonnement-betalingssiden
 
-export { useAuth } from "./useAuth";
+export { useAuth } from "./auth/useAuth";
+export { useNavVisibility } from "./auth/useNavVisibility";
 export { useFavorites } from "./useFavorites";
-export { useNavVisibility } from "./useNavVisibility";
-export { useVehicles } from "./useVehicles";
-export { useClickOutside } from "./useClickOutside";
-export { useAnimatedToast } from "./useAnimatedToast";
-export { useNearestLocation } from "./useNearestLocation";
-export { useReceiptHistory } from "./useReceiptHistory";
-export { useSubscriptions } from "./useSubscriptions";
-export { useLocationDetails } from "./useLocationDetails";
-export { usePlanCarousel } from "./usePlanCarousel";
+export { useLocationDetails } from "./location/useLocationDetails";
+export { useNearestLocation } from "./location/useNearestLocation";
+export { useUpdateProfile } from "./profile/useUpdateProfile";
+export { useReceiptHistory } from "./receipts/useReceiptHistory";
+export { useSubscriptions } from "./subscriptions/useSubscriptions";
+export { useSubscriptionPayment } from "./subscriptions/useSubscriptionPayment";
+export { useVehicles } from "./vehicles/useVehicles";
+export { useClickOutside } from "./ui/useClickOutside";
+export { useAnimatedToast } from "./ui/useAnimatedToast";
+export { usePlanCarousel } from "./ui/usePlanCarousel";

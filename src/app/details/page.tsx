@@ -1,34 +1,23 @@
 // DetailsPage (details/page.tsx) – viser detaljer om én vaskelokalitet.
 // URL-parameter ?id= bruges til at hente lokationens data og udstyr.
 //
-// Hooks der bruges:
-//   useAuth()            → henter brugerens user_id til at hente biler og abonnementer
-//   useFavorites()       → isFavorite() og toggleFavorite() til stjerne-knappen i titelbaren
-//   useLocationDetails() → henter lokationsdata + udstyrsliste og styrer selectedId (valgt maskine)
-//   useSubscriptions()   → henter brugerens abonnementer til at afgøre vaskeflow (abonnement vs. enkelt)
-//
-// Komponenter der bruges:
-//   CarPickerSheet  → bottomsheet til at vælge køretøj inden vask startes
-//   ConfirmModal    → advarsel hvis abonnementet ikke dækker denne lokation
-//   StartWashButton → start-vask-knap der deaktiveres hvis maskinen er optaget
-//   AngleButton     → skrå statusbadge på maskinekortene (Ledig/Optaget/Ud af drift)
-//   MachineCard     → enkelt maskine-kort med billede og status (defineret nedenfor)
-//
 // Navigationslogik ved "Start vask":
 //   Støvsuger / vask-selv → /selfwash
-//   Vaskehal + aktivt abonnement der dækker lokationen → /activewash (via startWashSubscription)
+//   Vaskehal + aktivt abonnement der dækker lokationen → /activewash
 //   Vaskehal + abonnement der IKKE dækker lokationen → ConfirmModal → /singlewash
 //   Vaskehal uden abonnement → /singlewash
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Star, Info } from "lucide-react";
-import AngleButton from "@/components/buttons/AngleButton";
+
 import StartWashButton from "@/components/buttons/StartWashButton";
-import { ConfirmModal } from "@/components/ConfirmModal";
+import { ConfirmModal } from "@/components/shared/ConfirmModal";
+import MachineCard from "@/components/vehicles/MachineCard";
+import CarPickerSheet from "@/components/wash/CarPickerSheet";
 import {
   EQUIPMENT_SECTIONS,
   countEquipmentByType,
@@ -36,37 +25,12 @@ import {
   formatEquipmentTitle,
   normalizeEquipmentStatus,
   formatLiveStatus,
-  type LocationEquipment,
 } from "@/lib/equipmentApi";
 import { formatOpenHoursDisplay } from "@/lib/locationGeo";
 import { useFavorites, useAuth, useLocationDetails, useSubscriptions } from "@/hooks";
 import { fetchUserCars } from "@/lib/carsApi";
-import { useEffect } from "react";
-import CarPickerSheet from "@/components/CarPickerSheet";
 import type { Car } from "@/types/api";
 import { ROUTES } from "@/lib/routes";
-
-const statusClass: Record<string, string> = {
-  Ledig: "bg-(--brand-green-01)",
-  Optaget: "bg-amber-500",
-  "Ud af drift": "bg-red-500",
-};
-
-const selectedRingClass: Record<string, string> = {
-  Ledig: "ring-(--brand-green-01)",
-  Optaget: "ring-amber-500",
-  "Ud af drift": "ring-red-500",
-};
-
-interface MachineCardProps {
-  id: string;
-  image: string;
-  title: string;
-  status: string;
-  selected: boolean;
-  faded: boolean;
-  onSelect: (id: string | null) => void;
-}
 
 export default function DetailsPage() {
   const searchParams = useSearchParams();
@@ -300,20 +264,5 @@ export default function DetailsPage() {
         </main>
       </div>
     </div>
-  );
-}
-
-function MachineCard({ id, image, title, status, selected, faded, onSelect }: MachineCardProps) {
-  return (
-    <button
-      onClick={() => onSelect(selected ? null : id)}
-      className={`flex h-20 min-w-50 shrink-0 items-end overflow-hidden rounded-[3px] bg-white font-bold shadow-md ring-inset transition-all ${selected ? `ring-4 ${selectedRingClass[status] ?? "ring-(--brand-green-01)"}` : ""} ${faded ? "opacity-40" : ""}`}
-    >
-      <div className="flex flex-1 self-center flex-row items-center justify-start gap-2 p-1">
-        <Image src={image} alt={title} width={67} height={67} className="h-14 w-14 object-contain" />
-        <span className="text-sm font-bold text-neutral-800">{title}</span>
-      </div>
-      <AngleButton text={status} size="lg" className={statusClass[status] ?? "bg-neutral-400"} />
-    </button>
   );
 }

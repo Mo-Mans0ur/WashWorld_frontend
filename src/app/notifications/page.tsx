@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Bell, Check } from "lucide-react";
 
-import PageInfo from "@/components/PageInfo";
+import PageInfo from "@/components/shared/PageInfo";
 import {
   notificationPageContent,
   notificationSettings,

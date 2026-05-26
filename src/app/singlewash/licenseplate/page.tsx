@@ -8,9 +8,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import PageInfo from "@/components/PageInfo";
-import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
-import ContinueButton from "@/components/ContinueButton";
+import PageInfo from "@/components/shared/PageInfo";
+import SingleWashAdviceInfo from "../../../components/wash/SingleWashAdviceInfo";
+import ContinueButton from "@/components/shared/ContinueButton";
 import { singleWashPlatePageContent } from "@/data/singleWashData";
 import { ROUTES } from "@/lib/routes";
 

@@ -7,9 +7,9 @@
 
 import { ReactNode, createContext, useContext, useState } from "react";
 import { usePathname } from "next/navigation";
-import AppNav from "@/components/Appnav";
-import AppHeader from "@/components/AppHeader";
-import AuthGuard from "@/components/AuthGuard";
+import AppNav from "@/components/layout/Appnav";
+import AppHeader from "@/components/layout/AppHeader";
+import AuthGuard from "@/components/layout/AuthGuard";
 
 const NavVisibilityContext = createContext({
   setHideNav: (_: boolean) => {},

@@ -7,9 +7,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MapLocation } from "@/data/washworldLocations";
 import { fetchMapLocations } from "@/lib/locationsApi";
-import LocationPopupCard from "@/components/LocationPopupCard";
+import LocationPopupCard from "@/components/map/LocationPopupCard";
 import { formatKmDa, haversineKm } from "@/lib/locationGeo";
-import ViewToggle from "@/components/ViewToggle";
+import ViewToggle from "@/components/map/ViewToggle";
 
 type LocationWithDistance = MapLocation & { distanceKm: number | null };
 
