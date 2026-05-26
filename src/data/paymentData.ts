@@ -18,7 +18,7 @@ export const paymentOptions = [
     title: "Wallet",
     description: "Brug dine gemte betalingsoplysninger",
     selected: false,
-    icon: "/icons/wallet.png",
+    icon: "/icons/Wallet.png",
   },
   {
     title: "Kontaktløs",

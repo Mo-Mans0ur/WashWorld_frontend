@@ -30,9 +30,9 @@ export const EQUIPMENT_SECTIONS = [
     type: "vask_selv",
     label: "Vask selv",
     titlePrefix: "Vask selv",
-    image: "/icons/vaskselvIcon.png",
+    image: "/icons/VaskSelvIcon.png",
     liveStatusLabel: "Vask selv",
-    liveStatusIcon: "/icons/vaskselvIcon.png",
+    liveStatusIcon: "/icons/VaskSelvIcon.png",
   },
   {
     type: "stovsuger",

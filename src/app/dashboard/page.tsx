@@ -56,7 +56,7 @@ export default function DashboardPage() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const { nearestLocation, locationsWithDistance } = useNearestLocation(locations);
+  const { nearestLocation, locationsWithDistance, locationError } = useNearestLocation(locations);
   const { show: showToast, phase: toastPhase, trigger: triggerToast } = useAnimatedToast(5000, 5500);
 
   const favoriteLocationsWithDistance = locationsWithDistance.filter((loc) =>
@@ -123,7 +123,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="text-sm font-bold leading-tight text-white">
-                  {isLoading ? "Henter..." : (nearestLocation?.location_name ?? "Finder nærmeste...")}
+                  {isLoading ? "Henter..." : locationError ? "Placering ikke tilgængelig" : (nearestLocation?.location_name ?? "Finder nærmeste...")}
                 </p>
                 <p className="text-sm font-bold leading-tight text-white">
                   {nearestLocation ? formatLocationAddress(nearestLocation) : null}

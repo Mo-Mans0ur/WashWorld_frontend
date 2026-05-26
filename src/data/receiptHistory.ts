@@ -183,7 +183,7 @@ export const receiptHistory: ReceiptHistoryItem[] = [
     location: "Tornsøvej 4, 8600 Silkeborg",
     amount: "59 Dkk",
     plate: "AF 67 802",
-    image: "/icons/EnkeltvaskIcon.png",
+    image: "/icons/EnkeltVaskIcon.png",
     washType: "Enkeltvask",
     station: "Tornsovej 4",
     payment: "Afventer betaling",

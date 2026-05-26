@@ -48,19 +48,19 @@ status: "Ud af drift",
 export const VaskselvDetails: Vaskselv[] = [
 {
 id: 1,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/VaskSelvIcon.png",
 title: "Vaskselv 1",
 status: "Ledig",
 },
 {
 id: 2,
-image:"/icons/vaskselvIcon.png", 
+image:"/icons/VaskSelvIcon.png",
 title: "Vaskselv 2",
 status: "Optaget",
 },
 {
 id: 3,
-image:"/icons/vaskselvIcon.png",
+image:"/icons/VaskSelvIcon.png",
 title: "Vaskselv 3",
 status: "Ud af drift",
 },];

@@ -18,9 +18,13 @@ export type LocationWithDistance = ApiLocationRow & { distance: string };
 export function useNearestLocation(locations: ApiLocationRow[]) {
   const [nearestLocation, setNearestLocation] = useState<LocationWithDistance | null>(null);
   const [locationsWithDistance, setLocationsWithDistance] = useState<LocationWithDistance[]>([]);
+  const [locationError, setLocationError] = useState(false);
 
   useEffect(() => {
-    if (!locations.length || !navigator.geolocation) return;
+    if (!locations.length || !navigator.geolocation) {
+      setLocationError(true);
+      return;
+    }
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -30,7 +34,6 @@ export function useNearestLocation(locations: ApiLocationRow[]) {
           .map((loc) => {
             const km = haversineKm(
               [longitude, latitude],
-              // API'et bruger x = longitude, y = latitude
               [loc.location_coordinate_x, loc.location_coordinate_y],
             );
             return { ...loc, distance: `${km.toFixed(1)} km` };
@@ -40,10 +43,10 @@ export function useNearestLocation(locations: ApiLocationRow[]) {
         setLocationsWithDistance(withDistances);
         setNearestLocation(withDistances[0] ?? null);
       },
-      undefined,
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 },
+      () => setLocationError(true),
+      { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 },
     );
   }, [locations]);
 
-  return { nearestLocation, locationsWithDistance };
+  return { nearestLocation, locationsWithDistance, locationError };
 }
