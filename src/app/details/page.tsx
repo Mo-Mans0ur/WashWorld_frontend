@@ -421,7 +421,7 @@ export default function DetailsPage() {
               ))}
 
               {/* Start vask-knap – deaktiveret hvis ingen maskine er valgt eller maskinen er optaget */}
-              <StartWashButton onClick={handleStartWash} status={selectedItem?.status ?? null} />
+              <StartWashButton onClick={handleStartWash} status={selectedItem?.status as "Ledig" | "Optaget" | "Ud af drift" | undefined} />
               {/* Viser navnet på den valgte maskine under knappen */}
               {selectedItem && (
                 <p className="text-center text-sm text-white">

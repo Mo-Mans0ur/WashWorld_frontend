@@ -1,6 +1,3 @@
-// StartWashButton – knappen der starter vasken på selvvask-siden.
-// Skifter udseende og deaktiveres automatisk baseret på maskinens status: Ledig (grøn), Optaget (gul) eller Ud af drift (rød).
-
 type MachineStatus = "Ledig" | "Optaget" | "Ud af drift";
 
 interface StatusConfig {

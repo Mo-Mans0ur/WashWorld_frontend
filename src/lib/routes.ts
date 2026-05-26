@@ -62,6 +62,6 @@ export const ROUTES = {
   editCar: (id: string) => `/cars/edit/${id}`,
 
   // Wash history
-  washHistory: "/vaskehistorik",
-  washHistoryDetails: "/vaskehistorik/detaljer",
+  washHistory: "/receipts",
+  washHistoryDetails: "/receipts/details",
 } as const;
