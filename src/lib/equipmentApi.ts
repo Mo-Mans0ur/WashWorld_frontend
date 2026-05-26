@@ -56,6 +56,18 @@ export function isEquipmentAvailable(status: string): boolean {
   return status.trim().toLowerCase() === "ledig";
 }
 
+export function normalizeEquipmentStatus(status: string): string {
+  const s = status.trim().toLowerCase();
+  if (s === "ledig") return "Ledig";
+  if (s === "optaget") return "Optaget";
+  if (s === "ud af drift") return "Ud af drift";
+  return status;
+}
+
+export function formatLiveStatus(counts: { available: number; total: number }): string {
+  return `${counts.available} / ${counts.total}`;
+}
+
 export function normalizeEquipmentType(type: string): string {
   return type.trim().toLowerCase();
 }

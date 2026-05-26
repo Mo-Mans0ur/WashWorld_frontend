@@ -1,13 +1,32 @@
+// BilerPage (cars/page.tsx) – oversigt over brugerens registrerede køretøjer.
+// Viser hvert køretøj som et kort med nummerplade, abonnementsstatus og en dropdown-menu.
+//
+// Hooks der bruges:
+//   useVehicles()      → henter køretøjsliste, loading/error-state og deleteVehicle() fra VehiclesContext
+//   useClickOutside()  → lukker dropdown-menuen når der klikkes udenfor (ét menuRef per VehicleCard)
+//
+// Komponenter der bruges:
+//   PageInfo       → sidetitel øverst
+//   LicensePlate   → viser nummerplade med landekode-stribe (components/LicensePlate.tsx)
+//   VehicleCard    → enkelt køretøjskort med menu (defineret nedenfor)
+//   StatusBadge    → badge der viser abonnementsnavn eller "Intet abonnement" (defineret nedenfor)
+//
+// Dropdown-menuen giver tre valg: Tilføj abonnement → /subscriptions, Rediger → /cars/edit/[id], Slet.
+// Sletning kalder deleteVehicle() fra VehiclesContext som opdaterer listen optimistisk.
+
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PageInfo from "@/components/PageInfo";
-import { useVehicles } from "@/hooks";
+import { LicensePlate } from "@/components/LicensePlate";
+import { useVehicles, useClickOutside } from "@/hooks";
 import { type ElementType } from "react";
 import { Car, Motorbike, Truck, Bus, MoreVertical, Plus, Pencil, Trash2, BadgePlus } from "lucide-react";
 import type { VehicleType } from "@/context/VehiclesContext";
+import { ROUTES } from "@/lib/routes";
+import { capitalizeName } from "@/lib/formatName";
 
 const VEHICLE_ICONS: Record<VehicleType, ElementType> = {
   car: Car,
@@ -15,8 +34,6 @@ const VEHICLE_ICONS: Record<VehicleType, ElementType> = {
   truck: Truck,
   bus: Bus,
 };
-import { ROUTES } from "@/lib/routes";
-import { capitalizeName } from "@/lib/formatName";
 
 export default function BilerPage() {
   const router = useRouter();
@@ -24,11 +41,6 @@ export default function BilerPage() {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  function handleEdit(id: string) {
-    setOpenMenuId(null);
-    router.push(ROUTES.editCar(id));
-  }
 
   async function handleDelete(id: string) {
     setDeletingId(id);
@@ -50,43 +62,34 @@ export default function BilerPage() {
 
       <main className="flex flex-col gap-4 px-6 pt-6 pb-8">
         {isLoading && (
-          <p className="text-center text-sm font-semibold text-neutral-500">
-            Henter køretøjer...
-          </p>
+          <p className="text-center text-sm font-semibold text-neutral-500">Henter køretøjer...</p>
         )}
-
         {error && (
-          <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
-            {error}
-          </p>
+          <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{error}</p>
         )}
-
         {deleteError && (
-          <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
-            {deleteError}
-          </p>
+          <p className="rounded-sm bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">{deleteError}</p>
         )}
 
-        {!isLoading &&
-          !error &&
-          vehicles.map((vehicle) => (
-            <VehicleCard
-              key={vehicle.id}
-              vehicle={vehicle}
-              menuOpen={openMenuId === vehicle.id}
-              isDeleting={deletingId === vehicle.id}
-              onMenuToggle={() =>
-                setOpenMenuId(openMenuId === vehicle.id ? null : vehicle.id)
-              }
-              onAddSubscription={() => {
-                router.push(ROUTES.subscriptionForCar(vehicle.id));
-                setOpenMenuId(null);
-              }}
-              onEdit={() => handleEdit(vehicle.id)}
-              onDelete={() => handleDelete(vehicle.id)}
-              onCloseMenu={() => setOpenMenuId(null)}
-            />
-          ))}
+        {!isLoading && !error && vehicles.map((vehicle) => (
+          <VehicleCard
+            key={vehicle.id}
+            vehicle={vehicle}
+            menuOpen={openMenuId === vehicle.id}
+            isDeleting={deletingId === vehicle.id}
+            onMenuToggle={() => setOpenMenuId(openMenuId === vehicle.id ? null : vehicle.id)}
+            onAddSubscription={() => {
+              router.push(ROUTES.subscriptionForCar(vehicle.id));
+              setOpenMenuId(null);
+            }}
+            onEdit={() => {
+              setOpenMenuId(null);
+              router.push(ROUTES.editCar(vehicle.id));
+            }}
+            onDelete={() => handleDelete(vehicle.id)}
+            onCloseMenu={() => setOpenMenuId(null)}
+          />
+        ))}
 
         {!isLoading && !error && vehicles.length === 0 && (
           <p className="text-center text-sm font-semibold text-neutral-500">
@@ -127,26 +130,14 @@ function VehicleCard({
 }) {
   const VehicleIcon = VEHICLE_ICONS[vehicle.vehicleType ?? "car"];
   const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        onCloseMenu();
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [menuOpen, onCloseMenu]);
+  useClickOutside(menuRef, onCloseMenu, menuOpen);
 
   return (
     <article className="relative overflow-visible rounded-[3px] bg-(--white-white) shadow-md">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-3">
           <VehicleIcon size={24} className="text-neutral-700" />
-          <span className="text-lg font-bold text-neutral-800">
-            {vehicle.name}
-          </span>
+          <span className="text-lg font-bold text-neutral-800">{vehicle.name}</span>
         </div>
 
         <div ref={menuRef} className="relative">
@@ -202,32 +193,15 @@ function VehicleCard({
   );
 }
 
-function LicensePlate({ plate, countryCode }: { plate: string; countryCode: string }) {
-  return (
-    <div className="flex overflow-hidden rounded border border-neutral-400 text-sm font-bold">
-      <div className="flex items-center bg-blue-700 px-1.5 py-1 text-white text-xs font-bold">
-        {countryCode}
-      </div>
-      <div className="bg-white px-2 py-1 text-neutral-900 tracking-wide">
-        {plate}
-      </div>
-    </div>
-  );
-}
-
 function StatusBadge({ subscriptionName }: { subscriptionName: string | null }) {
   const hasSubscription = Boolean(subscriptionName);
-  const label = hasSubscription
-    ? capitalizeName(subscriptionName!)
-    : "Intet abonnement";
-
   return (
     <span
       className={`inline-flex h-7 shrink-0 items-center justify-center whitespace-nowrap rounded-sm px-2 text-center text-sm font-bold text-white ${
         hasSubscription ? "bg-(--brand-green-01)" : "bg-neutral-600"
       }`}
     >
-      {label}
+      {hasSubscription ? capitalizeName(subscriptionName!) : "Intet abonnement"}
     </span>
   );
 }

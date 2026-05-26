@@ -1,48 +1,41 @@
-// Vaskehistorik – liste over alle brugerens tidligere vaske og abonnementer.
-// Henter vaskelog, abonnementer og biler fra API'et og kombinerer dem til en kronologisk liste.
-// Hvert kort kan klikkes for at se detaljerne på detaljesiden.
+// Vaskehistorik (receipts/page.tsx) – viser brugerens alle tidligere vaske og abonnementer.
+// Poster hentes og kombineres af useReceiptHistory og vises som kronologisk liste af kort.
+//
+// Hooks der bruges:
+//   useAuth()           → henter user.user_id som bruges til at hente data
+//   useReceiptHistory() → kalder washLogApi, subscriptionsApi og carsApi parallelt og
+//                         kombinerer dem til én sorteret ReceiptItem-liste
+//
+// Komponenter der bruges:
+//   PageInfo         → sidetitel øverst
+//   LicensePlate     → viser nummerpladen på hvert kvitteringskort (components/LicensePlate.tsx)
+//   WashCard         → kort for en enkelt vask (defineret nedenfor)
+//   SubscriptionCard → kort for et abonnement (defineret nedenfor)
+//
+// Hvert ReceiptItem har kind = "wash" eller kind = "subscription"
+// som afgør hvilket kort der vises. Detaljeknappen linker til receipts/details/page.tsx.
 
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import PageInfo from "@/components/PageInfo";
+import { LicensePlate } from "@/components/LicensePlate";
 import { CalendarDaysIcon, MapPinIcon } from "@heroicons/react/24/solid";
 import { receiptPageNames } from "@/data/receiptHistory";
 import {
-  fetchWashLog,
-  buildReceiptList,
   formatWashDate,
   formatWashTime,
   washLogIcon,
   formatPrice,
   type ReceiptItem,
 } from "@/lib/washLogApi";
-import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
-import { fetchUserCars } from "@/lib/carsApi";
-import { useAuth } from "@/hooks";
+import { useAuth, useReceiptHistory } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
 
 export default function Vaskehistorik() {
   const { user } = useAuth();
-  const [items, setItems] = useState<ReceiptItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    Promise.all([
-      fetchWashLog(user.user_id),
-      fetchUserSubscriptions(user.user_id),
-      fetchUserCars(user.user_id),
-    ])
-      .then(([washLog, subscriptions, cars]) => {
-        setItems(buildReceiptList(washLog, subscriptions, cars));
-      })
-      .catch(() => setError("Kunne ikke hente kvitteringer"))
-      .finally(() => setIsLoading(false));
-  }, [user]);
+  const { items, isLoading, error } = useReceiptHistory(user?.user_id);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -211,16 +204,5 @@ function SubscriptionCard({ item }: { item: Extract<ReceiptItem, { kind: "subscr
         {receiptPageNames.detailButton}
       </Link>
     </article>
-  );
-}
-
-function LicensePlate({ plate }: { plate: string }) {
-  return (
-    <div className="flex h-10 overflow-hidden border-2 border-neutral-800 bg-white text-neutral-950">
-      <span className="flex w-6 items-center justify-center bg-[#327fc2]" />
-      <span className="flex items-center px-3 text-[15px] font-bold tracking-[0.08em]">
-        {plate}
-      </span>
-    </div>
   );
 }

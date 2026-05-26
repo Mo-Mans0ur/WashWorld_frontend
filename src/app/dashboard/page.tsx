@@ -1,54 +1,48 @@
+// DashboardPage – forsiden brugeren lander på efter login.
+// Viser nærmeste vaskehal (via GPS), favoritter som vandret karussel og nyheder/tilbud.
+//
+// Hooks der bruges:
+//   useAuth()            → henter brugerens fornavn til velkomsthilsen (PageInfo)
+//   useVehicles()        → tjekker om brugeren har registreret et køretøj (til notifikationsklokken)
+//   useFavorites()       → henter liste af favorit-lokations-id'er (FavoritesContext, localStorage)
+//   useNearestLocation() → bruger GPS og haversineKm til at sortere lokationer efter afstand
+//   useAnimatedToast()   → styrer notifikations-toastens animationsfaser
+//   useQuery()           → henter lokationer og tilbud fra API'et via TanStack Query (cachet 5 min)
+//
+// Komponenter der bruges:
+//   PageInfo         → viser sidetitel og brugerens fornavn øverst
+//   FavoriteCard     → enkelt favoritkort i karussellen (defineret nedenfor)
+//   NewsCard         → tilbudskort i nyhedskarussellen (defineret nedenfor)
+
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { Bell } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { dashboardPageNames } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo";
 import { fetchLocations } from "@/lib/Api";
 import { fetchOffers, getOfferImageSrc } from "@/lib/offersApi";
 import type { Offer } from "@/types/api";
 import { formatLocationAddress } from "@/lib/locationsApi";
-import { useFavorites, useAuth, useVehicles } from "@/hooks";
+import { useFavorites, useAuth, useVehicles, useNearestLocation, useAnimatedToast } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
-
-// Haversine-formel: beregner afstanden i km mellem to GPS-koordinater
-function getDistanceInKm(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number,
-): number {
-  const R = 6371; // jordens radius i km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 export default function DashboardPage() {
   const { displayFirstName } = useAuth();
   const { vehicles, isLoading: vehiclesLoading } = useVehicles();
-  const [missingPaymentCard, setMissingPaymentCard] = useState(false);
+  const { favorites } = useFavorites();
 
+  const [missingPaymentCard, setMissingPaymentCard] = useState(false);
   useEffect(() => {
-    setMissingPaymentCard(
-      window.localStorage.getItem("washworld-saved-payment-card") === null,
-    );
+    setMissingPaymentCard(window.localStorage.getItem("washworld-saved-payment-card") === null);
   }, []);
+
   const missingVehicle = !vehiclesLoading && vehicles.length === 0;
   const hasMissingProfileInfo = missingVehicle || missingPaymentCard;
-  const { favorites } = useFavorites();
-  // TanStack Query henter alle lokationer fra API'et og cacher dem automatisk.
-  // isLoading er true mens det første kald er i gang – bruges til at vise "Henter...".
-  // staleTime på 5 minutter betyder at det cachede data genbruges i stedet for at
-  // lave et nyt API-kald, så længe brugeren navigerer frem og tilbage inden for 5 min.
+
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ["locations"],
     queryFn: fetchLocations,
@@ -61,65 +55,9 @@ export default function DashboardPage() {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Lokationer beriget med beregnet afstand til brugeren
-  const [nearestLocation, setNearestLocation] = useState<any>(null);
-  const [locationsWithDistance, setLocationsWithDistance] = useState<any[]>([]);
-  const [showNotificationToast, setShowNotificationToast] = useState(false);
-  const [notificationToastPhase, setNotificationToastPhase] = useState<
-    "idle" | "pre-enter" | "enter" | "exit"
-  >("idle");
-  const notificationToastTimeoutsRef = useRef<number[]>([]);
+  const { nearestLocation, locationsWithDistance } = useNearestLocation(locations);
+  const { show: showToast, phase: toastPhase, trigger: triggerToast } = useAnimatedToast(5000, 5500);
 
-  // Når lokationer er hentet, beder vi om brugerens GPS-position og beregner
-  // afstand til hver lokation. Sorteres nærmest-først, og nærmeste gemmes separat.
-  useEffect(() => {
-    if (!locations.length || !navigator.geolocation) return;
-
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const { latitude, longitude } = pos.coords;
-
-      const withDistances = locations
-        .map((loc: any) => {
-          const km = getDistanceInKm(
-            latitude,
-            longitude,
-            loc.location_coordinate_y,
-            loc.location_coordinate_x,
-          );
-          return { ...loc, distance: `${km.toFixed(1)} km` };
-        })
-        .sort(
-          (a: any, b: any) => parseFloat(a.distance) - parseFloat(b.distance),
-        );
-
-      setLocationsWithDistance(withDistances);
-      setNearestLocation(withDistances[0]);
-    }, undefined, { enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 });
-  }, [locations]);
-
-  function handleNotificationClick() {
-    notificationToastTimeoutsRef.current.forEach((timeoutId) => {
-      window.clearTimeout(timeoutId);
-    });
-
-    setShowNotificationToast(true);
-    setNotificationToastPhase("pre-enter");
-
-    notificationToastTimeoutsRef.current = [
-      window.setTimeout(() => {
-        setNotificationToastPhase("enter");
-      }, 40),
-      window.setTimeout(() => {
-        setNotificationToastPhase("exit");
-      }, 5000),
-      window.setTimeout(() => {
-        setShowNotificationToast(false);
-        setNotificationToastPhase("idle");
-      }, 5500),
-    ];
-  }
-
-  // Filtrerer de hentede lokationer ned til kun brugerens favoritter
   const favoriteLocationsWithDistance = locationsWithDistance.filter((loc) =>
     favorites.includes(loc.location_id),
   );
@@ -140,16 +78,12 @@ export default function DashboardPage() {
 
   return (
     <div className="relative flex flex-1 min-h-0 flex-col">
-      {showNotificationToast ? (
+      {showToast && (
         <div
-          className={`profile-update-toast absolute right-5 top-18 z-30 w-[calc(100%-2.5rem)] max-w-80 rounded-[3px] bg-white/96 px-4 py-3 text-left shadow-[0_12px_24px_rgba(0,0,0,0.16)] ${notificationToastPhase === "enter" ? "profile-update-toast-enter" : ""} ${notificationToastPhase === "exit" ? "profile-update-toast-exit" : ""}`}
+          className={`profile-update-toast absolute right-5 top-18 z-30 w-[calc(100%-2.5rem)] max-w-80 rounded-[3px] bg-white/96 px-4 py-3 text-left shadow-[0_12px_24px_rgba(0,0,0,0.16)] ${toastPhase === "enter" ? "profile-update-toast-enter" : ""} ${toastPhase === "exit" ? "profile-update-toast-exit" : ""}`}
         >
-          <p className="text-[0.86rem] font-bold text-(--brand-green-01)">
-            {notificationToastTitle}
-          </p>
-          <p className="mt-1 text-[0.78rem] leading-snug text-[#5d645f]">
-            {notificationToastMessage}
-          </p>
+          <p className="text-[0.86rem] font-bold text-(--brand-green-01)">{notificationToastTitle}</p>
+          <p className="mt-1 text-[0.78rem] leading-snug text-[#5d645f]">{notificationToastMessage}</p>
           <div className="mt-3 flex justify-end">
             <Link
               href={ROUTES.profile}
@@ -159,12 +93,12 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
-      ) : null}
+      )}
 
       {hasMissingProfileInfo && (
         <button
           type="button"
-          onClick={handleNotificationClick}
+          onClick={triggerToast}
           aria-label="Åbn notifikationer"
           className="notification-bell-active absolute right-8 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition"
         >
@@ -177,11 +111,8 @@ export default function DashboardPage() {
 
       <PageInfo userName={displayFirstName} />
 
-      {/* Nærmeste vaskehal med link til kort */}
       <section className="px-8 pt-10">
-        <h2 className="mb-5 text-2xl font-bold text-black">
-          {dashboardPageNames.nearbyTitle}
-        </h2>
+        <h2 className="mb-5 text-2xl font-bold text-black">{dashboardPageNames.nearbyTitle}</h2>
 
         <div className="flex items-center gap-3">
           <div className="flex h-20 flex-1 items-center justify-between rounded-[3px] bg-(--brand-green-01) px-4 shadow-md">
@@ -189,27 +120,18 @@ export default function DashboardPage() {
               <div className="flex h-11 w-12 items-center justify-center rounded-full bg-black text-2xl font-bold text-white ring-2 ring-white">
                 W
               </div>
-
               <div>
                 <p className="text-sm font-bold leading-tight text-white">
-                  {isLoading
-                    ? "Henter..."
-                    : (nearestLocation?.location_name ?? "Finder nærmeste...")}
+                  {isLoading ? "Henter..." : (nearestLocation?.location_name ?? "Finder nærmeste...")}
                 </p>
                 <p className="text-sm font-bold leading-tight text-white">
-                  {nearestLocation
-                    ? formatLocationAddress(nearestLocation)
-                    : null}
+                  {nearestLocation ? formatLocationAddress(nearestLocation) : null}
                 </p>
               </div>
             </div>
-
-            <p className="text-sm font-bold text-black">
-              {nearestLocation?.distance ?? "—"}
-            </p>
+            <p className="text-sm font-bold text-black">{nearestLocation?.distance ?? "—"}</p>
           </div>
 
-          {/* Bil-knap → navigerer til kortet med rute til nærmeste vaskehal */}
           <Link
             href={
               nearestLocation
@@ -232,12 +154,9 @@ export default function DashboardPage() {
 
       {favoriteLocationsWithDistance.length > 0 && (
         <section className="mt-12">
-          <h2 className="mb-5 px-8 text-2xl font-bold text-black">
-            {dashboardPageNames.favoritesTitle}
-          </h2>
-
+          <h2 className="mb-5 px-8 text-2xl font-bold text-black">{dashboardPageNames.favoritesTitle}</h2>
           <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-            {favoriteLocationsWithDistance.map((location: any) => (
+            {favoriteLocationsWithDistance.map((location) => (
               <FavoriteCard
                 key={location.location_id}
                 locationId={location.location_id}
@@ -252,14 +171,8 @@ export default function DashboardPage() {
 
       {!offersLoading && offers.length > 0 && (
         <section className="mt-12 pb-8">
-          <h2 className="mb-3 px-8 text-2xl font-bold text-black">
-            {dashboardPageNames.forYouTitle}
-          </h2>
-
-          <h3 className="mb-4 px-8 text-xl font-bold text-black">
-            {dashboardPageNames.newsTitle}
-          </h3>
-
+          <h2 className="mb-3 px-8 text-2xl font-bold text-black">{dashboardPageNames.forYouTitle}</h2>
+          <h3 className="mb-4 px-8 text-xl font-bold text-black">{dashboardPageNames.newsTitle}</h3>
           <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
             {offers.map((offer) => (
               <NewsCard key={offer.offer_id} offer={offer} />
@@ -271,8 +184,6 @@ export default function DashboardPage() {
   );
 }
 
-// Kort der viser en favoritlokation med billede, navn, adresse og afstand.
-// Klikkes for at gå til lokationens detaljeside.
 function FavoriteCard({
   locationId,
   title,
@@ -298,19 +209,14 @@ function FavoriteCard({
         quality={75}
         loading="eager"
       />
-
       <div className="absolute inset-0 flex flex-col justify-between">
         <div className="px-3 pt-3">
-          <h3 className="text-sm font-bold leading-tight text-white">
-            {title}
-          </h3>
+          <h3 className="text-sm font-bold leading-tight text-white">{title}</h3>
           <p className="text-xs leading-tight text-white/70">{address}</p>
         </div>
-
         <p className="absolute bottom-1.5 left-2.5 z-10 text-sm font-bold text-(--brand-green-01)">
           {distance ?? "—"}
         </p>
-
         <div className="absolute -right-px -bottom-px h-6">
           <span className="flex h-full items-center justify-end bg-(--brand-green-01) pl-6 pr-2 text-xs leading-none font-bold text-white [clip-path:polygon(24%_0,101%_0,101%_101%,0_101%)]">
             {dashboardPageNames.favoriteCardButton}
@@ -321,7 +227,6 @@ function FavoriteCard({
   );
 }
 
-// Kort der viser et tilbud med billede (base64 fra DB) og beskrivelse
 function NewsCard({ offer }: { offer: Offer }) {
   const imageSrc = getOfferImageSrc(offer.offer_photo_base64);
   const isDataUrl = imageSrc.startsWith("data:");
@@ -332,11 +237,7 @@ function NewsCard({ offer }: { offer: Offer }) {
       className="w-46 shrink-0 overflow-hidden rounded-[3px] border-white/90 bg-white shadow-md block"
     >
       {isDataUrl ? (
-        <img
-          src={imageSrc}
-          alt={offer.offer_description}
-          className="h-20 w-full object-cover"
-        />
+        <img src={imageSrc} alt={offer.offer_description} className="h-20 w-full object-cover" />
       ) : (
         <Image
           src={imageSrc}
@@ -347,7 +248,6 @@ function NewsCard({ offer }: { offer: Offer }) {
           quality={75}
         />
       )}
-
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">
         {offer.offer_description}
       </p>
