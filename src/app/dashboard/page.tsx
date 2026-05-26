@@ -230,51 +230,43 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Favoritvaskehaller – vandret scrollbar med kort der linker til detaljesiden */}
-      <section className="mt-12">
-        <h2 className="mb-5 px-8 text-2xl font-bold text-black">
-          {dashboardPageNames.favoritesTitle}
-        </h2>
+      {favoriteLocationsWithDistance.length > 0 && (
+        <section className="mt-12">
+          <h2 className="mb-5 px-8 text-2xl font-bold text-black">
+            {dashboardPageNames.favoritesTitle}
+          </h2>
 
-        <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-          {favoriteLocationsWithDistance.map((location: any) => (
-            <FavoriteCard
-              key={location.location_id}
-              locationId={location.location_id}
-              title={location.location_name}
-              address={formatLocationAddress(location)}
-              distance={location.distance}
-            />
-          ))}
-        </div>
-      </section>
+          <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+            {favoriteLocationsWithDistance.map((location: any) => (
+              <FavoriteCard
+                key={location.location_id}
+                locationId={location.location_id}
+                title={location.location_name}
+                address={formatLocationAddress(location)}
+                distance={location.distance}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Nyheder og tilbud – statisk indhold fra dashboardData */}
-      <section className="mt-12 pb-8">
-        <h2 className="mb-3 px-8 text-2xl font-bold text-black">
-          {dashboardPageNames.forYouTitle}
-        </h2>
+      {!offersLoading && offers.length > 0 && (
+        <section className="mt-12 pb-8">
+          <h2 className="mb-3 px-8 text-2xl font-bold text-black">
+            {dashboardPageNames.forYouTitle}
+          </h2>
 
-        <h3 className="mb-4 px-8 text-xl font-bold text-black">
-          {dashboardPageNames.newsTitle}
-        </h3>
+          <h3 className="mb-4 px-8 text-xl font-bold text-black">
+            {dashboardPageNames.newsTitle}
+          </h3>
 
-        <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
-          {offersLoading && (
-            <p className="px-2 text-sm font-semibold text-neutral-500">
-              Henter tilbud...
-            </p>
-          )}
-          {!offersLoading && offers.length === 0 && (
-            <p className="px-2 text-sm font-semibold text-neutral-500">
-              Ingen aktuelle tilbud
-            </p>
-          )}
-          {offers.map((offer) => (
-            <NewsCard key={offer.offer_id} offer={offer} />
-          ))}
-        </div>
-      </section>
+          <div className="carousel-scroll flex gap-4 overflow-x-auto px-8 pb-3">
+            {offers.map((offer) => (
+              <NewsCard key={offer.offer_id} offer={offer} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
