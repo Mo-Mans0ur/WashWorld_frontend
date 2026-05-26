@@ -2,7 +2,7 @@
 // MapLocation bruges af Map.tsx, LocationsList.tsx og locationsApi.ts.
 // JSON-filen er en fallback/lokal kopi; live data hentes i stedet via locationsApi.ts → /api/locations.
 
-import washworldLocationsJson from '../../washworld-locations.json'
+import washworldLocationsJson from './washworld-locations.json'
 
 export type MapLocation = {
   id: string

@@ -145,8 +145,8 @@ export const profileMenuItems: ProfileMenuItem[] = [
     href: "betaling og kort",
     iconKey: "credit-card",
   },
-  { label: "Notifikationer", href: "/notifikationer", iconKey: "bell" },
-  { label: "Kundeservice", href: "/kundeservice", iconKey: "question-mark" },
+  { label: "Notifikationer", href: "/notifications", iconKey: "bell" },
+  { label: "Kundeservice", href: "/customer-service", iconKey: "question-mark" },
 ];
 
 export const profileUpdatePageContent = {
