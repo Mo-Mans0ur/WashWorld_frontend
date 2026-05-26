@@ -52,6 +52,7 @@ export type Subscription = {
   subscriptions_next_billing_date: string;
   car_name?: string | null;
   car_license_plate?: string | null;
+  location_id?: string | null;
 };
 
 export type WashLog = {

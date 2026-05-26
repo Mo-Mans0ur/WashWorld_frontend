@@ -72,7 +72,7 @@ export default function SingleWashStartPage() {
           </div>
 
           <div className="mt-3 flex w-full justify-center">
-            <StartWashButton onClick={handleStartWash} status="ready" />
+            <StartWashButton onClick={handleStartWash} />
           </div>
         </div>
       </section>

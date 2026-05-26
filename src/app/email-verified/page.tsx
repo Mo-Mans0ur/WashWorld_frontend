@@ -4,6 +4,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const verificationResults = {
@@ -39,37 +40,43 @@ const verificationResults = {
 
 type VerificationStatus = keyof typeof verificationResults;
 
-export default function EmailVerifiedPage() {
+function EmailVerifiedContent() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status") ?? "success";
 
-  // Unknown statuses should not accidentally show a success message.
   const result =
     status in verificationResults
       ? verificationResults[status as VerificationStatus]
       : verificationResults.invalid;
 
   return (
+    <section className="flex flex-1 flex-col items-center justify-center px-7 pb-10 pt-6 text-center">
+      <article className="mx-auto w-[82%] rounded-[3px] bg-(--white-white) px-5 py-7 shadow-lg">
+        <h1 className="text-[1.7rem] font-bold leading-tight text-black">
+          {result.title}
+        </h1>
+
+        <p className="mx-auto mt-5 max-w-67.5 text-[0.9rem] font-bold leading-tight text-neutral-600">
+          {result.message}
+        </p>
+
+        <Link
+          href="/login"
+          className="mx-auto mt-7 flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-bold text-white transition hover:bg-(--brand-green-02)"
+        >
+          {result.buttonText}
+        </Link>
+      </article>
+    </section>
+  );
+}
+
+export default function EmailVerifiedPage() {
+  return (
     <div className="flex min-h-full flex-col">
-      {/* Uses the same centered card feel as the other app screens, just without extra page chrome. */}
-      <section className="flex flex-1 flex-col items-center justify-center px-7 pb-10 pt-6 text-center">
-        <article className="mx-auto w-[82%] rounded-[3px] bg-(--white-white) px-5 py-7 shadow-lg">
-          <h1 className="text-[1.7rem] font-bold leading-tight text-black">
-            {result.title}
-          </h1>
-
-          <p className="mx-auto mt-5 max-w-67.5 text-[0.9rem] font-bold leading-tight text-neutral-600">
-            {result.message}
-          </p>
-
-          <Link
-            href="/login"
-            className="mx-auto mt-7 flex h-10.5 w-[85%] items-center justify-center bg-(--brand-green-01) text-[0.95rem] font-bold text-white transition hover:bg-(--brand-green-02)"
-          >
-            {result.buttonText}
-          </Link>
-        </article>
-      </section>
+      <Suspense>
+        <EmailVerifiedContent />
+      </Suspense>
     </div>
   );
 }

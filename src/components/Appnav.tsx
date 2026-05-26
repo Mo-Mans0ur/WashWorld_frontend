@@ -42,7 +42,7 @@ export default function AppNav() {
     { label: "Mine Køretøjer", href: ROUTES.cars, icon: Car },
     { label: "Betalingsoplysninger", href: ROUTES.savePaymentCard, icon: CreditCard },
     { label: "Abonnement", href: ROUTES.subscription, icon: BadgeCheck },
-    { label: "Forbrug", href: ROUTES.washHistory, icon: History },
+    { label: "Kvitteringer", href: ROUTES.washHistory, icon: History },
     { label: "Notifikationer", href: ROUTES.notifications, icon: Bell },
     { label: "Hjælp", href: ROUTES.customerService, icon: LifeBuoy },
   ];
