@@ -6,7 +6,12 @@
 import { useState } from "react";
 import { Phone, X } from "lucide-react";
 
-export default function AssistanceButton({ iconColor = "white", washId }) {
+interface AssistanceButtonProps {
+  iconColor?: string;
+  washId?: string | number;
+}
+
+export default function AssistanceButton({ iconColor = "white", washId }: AssistanceButtonProps) {
   const [showPopup, setShowPopup] = useState(false);
 
   return (

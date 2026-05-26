@@ -1,7 +1,16 @@
 // StartWashButton – knappen der starter vasken på selvvask-siden.
 // Skifter udseende og deaktiveres automatisk baseret på maskinens status: Ledig (grøn), Optaget (gul) eller Ud af drift (rød).
 
-const STATUS_CONFIG = {
+type MachineStatus = "Ledig" | "Optaget" | "Ud af drift";
+
+interface StatusConfig {
+  disabled: boolean;
+  label: string;
+  gradient: string;
+  hint: string | null;
+}
+
+const STATUS_CONFIG: Record<MachineStatus, StatusConfig> = {
   Ledig: {
     disabled: false,
     label: "Start vask",
@@ -24,8 +33,15 @@ const STATUS_CONFIG = {
 
 const DEFAULT_CONFIG = STATUS_CONFIG.Ledig;
 
-export default function StartWashButton({ onClick, status }) {
-  const config = STATUS_CONFIG[status] ?? DEFAULT_CONFIG;
+interface StartWashButtonProps {
+  onClick?: () => void;
+  status?: MachineStatus | string | null;
+}
+
+export default function StartWashButton({ onClick, status }: StartWashButtonProps) {
+  const config = (status && status in STATUS_CONFIG)
+    ? STATUS_CONFIG[status as MachineStatus]
+    : DEFAULT_CONFIG;
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-102.5 gap-2">
