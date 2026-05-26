@@ -8,11 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:selenium": "node test/login.selenium.test.js",
+    "test:login": "node test/login.selenium.test.js",
     "test:signup": "node test/signup.selenium.test.js",
     "test:app": "node test/app.selenium.test.js",
     "test:E2E": "node test/e2e.cars.test.js",
-    "test:all": "npm run test:selenium && npm run test:signup && npm run test:app"
+    "test:all": "npm run test:login && npm run test:signup && npm run test:app"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
