@@ -21,6 +21,7 @@ export default function WalletFormular({
   onWalletMethodChange,
   onWalletConsentChange,
 }: Props) {
+  // Slår det valgte wallet-objekt op så vi kan vise det rigtige logo og label på knappen
   const selectedMethod = paymentPageContent.wallet.methods.find(
     (method) => method.value === walletMethod,
   );
@@ -52,6 +53,7 @@ export default function WalletFormular({
             </option>
           ))}
         </select>
+        {/* Brugerdefineret pil-ikon – nødvendigt fordi appearance-none skjuler den native dropdown-pil */}
         <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-lg font-bold text-white">
           ▾
         </span>

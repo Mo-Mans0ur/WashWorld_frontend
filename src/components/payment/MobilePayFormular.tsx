@@ -21,11 +21,13 @@ export default function MobilePayFormular({
   onCountryCodeChange,
   onPhoneNumberChange,
 }: Props) {
+  // Tillader kun cifre og '+', og sikrer at landekoden altid starter med '+'
   function handleCountryCodeChange(event: ChangeEvent<HTMLInputElement>) {
     const raw = event.target.value.replace(/[^\d+]/g, "");
     onCountryCodeChange(raw.startsWith("+") ? raw : "+" + raw.replace(/\+/g, ""));
   }
 
+  // Begrænser til 8 cifre og formaterer som par adskilt af mellemrum (fx "12 34 56 78")
   function handlePhoneNumberChange(event: ChangeEvent<HTMLInputElement>) {
     const digits = event.target.value.replace(/\D/g, "").slice(0, 8);
     onPhoneNumberChange(digits.replace(/(\d{2})(?=\d)/g, "$1 ").trim());

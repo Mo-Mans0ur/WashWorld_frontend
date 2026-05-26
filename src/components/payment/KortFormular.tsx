@@ -32,13 +32,16 @@ export default function KortFormular({
   onCardholderNameChange,
   onRememberCardChange,
 }: Props) {
+  // Styrer om CVC-hjælpeteksten er synlig
   const [showCvcHelp, setShowCvcHelp] = useState(false);
 
+  // Fjerner alt der ikke er cifre, begrænser til 16 cifre og indsætter mellemrum hver 4. ciffer (fx "1234 5678 9012 3456")
   function handleCardNumberChange(event: ChangeEvent<HTMLInputElement>) {
     const digits = event.target.value.replace(/\D/g, "").slice(0, 16);
     onCardNumberChange(digits.replace(/(.{4})/g, "$1 ").trim());
   }
 
+  // Indsætter automatisk skråstreg efter de første 2 cifre så formatet bliver MM/ÅÅ
   function handleExpiryChange(event: ChangeEvent<HTMLInputElement>) {
     const digits = event.target.value.replace(/\D/g, "").slice(0, 4);
     onExpiryChange(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
