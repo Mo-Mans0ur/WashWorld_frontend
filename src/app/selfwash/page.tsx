@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AssistanceButton, Button } from "@/components/buttons";
+import { CompletionModal } from "@/components/activewash/CompletionModal";
 import { createWashLog } from "@/lib/washLogApi";
 import { ROUTES } from "@/lib/routes";
 
@@ -19,6 +20,7 @@ const PRODUCT_ID_STOEVSUGER = "e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2";
 
 export default function ActiveWashPage() {
   const [totalSeconds, setTotalSeconds] = useState(0);
+  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const carId = searchParams.get("carId") ?? "";
@@ -113,12 +115,19 @@ export default function ActiveWashPage() {
                 wash_log_price: currentPrice,
               }).catch(() => {});
             }
-            router.push(ROUTES.dashboard);
+            setTimeout(() => setShowModal(true), 800);
           }}
         >
           Afslut vask
         </Button>
       </div>
+
+      {showModal && (
+        <CompletionModal
+          onClose={() => router.push(ROUTES.dashboard)}
+          onReceipt={() => router.push(ROUTES.washHistory)}
+        />
+      )}
     </div>
   );
 }
