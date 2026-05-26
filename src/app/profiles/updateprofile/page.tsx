@@ -98,10 +98,10 @@ export default function UpdateProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Forudfyld formularen med brugerens nuværende data fra AuthContext.
-  // Kodeordfelterne efterlades tomme – udfyldes kun hvis brugeren ønsker at skifte kodeord.
-  useEffect(() => {
-    if (!user) return;
+  // Forudfyld formularen med brugerens nuværende data første gang user er tilgængelig.
+  const [prevUser, setPrevUser] = useState(user);
+  if (user !== prevUser && user) {
+    setPrevUser(user);
     const { dialCode, localPhone } = parsePhone(user.user_phone ?? "");
     setFormState({
       firstName: user.user_firstname,
@@ -110,7 +110,7 @@ export default function UpdateProfilePage() {
       dialCode,
       localPhone,
     });
-  }, [user]);
+  }
 
   function handleInputChange(field: keyof FormState, value: string) {
     setFormState((current) => ({ ...current, [field]: value }));

@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Home,
   MapPin,
@@ -31,11 +31,13 @@ export default function AppNav() {
   const pathname = usePathname();
   const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
   // Luk sidebaren automatisk når brugeren navigerer til en ny URL
-  useEffect(() => {
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setMenuOpen(false);
-  }, [pathname]);
+  }
 
   // Sidebar-menupunkter – tilføj/fjern her for at ændre indholdet af menuen
   const subMenuItems = [

@@ -302,7 +302,9 @@ export default function Map() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [routePanelOpen, setRoutePanelOpen] = useState(true);
-  const [locationStatus, setLocationStatus] = useState<"pending" | "ok" | "error">("pending");
+  const [locationStatus, setLocationStatus] = useState<"pending" | "ok" | "error">(
+    () => (typeof navigator !== "undefined" && !navigator.geolocation) ? "error" : "pending",
+  );
 
   useEffect(() => {
     const orig = Element.prototype.releasePointerCapture;
@@ -331,10 +333,7 @@ export default function Map() {
   }, []);
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocationStatus("error");
-      return;
-    }
+    if (!navigator.geolocation) return;
 
     let locationOk = false;
 

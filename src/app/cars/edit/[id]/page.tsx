@@ -9,7 +9,7 @@ import { getPlateFormat } from "@/data/plateFormats";
 import { Check, Zap, Car, Motorbike, Truck, Bus } from "lucide-react";
 import { ROUTES } from "@/lib/routes";
 import { Button } from "@/components/buttons";
-import type { VehicleType } from "@/context/VehiclesContext";
+import type { Vehicle, VehicleType } from "@/context/VehiclesContext";
 
 const VEHICLE_TYPES: { type: VehicleType; label: string; icon: ElementType }[] = [
   { type: "car",        label: "Personbil",  icon: Car },
@@ -18,35 +18,29 @@ const VEHICLE_TYPES: { type: VehicleType; label: string; icon: ElementType }[] =
   { type: "bus",        label: "Bus",        icon: Bus },
 ];
 
-export default function RedigerBilPage() {
+type UpdateVehicleFn = (
+  id: string,
+  v: Omit<Vehicle, "id" | "active" | "subscriptionName">,
+) => Promise<void>;
+
+function RedigerBilForm({
+  vehicle,
+  updateVehicle,
+}: {
+  vehicle: Vehicle;
+  updateVehicle: UpdateVehicleFn;
+}) {
   const router = useRouter();
-  const { id } = useParams<{ id: string }>();
-  const { vehicles, isLoading, updateVehicle } = useVehicles();
-
-  const vehicle = vehicles.find((v) => v.id === id);
-
-  const [country, setCountry] = useState<Country>(EUROPEAN_COUNTRIES[0]);
-  const [plate, setPlate] = useState("");
-  const [nickname, setNickname] = useState("");
-  const [isEV, setIsEV] = useState(false);
-  const [vehicleType, setVehicleType] = useState<VehicleType>("car");
+  const [country, setCountry] = useState<Country>(
+    EUROPEAN_COUNTRIES.find((c) => c.code === vehicle.countryCode) ?? EUROPEAN_COUNTRIES[0],
+  );
+  const [plate, setPlate] = useState(vehicle.plate);
+  const [nickname, setNickname] = useState(vehicle.name);
+  const [isEV, setIsEV] = useState(vehicle.isEV);
+  const [vehicleType, setVehicleType] = useState<VehicleType>(vehicle.vehicleType ?? "car");
   const [plateError, setPlateError] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (!vehicle) router.replace(ROUTES.cars);
-  }, [isLoading, vehicle, router]);
-
-  useEffect(() => {
-    if (!vehicle) return;
-    setCountry(EUROPEAN_COUNTRIES.find((c) => c.code === vehicle.countryCode) ?? EUROPEAN_COUNTRIES[0]);
-    setPlate(vehicle.plate);
-    setNickname(vehicle.name);
-    setIsEV(vehicle.isEV);
-    setVehicleType(vehicle.vehicleType ?? "car");
-  }, [vehicle]);
 
   const fmt = getPlateFormat(country.code);
 
@@ -61,28 +55,23 @@ export default function RedigerBilPage() {
 
   async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    if (!id || !validatePlate(plate)) return;
+    if (!validatePlate(plate)) return;
 
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      await updateVehicle(id, { name: nickname.trim() || plate, plate, countryCode: country.code, isEV, vehicleType });
+      await updateVehicle(vehicle.id, {
+        name: nickname.trim() || plate,
+        plate,
+        countryCode: country.code,
+        isEV,
+        vehicleType,
+      });
       router.push(ROUTES.cars);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Kunne ikke opdatere køretøj");
       setIsSubmitting(false);
     }
-  }
-
-  if (isLoading || !vehicle) {
-    return (
-      <div className="flex flex-col min-h-full">
-        <PageInfo text="Rediger køretøj" />
-        <main className="px-6 pt-8">
-          <p className="text-center text-sm font-semibold text-neutral-500">Henter køretøj...</p>
-        </main>
-      </div>
-    );
   }
 
   return (
@@ -196,4 +185,29 @@ export default function RedigerBilPage() {
       </main>
     </div>
   );
+}
+
+export default function RedigerBilPage() {
+  const router = useRouter();
+  const { id } = useParams<{ id: string }>();
+  const { vehicles, isLoading, updateVehicle } = useVehicles();
+
+  const vehicle = vehicles.find((v) => v.id === id);
+
+  useEffect(() => {
+    if (!isLoading && !vehicle) router.replace(ROUTES.cars);
+  }, [isLoading, vehicle, router]);
+
+  if (isLoading || !vehicle) {
+    return (
+      <div className="flex flex-col min-h-full">
+        <PageInfo text="Rediger køretøj" />
+        <main className="px-6 pt-8">
+          <p className="text-center text-sm font-semibold text-neutral-500">Henter køretøj...</p>
+        </main>
+      </div>
+    );
+  }
+
+  return <RedigerBilForm key={vehicle.id} vehicle={vehicle} updateVehicle={updateVehicle} />;
 }

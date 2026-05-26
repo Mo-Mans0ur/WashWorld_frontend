@@ -26,25 +26,28 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   // så vi ikke henter dem igen unødvendigt hvis komponenten re-renderer
   const loadedForRef = useRef<string | null>(null);
 
-  // Henter favoritter fra API'et første gang en bruger er logget ind.
-  // Nulstiller listen hvis brugeren logger ud.
-  useEffect(() => {
-    const userId = auth?.user?.user_id ?? null;
+  const userId = auth?.user?.user_id ?? null;
+  const authToken = auth?.token ?? null;
 
-    if (!userId || !auth?.token) {
+  // Nulstil favoritter når brugeren logger ud ("setState during render"-mønster)
+  const [prevUserId, setPrevUserId] = useState<string | null>(userId);
+  if (userId !== prevUserId) {
+    setPrevUserId(userId);
+    if (!userId || !authToken) {
       setFavorites([]);
-      loadedForRef.current = null;
-      return;
     }
+  }
 
-    // Undgå dobbelthentning for samme bruger
+  // Henter favoritter fra API'et første gang en bruger er logget ind.
+  useEffect(() => {
+    if (!userId || !authToken) return;
     if (loadedForRef.current === userId) return;
     loadedForRef.current = userId;
 
     apiRequest<{ favorites: string[] }>(`/api/users/${userId}/favorites`)
       .then((data) => setFavorites(data.favorites))
       .catch(() => setFavorites([]));
-  }, [auth?.user?.user_id, auth?.token]);
+  }, [userId, authToken]);
 
   // Tilføjer eller fjerner en lokation fra favoritlisten.
   // Opdaterer UI'et med det samme (optimistic update) og ruller tilbage hvis API-kaldet fejler.

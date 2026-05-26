@@ -4,7 +4,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Info, X } from "lucide-react";
 
@@ -13,14 +13,12 @@ import { singleWashAdviceContent } from "@/data/singleWashData";
 export default function SingleWashAdviceInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
+  const [modalRoot] = useState<HTMLElement | null>(
+    () => typeof document !== "undefined" ? document.querySelector<HTMLElement>(".app-screen") : null,
+  );
 
   const activeItem = singleWashAdviceContent.items[activeIndex];
   const isLastItem = activeIndex === singleWashAdviceContent.items.length - 1;
-
-  useEffect(() => {
-    setModalRoot(document.querySelector(".app-screen"));
-  }, []);
 
   // Lukker modalen og nulstiller til første trin så næste åbning starter forfra.
   function handleClose() {

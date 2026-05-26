@@ -19,7 +19,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Bell } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardPageNames } from "@/data/dashboardData";
 import PageInfo from "@/components/PageInfo";
@@ -35,10 +35,11 @@ export default function DashboardPage() {
   const { vehicles, isLoading: vehiclesLoading } = useVehicles();
   const { favorites } = useFavorites();
 
-  const [missingPaymentCard, setMissingPaymentCard] = useState(false);
-  useEffect(() => {
-    setMissingPaymentCard(window.localStorage.getItem("washworld-saved-payment-card") === null);
-  }, []);
+  const [missingPaymentCard] = useState(
+    () => typeof window !== "undefined"
+      ? window.localStorage.getItem("washworld-saved-payment-card") === null
+      : false,
+  );
 
   const missingVehicle = !vehiclesLoading && vehicles.length === 0;
   const hasMissingProfileInfo = missingVehicle || missingPaymentCard;

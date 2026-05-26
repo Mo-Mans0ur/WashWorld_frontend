@@ -73,26 +73,24 @@ export default function ActiveAutoWashPage({
 
   const selectedPlan = paymentPlans.find((plan) => plan.slug === selectedPlanSlug);
 
-  const [progress, setProgress]           = useState(externalProgress ?? 0);
+  const [internalProgress, setInternalProgress] = useState(0);
+  const progress = externalProgress ?? internalProgress;
   const [showModal, setShowModal]         = useState(false);
   const [modalDismissed, setModalDismissed] = useState(false);
   const washLogCreated = useRef(false);
 
   // Automatisk progress-timer – stopper præcist på 100 så modal-effekten kan aktivere
   useEffect(() => {
-    if (externalProgress !== undefined) {
-      setProgress(externalProgress);
-      return;
-    }
+    if (externalProgress !== undefined) return;
     let p = 0;
     const iv = setInterval(() => {
       p += 0.35;
       if (p >= 100) {
-        setProgress(100);
+        setInternalProgress(100);
         clearInterval(iv);
         return;
       }
-      setProgress(p);
+      setInternalProgress(p);
     }, 60);
     return () => clearInterval(iv);
   }, [externalProgress]);

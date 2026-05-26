@@ -28,18 +28,14 @@ type LoadStatus = "loading" | "error" | "ready";
 export function useLocationDetails(locationId: string | null) {
   const [location, setLocation] = useState<MapLocation | null>(null);
   const [equipment, setEquipment] = useState<LocationEquipment[]>([]);
-  const [loadStatus, setLoadStatus] = useState<LoadStatus>("loading");
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadStatus, setLoadStatus] = useState<LoadStatus>(locationId ? "loading" : "error");
+  const [loadError, setLoadError] = useState<string | null>(
+    locationId ? null : "Manglende lokations-id",
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!locationId) {
-      setLocation(null);
-      setEquipment([]);
-      setLoadStatus("error");
-      setLoadError("Manglende lokations-id");
-      return;
-    }
+    if (!locationId) return;
 
     let cancelled = false;
 
