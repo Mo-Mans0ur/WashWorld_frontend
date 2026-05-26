@@ -64,6 +64,7 @@ function ResetPasswordConfirmForm() {
         src="/background/washworld-background.png"
         alt="Baggrund"
         fill
+        sizes="(max-width: 430px) 100vw, 430px"
         priority
       />
 

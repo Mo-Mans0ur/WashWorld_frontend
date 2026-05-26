@@ -235,7 +235,7 @@ export default function DetailsPage() {
                         alt={s.liveStatusLabel}
                         width={28}
                         height={28}
-                        className="object-contain"
+                        className="h-7 w-7 object-contain"
                       />
                       <span className="text-sm font-bold text-neutral-700">
                         {formatLiveStatus(s.counts)}

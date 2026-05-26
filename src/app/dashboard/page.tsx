@@ -246,6 +246,7 @@ function NewsCard({ offer }: { offer: Offer }) {
           width={184}
           height={80}
           quality={75}
+          loading="eager"
         />
       )}
       <p className="px-2 py-2 text-sm font-bold leading-tight text-neutral-600">

@@ -112,7 +112,7 @@ export function CompletionModal({ onClose, onReceipt }: CompletionModalProps) {
             alt="Vask afsluttet"
             width={120}
             height={120}
-            style={{ position: "relative", zIndex: 1 }}
+            style={{ position: "relative", zIndex: 1, width: 120, height: 120 }}
           />
         </div>
 
