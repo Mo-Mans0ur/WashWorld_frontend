@@ -32,11 +32,13 @@ const DEFAULT_CONFIG = STATUS_CONFIG.Ledig;
 
 interface StartWashButtonProps {
   onClick?: () => void;
-  status?: MachineStatus;
+  status?: MachineStatus | string | null;
 }
 
 export default function StartWashButton({ onClick, status }: StartWashButtonProps) {
-  const config = (status && STATUS_CONFIG[status]) ?? DEFAULT_CONFIG;
+  const config = (status && status in STATUS_CONFIG)
+    ? STATUS_CONFIG[status as MachineStatus]
+    : DEFAULT_CONFIG;
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-102.5 gap-2">
