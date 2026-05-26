@@ -3,6 +3,7 @@
 
 "use client";
 
+import { type ChangeEvent } from "react";
 import Image from "next/image";
 import { CircleAlert } from "lucide-react";
 import { paymentPageContent } from "@/data/paymentData";
@@ -20,12 +21,12 @@ export default function MobilePayFormular({
   onCountryCodeChange,
   onPhoneNumberChange,
 }: Props) {
-  function handleCountryCodeChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleCountryCodeChange(event: ChangeEvent<HTMLInputElement>) {
     const raw = event.target.value.replace(/[^\d+]/g, "");
     onCountryCodeChange(raw.startsWith("+") ? raw : "+" + raw.replace(/\+/g, ""));
   }
 
-  function handlePhoneNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handlePhoneNumberChange(event: ChangeEvent<HTMLInputElement>) {
     const digits = event.target.value.replace(/\D/g, "").slice(0, 8);
     onPhoneNumberChange(digits.replace(/(\d{2})(?=\d)/g, "$1 ").trim());
   }

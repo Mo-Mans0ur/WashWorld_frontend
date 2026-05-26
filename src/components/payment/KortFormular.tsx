@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { type ChangeEvent, useState } from "react";
 import { CircleHelp } from "lucide-react";
 import { paymentPageContent } from "@/data/paymentData";
 
@@ -34,12 +34,12 @@ export default function KortFormular({
 }: Props) {
   const [showCvcHelp, setShowCvcHelp] = useState(false);
 
-  function handleCardNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleCardNumberChange(event: ChangeEvent<HTMLInputElement>) {
     const digits = event.target.value.replace(/\D/g, "").slice(0, 16);
     onCardNumberChange(digits.replace(/(.{4})/g, "$1 ").trim());
   }
 
-  function handleExpiryChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleExpiryChange(event: ChangeEvent<HTMLInputElement>) {
     const digits = event.target.value.replace(/\D/g, "").slice(0, 4);
     onExpiryChange(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
   }
