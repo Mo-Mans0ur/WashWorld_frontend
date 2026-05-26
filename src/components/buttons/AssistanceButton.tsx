@@ -1,3 +1,8 @@
+// AssistanceButton – rød HJÆLP-knap til aktive vasker.
+// showPopup: styrer om bekræftelsesdialogen er synlig (true) eller skjult (false).
+// Returnerer knappen plus en modal-popup der spørger brugeren om de vil ringe
+// til WashWorld support. Klikkes der på baggrunden lukkes popuppen automatisk.
+
 "use client";
 
 import { useState } from "react";

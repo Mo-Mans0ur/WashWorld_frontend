@@ -1,3 +1,13 @@
+// TilfoejBilPage – formular til at tilføje et nyt køretøj til brugerens konto.
+// Brugeren vælger land, indtaster nummerplade, kælenavn, køretøjstype og om det er et EV.
+// Nummerpladen valideres mod det valgte lands format (plateFormats.ts) inden indsendelse.
+//
+// VEHICLE_TYPES: liste over de fire understøttede køretøjstyper med ikon og dansk label.
+// fmt: nummerpladeformatet for det valgte land — bruges til validering, mask og placeholder.
+// validatePlate: tjekker om pladen matcher fmt.regex og viser fejlbesked hvis formatet er forkert.
+// handleSubmit: sender det nye køretøj til API'et via addVehicle() og navigerer til /cars ved succes.
+// Returnerer en formular med landekode-vælger, nummerplade-input, kælenavn, køretøjstype-vælger og EV-toggle.
+
 "use client";
 
 import { useState, type ElementType } from "react";
@@ -11,6 +21,7 @@ import { ROUTES } from "@/lib/routes";
 import { Button } from "@/components/buttons";
 import type { VehicleType } from "@/context/VehiclesContext";
 
+// De fire køretøjstyper brugeren kan vælge imellem
 const VEHICLE_TYPES: { type: VehicleType; label: string; icon: ElementType }[] = [
   { type: "car", label: "Personbil", icon: Car },
   { type: "motorcycle", label: "Motorcykel", icon: Motorbike },
@@ -30,6 +41,7 @@ export default function TilfoejBilPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Nummerpladeformatet for det valgte land (regex, maske og placeholder)
   const fmt = getPlateFormat(country.code);
 
   function validatePlate(value: string) {

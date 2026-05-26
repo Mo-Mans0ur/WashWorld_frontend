@@ -1,3 +1,15 @@
+// RedigerBilPage – side til at redigere et eksisterende køretøj.
+// Henter køretøjet fra VehiclesContext via URL-parameteren [id].
+// Hvis køretøjet ikke eksisterer (forkert ID eller slettet), sendes brugeren til /cars.
+//
+// VEHICLE_TYPES: liste over de fire understøttede køretøjstyper med ikon og dansk label.
+// RedigerBilForm: selve formularen forudfyldt med køretøjets nuværende data.
+//   fmt: nummerpladeformatet for det valgte land.
+//   validatePlate: tjekker pladen mod fmt.regex og viser fejlbesked hvis formatet er forkert.
+//   handleSubmit: sender de opdaterede data til API'et via updateVehicle() og navigerer til /cars.
+// vehicle: det køretøj der redigeres, slået op via id-parameteren fra URL'en.
+// Returnerer formularen, eller en loading-besked mens køretøjslisten hentes.
+
 "use client";
 
 import { useEffect, useState, type ElementType } from "react";
@@ -11,6 +23,7 @@ import { ROUTES } from "@/lib/routes";
 import { Button } from "@/components/buttons";
 import type { Vehicle, VehicleType } from "@/context/VehiclesContext";
 
+// De fire køretøjstyper brugeren kan vælge imellem
 const VEHICLE_TYPES: { type: VehicleType; label: string; icon: ElementType }[] = [
   { type: "car",        label: "Personbil",  icon: Car },
   { type: "motorcycle", label: "Motorcykel", icon: Motorbike },
@@ -42,6 +55,7 @@ function RedigerBilForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Nummerpladeformatet for det valgte land (regex, maske og placeholder)
   const fmt = getPlateFormat(country.code);
 
   function validatePlate(value: string) {
@@ -192,6 +206,7 @@ export default function RedigerBilPage() {
   const { id } = useParams<{ id: string }>();
   const { vehicles, isLoading, updateVehicle } = useVehicles();
 
+  // Finder det køretøj der skal redigeres ud fra id i URL'en
   const vehicle = vehicles.find((v) => v.id === id);
 
   useEffect(() => {

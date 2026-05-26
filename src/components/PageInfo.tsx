@@ -1,3 +1,9 @@
+// PageInfo – grønt skråbanner øverst på sider.
+// Viser enten en fast tekst (text-prop) eller "Hej [navn]" hvis userName er givet.
+// formattedUserName: formaterer brugernavnet til visning, fx "Simon M." → "Simon".
+// content: teksten der vises i banneret — fortrækker text-prop frem for hilsen.
+// Returnerer et grønt banner med skrå højrekant og hvid tekst.
+
 import { formatDisplayName } from "@/lib/formatName";
 
 interface PageInfoProps {
