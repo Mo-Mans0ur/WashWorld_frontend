@@ -75,6 +75,7 @@ export default function BetalingPage() {
   const carId = searchParams.get("carId") ?? undefined;
   const locationId = searchParams.get("location") ?? undefined;
   const equipmentId = searchParams.get("equipment") ?? undefined;
+  const returnTo = searchParams.get("returnTo") ?? undefined;
 
   // Indlæs evt. gemt kort ved første render
   const gemtKort = hentGemtBetalingskort();
@@ -161,7 +162,7 @@ export default function BetalingPage() {
     }
 
     if (saveCardOnly) {
-      router.push(ROUTES.profile);
+      router.push(returnTo ?? ROUTES.profile);
       return;
     }
 

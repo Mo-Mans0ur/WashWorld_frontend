@@ -3,7 +3,7 @@
 // TilfoejBilPage – tilføj et nyt køretøj via den delte VehicleForm-komponent.
 
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import VehicleForm from "@/components/vehicles/VehicleForm";
 import { useVehicles } from "@/hooks";
@@ -11,7 +11,9 @@ import { ROUTES } from "@/lib/routes";
 
 export default function TilfoejBilPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { addVehicle } = useVehicles();
+  const returnTo = searchParams.get("returnTo");
 
   return (
     <VehicleForm
@@ -20,7 +22,7 @@ export default function TilfoejBilPage() {
       submitIcon={<Plus size={22} strokeWidth={3} />}
       onSubmit={async (values) => {
         await addVehicle(values);
-        router.push(ROUTES.cars);
+        router.push(returnTo ?? ROUTES.cars);
       }}
     />
   );

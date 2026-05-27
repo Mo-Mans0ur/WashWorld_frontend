@@ -56,6 +56,14 @@ export default function DetailsPage() {
     fetchUserCars(user.user_id).then(setCars).catch(() => {});
   }, [user]);
 
+  // Auto-åbn CarPickerSheet når bruger vender tilbage efter at have tilføjet bil
+  useEffect(() => {
+    if (searchParams.get("showPicker") === "1") {
+      setShowCarPicker(true);
+      router.replace(`/details?id=${locationId}`);
+    }
+  }, [searchParams, locationId, router]);
+
   const liveStatusCounts = useMemo(
     () =>
       EQUIPMENT_SECTIONS.map((section) => ({
@@ -147,6 +155,7 @@ export default function DetailsPage() {
         subscriptions={userSubscriptions}
         onSelect={handleCarSelected}
         onClose={() => setShowCarPicker(false)}
+        returnTo={`/details?id=${locationId}&showPicker=1`}
       />
 
       {showLocationWarning && pendingCar && (

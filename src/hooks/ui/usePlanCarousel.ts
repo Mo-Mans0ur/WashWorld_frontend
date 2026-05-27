@@ -9,7 +9,7 @@
 import { useState } from "react";
 
 export function usePlanCarousel() {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(2);
   const [slideDirection, setSlideDirection] = useState<"right" | "left">("right");
   const [animKey, setAnimKey] = useState(0);
 

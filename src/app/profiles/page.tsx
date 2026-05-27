@@ -164,7 +164,7 @@ export default function ProfilePage() {
                 <p className="text-sm font-semibold text-neutral-600">Betalingskort</p>
               </div>
               <Link
-                href={ROUTES.savePaymentCard}
+                href={`${ROUTES.savePaymentCard}&returnTo=${encodeURIComponent("/profiles")}`}
                 className="flex h-8 min-w-24 items-center justify-center bg-(--brand-green-01) px-3 text-sm font-bold text-white [clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]"
               >
                 {savedCardNumber ? "Rediger" : "Tilføj"}

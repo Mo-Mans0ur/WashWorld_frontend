@@ -76,7 +76,11 @@ export default function DashboardPage() {
           <p className="mt-1 text-[0.78rem] leading-snug text-[#5d645f]">{notificationToastMessage}</p>
           <div className="mt-3 flex justify-end">
             <Link
-              href={ROUTES.profile}
+              href={
+                !missingVehicle && missingPaymentCard
+                  ? `${ROUTES.savePaymentCard}&returnTo=${encodeURIComponent("/dashboard")}`
+                  : ROUTES.profile
+              }
               className="flex h-11 items-center justify-center bg-(--brand-green-01) pl-5 pr-4 text-[0.92rem] font-bold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]"
             >
               {dashboardPageNames.notificationToastButton}
@@ -105,7 +109,14 @@ export default function DashboardPage() {
         <h2 className="mb-5 text-2xl font-bold text-black">{dashboardPageNames.nearbyTitle}</h2>
 
         <div className="flex items-center gap-3">
-          <div className="flex h-20 flex-1 items-center justify-between rounded-[3px] bg-(--brand-green-01) px-4 shadow-md">
+          <Link
+            href={
+              nearestLocation
+                ? `${ROUTES.map}?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
+                : ROUTES.map
+            }
+            className="flex h-20 flex-1 items-center justify-between rounded-[3px] bg-(--brand-green-01) px-4 shadow-md"
+          >
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-12 items-center justify-center rounded-full bg-black text-2xl font-bold text-white ring-2 ring-white">
                 W
@@ -120,7 +131,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="text-sm font-bold text-black">{nearestLocation?.distance ?? "—"}</p>
-          </div>
+          </Link>
 
           <Link
             href={

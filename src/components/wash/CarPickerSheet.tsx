@@ -13,6 +13,7 @@ interface CarPickerSheetProps {
   subscriptions: Subscription[];
   onSelect: (car: Car) => void;
   onClose: () => void;
+  returnTo?: string;
 }
 
 export default function CarPickerSheet({
@@ -21,14 +22,19 @@ export default function CarPickerSheet({
   subscriptions,
   onSelect,
   onClose,
+  returnTo,
 }: CarPickerSheetProps) {
+  const addCarHref = returnTo
+    ? `/cars/add?returnTo=${encodeURIComponent(returnTo)}`
+    : "/cars/add";
+
   return (
     <BottomSheet isOpen={isOpen} title="Vælg køretøj" onClose={onClose}>
       {cars.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
           <p className="text-sm text-neutral-500">Du har ingen biler tilknyttet din konto.</p>
           <Link
-            href="/cars/add"
+            href={addCarHref}
             className="rounded-[3px] bg-(--color-primary) px-5 py-2 text-sm font-semibold text-white active:opacity-80"
           >
             Tilføj bil
