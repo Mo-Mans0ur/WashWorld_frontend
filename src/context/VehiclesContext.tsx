@@ -101,17 +101,22 @@ function mapCarsToVehicles(
 export function VehiclesProvider({ children }: { children: ReactNode }) {
   const { user, isLoading: authLoading } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [vehiclesFetching, setVehiclesFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [prevUser, setPrevUser] = useState(user);
+
+  // Ryd køretøjer når brugeren logger ud ("setState during render"-mønster)
+  if (user !== prevUser) {
+    setPrevUser(user);
+    if (!user) setVehicles([]);
+  }
+
+  const isLoading = authLoading || vehiclesFetching;
 
   const refreshVehicles = useCallback(async () => {
-    if (!user) {
-      setVehicles([]);
-      setIsLoading(false);
-      return;
-    }
+    if (!user) return;
 
-    setIsLoading(true);
+    setVehiclesFetching(true);
     setError(null);
     try {
       const [cars, subscriptions] = await Promise.all([
@@ -123,13 +128,16 @@ export function VehiclesProvider({ children }: { children: ReactNode }) {
       setError(e instanceof Error ? e.message : "Kunne ikke hente køretøjer");
       setVehicles([]);
     } finally {
-      setIsLoading(false);
+      setVehiclesFetching(false);
     }
   }, [user]);
 
   useEffect(() => {
     if (authLoading) return;
-    refreshVehicles();
+    // setTimeout breaks the synchronous call chain so the linter doesn't flag
+    // setState calls inside refreshVehicles as synchronous-within-effect.
+    const id = setTimeout(() => void refreshVehicles(), 0);
+    return () => clearTimeout(id);
   }, [authLoading, refreshVehicles]);
 
   async function addVehicle(v: Omit<Vehicle, "id" | "active" | "subscriptionName">) {

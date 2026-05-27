@@ -28,14 +28,12 @@ function ResetPasswordConfirmForm() {
   const [confirm, setConfirm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    () => !resetKey ? "Ugyldigt eller manglende link. Anmod om et nyt." : null,
+  );
 
   const passwordsMatch = confirm.length > 0 && password === confirm;
   const canSubmit = password.length >= PASSWORD_MIN && passwordsMatch && !isSubmitting && !!resetKey;
-
-  useEffect(() => {
-    if (!resetKey) setError("Ugyldigt eller manglende link. Anmod om et nyt.");
-  }, [resetKey]);
 
   // Sender den nye adgangskode og reset-nøglen til API'et og viser bekræftelse ved succes.
   async function handleSubmit(event?: FormEvent) {
@@ -64,6 +62,7 @@ function ResetPasswordConfirmForm() {
         src="/background/washworld-background.png"
         alt="Baggrund"
         fill
+        sizes="(max-width: 430px) 100vw, 430px"
         priority
       />
 

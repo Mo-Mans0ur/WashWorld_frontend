@@ -69,7 +69,7 @@ export default function LoginPage() {
           src="/background/washworld-background.png"
           alt="Baggrund"
           fill
-          sizes="100vw"
+          sizes="(max-width: 430px) 100vw, 430px"
           priority
         />
 

@@ -30,9 +30,9 @@ export const EQUIPMENT_SECTIONS = [
     type: "vask_selv",
     label: "Vask selv",
     titlePrefix: "Vask selv",
-    image: "/icons/vaskselvIcon.png",
+    image: "/icons/VaskSelvIcon.png",
     liveStatusLabel: "Vask selv",
-    liveStatusIcon: "/icons/vaskselvIcon.png",
+    liveStatusIcon: "/icons/VaskSelvIcon.png",
   },
   {
     type: "stovsuger",
@@ -54,6 +54,18 @@ function getApiBase(): string {
 
 export function isEquipmentAvailable(status: string): boolean {
   return status.trim().toLowerCase() === "ledig";
+}
+
+export function normalizeEquipmentStatus(status: string): string {
+  const s = status.trim().toLowerCase();
+  if (s === "ledig") return "Ledig";
+  if (s === "optaget") return "Optaget";
+  if (s === "ud af drift") return "Ud af drift";
+  return status;
+}
+
+export function formatLiveStatus(counts: { available: number; total: number }): string {
+  return `${counts.available} / ${counts.total}`;
 }
 
 export function normalizeEquipmentType(type: string): string {

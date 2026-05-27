@@ -7,10 +7,10 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import PageInfo from "@/components/PageInfo";
-import SingleWashAdviceInfo from "../../../components/SingleWashAdviceInfo";
+import PageInfo from "@/components/shared/PageInfo";
+import SingleWashAdviceInfo from "../../../components/wash/SingleWashAdviceInfo";
 import StartWashButton from "@/components/buttons/StartWashButton";
-import { singleWashReadyPageContent } from "@/data/singleWashData";
+import { singleWashReadyPageContent } from "@/data/wash/singleWashData";
 import { ROUTES } from "@/lib/routes";
 
 export default function SingleWashStartPage() {

@@ -1,3 +1,10 @@
+// StartWashButton – start-vask-knappen med diagonal farveovergradient.
+// STATUS_CONFIG: definerer label, gradientfarve og hint-tekst for hver maskinstatus
+//   (Ledig = grøn, Optaget = gul, Ud af drift = rød).
+// DEFAULT_CONFIG: fallback der bruges hvis status er null eller ukendt — viser "Start vask".
+// config: slår maskinens aktuelle status op i STATUS_CONFIG og returnerer den rigtige konfiguration.
+// Returnerer knappen (deaktiveret hvis maskinen er optaget/ud af drift) og en valgfri hint-tekst.
+
 type MachineStatus = "Ledig" | "Optaget" | "Ud af drift";
 
 interface StatusConfig {

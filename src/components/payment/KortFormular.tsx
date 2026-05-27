@@ -5,7 +5,7 @@
 
 import { type ChangeEvent, useState } from "react";
 import { CircleHelp } from "lucide-react";
-import { paymentPageContent } from "@/data/paymentData";
+import { paymentPageContent } from "@/data/payment/paymentData";
 
 type Props = {
   cardNumber: string;

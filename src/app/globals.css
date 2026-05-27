@@ -500,6 +500,40 @@ select {
   transform: translateX(42px);
 }
 
+/* ── Plan carousel slide animations (bruges af subscriptions/page.tsx og singlewash/page.tsx) ── */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-100%) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+.slide-right { animation: slideInRight 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+.slide-left  { animation: slideInLeft  0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+
+/* ── CompletionModal animations (bruges af activewash/CompletionModal.tsx) ── */
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes dropFloat {
+  0%,100% { transform: translateY(0px) rotate(180deg); }
+  50%     { transform: translateY(-6px) rotate(180deg); }
+}
+@keyframes bubbleFloat {
+  0%,100% { transform: scale(1);    opacity: 0.5;  }
+  50%     { transform: scale(1.08); opacity: 0.75; }
+}
+@keyframes sparkPop {
+  0%,100% { transform: scale(0.7); opacity: 0.4; }
+  50%     { transform: scale(1.1); opacity: 1;   }
+}
+
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;

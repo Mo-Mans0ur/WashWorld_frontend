@@ -6,7 +6,7 @@
 import { type ChangeEvent } from "react";
 import Image from "next/image";
 import { CircleAlert } from "lucide-react";
-import { paymentPageContent } from "@/data/paymentData";
+import { paymentPageContent } from "@/data/payment/paymentData";
 
 type Props = {
   countryCode: string;

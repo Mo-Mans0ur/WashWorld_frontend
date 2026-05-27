@@ -14,13 +14,13 @@ import {
   Plus,
 } from "lucide-react";
 
-import PageInfo from "@/components/PageInfo";
+import PageInfo from "@/components/shared/PageInfo";
 import {
   supportContactCards,
   supportFaqItems,
   supportPageContent,
   type SupportContactCard,
-} from "@/data/supportData";
+} from "@/data/shared/supportData";
 
 const supportCardIcons = {
   call: Phone,

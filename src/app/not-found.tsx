@@ -6,8 +6,8 @@
 import { useEffect } from "react";
 import Image from "next/image";
 
-import ErrorPageButton from "../components/ErrorPageButton";
-import { notFoundPageData } from "@/data/errorPagesData";
+import ErrorPageButton from "../components/shared/ErrorPageButton";
+import { notFoundPageData } from "@/data/shared/errorPagesData";
 import { useNavVisibility } from "@/hooks";
 
 export default function NotFound() {

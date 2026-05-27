@@ -4,7 +4,7 @@
 "use client";
 
 import Image from "next/image";
-import { paymentPageContent } from "@/data/paymentData";
+import { paymentPageContent } from "@/data/payment/paymentData";
 
 type Props = {
   walletMethod: "apple" | "google";

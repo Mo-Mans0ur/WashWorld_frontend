@@ -1,6 +1,12 @@
+// layout.tsx – rod-layout for hele appen.
+// metadata: definerer sidetitel, beskrivelse og favikon til browserfanen.
+// RootLayout: omslutter alle sider med Providers (auth, køretøjer, favoritter mv.)
+// og ScreenLayout (mobil-ramme med baggrundsgradient og fast bredde).
+// children: indeholder den aktuelle side som Next.js injicerer automatisk.
+
 import "./globals.css";
-import Providers from "@/components/Providers";
-import ScreenLayout from "@/components/ScreenLayout";
+import Providers from "@/components/layout/Providers";
+import ScreenLayout from "@/components/layout/ScreenLayout";
 
 export const metadata = {
   title: "Create Next App",
