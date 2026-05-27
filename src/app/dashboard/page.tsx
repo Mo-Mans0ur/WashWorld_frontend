@@ -76,7 +76,11 @@ export default function DashboardPage() {
           <p className="mt-1 text-[0.78rem] leading-snug text-[#5d645f]">{notificationToastMessage}</p>
           <div className="mt-3 flex justify-end">
             <Link
-              href={ROUTES.profile}
+              href={
+                !missingVehicle && missingPaymentCard
+                  ? `${ROUTES.savePaymentCard}&returnTo=${encodeURIComponent("/dashboard")}`
+                  : ROUTES.profile
+              }
               className="flex h-11 items-center justify-center bg-(--brand-green-01) pl-5 pr-4 text-[0.92rem] font-bold text-white shadow-[0_8px_18px_rgba(0,0,0,0.12)] [clip-path:polygon(14%_0,100%_0,100%_100%,0_100%)]"
             >
               {dashboardPageNames.notificationToastButton}
