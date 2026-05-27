@@ -15,9 +15,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  EQUIPMENT_SECTIONS,
   fetchLocationEquipment,
-  normalizeEquipmentStatus,
   type LocationEquipment,
 } from "@/lib/equipmentApi";
 import { fetchLocationById } from "@/lib/locationsApi";
@@ -62,21 +60,6 @@ export function useLocationDetails(locationId: string | null) {
           const equipmentData = await fetchLocationEquipment(locationId);
           if (!cancelled) {
             setEquipment(equipmentData);
-
-            // Vælg automatisk den første ledige vaskehal – eller bare den første hvis ingen er ledig
-            const first =
-              equipmentData.find(
-                (e) =>
-                  e.location_equipment_type === "vaskehal" &&
-                  normalizeEquipmentStatus(e.location_equipment_status) === "Ledig",
-              ) ?? equipmentData.find((e) => e.location_equipment_type === "vaskehal");
-
-            if (first) {
-              const section = EQUIPMENT_SECTIONS.find((s) => s.type === first.location_equipment_type);
-              if (section) {
-                setSelectedId(`${section.type}-${first.location_equipment_id}`);
-              }
-            }
           }
         } catch {
           // Udstyrsfejl er ikke kritiske – vis bare tomme tællere

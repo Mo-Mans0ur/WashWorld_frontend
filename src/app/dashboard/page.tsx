@@ -105,7 +105,14 @@ export default function DashboardPage() {
         <h2 className="mb-5 text-2xl font-bold text-black">{dashboardPageNames.nearbyTitle}</h2>
 
         <div className="flex items-center gap-3">
-          <div className="flex h-20 flex-1 items-center justify-between rounded-[3px] bg-(--brand-green-01) px-4 shadow-md">
+          <Link
+            href={
+              nearestLocation
+                ? `${ROUTES.map}?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
+                : ROUTES.map
+            }
+            className="flex h-20 flex-1 items-center justify-between rounded-[3px] bg-(--brand-green-01) px-4 shadow-md"
+          >
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-12 items-center justify-center rounded-full bg-black text-2xl font-bold text-white ring-2 ring-white">
                 W
@@ -120,7 +127,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="text-sm font-bold text-black">{nearestLocation?.distance ?? "—"}</p>
-          </div>
+          </Link>
 
           <Link
             href={
