@@ -37,7 +37,7 @@ export type Offer = {
   offer_discount_percentage: number;
   offer_start_date: string;
   offer_end_date: string;
-  offer_photo_base64: string | null;
+  offer_photo_url: string | null;
 };
 
 export type Subscription = {

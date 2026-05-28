@@ -112,7 +112,7 @@ export default function DashboardPage() {
           <Link
             href={
               nearestLocation
-                ? `${ROUTES.map}?locationId=${nearestLocation.location_id}&lat=${nearestLocation.location_coordinate_y}&lng=${nearestLocation.location_coordinate_x}`
+                ? ROUTES.details(nearestLocation.location_id)
                 : ROUTES.map
             }
             className="flex h-20 flex-1 items-center justify-between rounded-[3px] bg-(--brand-green-01) px-4 shadow-md"

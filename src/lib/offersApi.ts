@@ -1,8 +1,7 @@
 // offersApi – henter og filtrerer tilbud fra API'et (/api/offers).
 // fetchOffers() bruges af dashboard/page.tsx til at vise aktuelle tilbud i "Til dig"-sektionen.
 // Tilbud er kun aktive indenfor deres start- og slutdato (isOfferActive).
-// getOfferImageSrc() bruges i NewsCard (dashboard/page.tsx) til at konvertere rå base64-strenge
-// fra databasen til et kilde-format der kan bruges direkte i <img> og Next.js Image-komponenten.
+// getOfferImageSrc() bruges i NewsCard til at validere URL/sti fra databasen.
 import { apiRequest } from "@/lib/apiClient";
 import type { Offer } from "@/types/api";
 
@@ -43,13 +42,16 @@ export async function fetchOffers(): Promise<Offer[]> {
 
 const DEFAULT_OFFER_IMAGE = "/tilbud.png";
 
-/** Gør base64 fra databasen klar til <img> / Next Image. */
+/** Returnerer billedsti/URL fra databasen, ellers fallback. */
 export function getOfferImageSrc(
-  base64: string | null | undefined,
+  imageUrl: string | null | undefined,
   fallback = DEFAULT_OFFER_IMAGE,
 ): string {
-  const value = base64?.trim();
+  const value = imageUrl?.trim();
   if (!value) return fallback;
-  if (value.startsWith("data:")) return value;
-  return `data:image/jpeg;base64,${value}`;
+  // Accepter kun URL/sti - ingen base64 understøttelse
+  if (value.startsWith("/") || value.startsWith("http://") || value.startsWith("https://")) {
+    return value;
+  }
+  return fallback;
 }
