@@ -147,12 +147,29 @@ function bindDetailsLink(
   });
 }
 
+function bindRouteButton(
+  popup: mapboxgl.Popup,
+  locCoords: [number, number],
+  onRoute: (coords: [number, number]) => void,
+): void {
+  const btn = popup.getElement()?.querySelector(".washworld-popup-route");
+  if (!btn) return;
+
+  btn.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    popup.remove();
+    onRoute(locCoords);
+  });
+}
+
 // Tilføjer et WashWorld-pin til kortet for hver lokation. Klik åbner en popup med navn, adresse, afstand og åbningstider.
 function addLocationMarkers(
   map: mapboxgl.Map,
   locations: MapLocation[],
   getUserLngLat: () => [number, number] | null,
   onOpenDetails: (locationId: string) => void,
+  onRoute: (coords: [number, number]) => void,
 ): void {
   let activePopup: mapboxgl.Popup | null = null;
   let isMarkerFlyTo = false;
@@ -213,7 +230,10 @@ function addLocationMarkers(
                 <span class="washworld-popup-hours-accent">Åben</span>
                 ${hours}
               </p>
-              <a href="/details?id=${encodeURIComponent(loc.id)}" class="washworld-popup-more">Se mere</a>
+              <div class="washworld-popup-actions">
+                <button class="washworld-popup-route">Vis rute</button>
+                <a href="/details?id=${encodeURIComponent(loc.id)}" class="washworld-popup-more">Se mere</a>
+              </div>
             </div>
           </div>
         `,
@@ -221,6 +241,7 @@ function addLocationMarkers(
         .setLngLat(loc.coords)
         .addTo(map);
       bindDetailsLink(popup, loc.id, onOpenDetails);
+      bindRouteButton(popup, loc.coords, onRoute);
       activePopup = popup;
 
       isMarkerFlyTo = true;
@@ -412,8 +433,16 @@ export default function Map() {
         map,
         locations,
         () => userLngLatRef.current,
-        (locationId) =>
-          router.push(ROUTES.details(locationId)),
+        (locationId) => router.push(ROUTES.details(locationId)),
+        (locCoords) => {
+          const userPos = userLngLatRef.current;
+          if (!userPos) return;
+          drawRoute(map, userPos, locCoords).then((info) => {
+            if (info) setRouteInfo(info);
+            const bounds = new mapboxgl.LngLatBounds().extend(userPos).extend(locCoords);
+            map.fitBounds(bounds, { padding: 80 });
+          });
+        },
       );
 
       if (userLngLatRef.current) {

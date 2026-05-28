@@ -12,6 +12,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { Star, Info } from "lucide-react";
 
 import StartWashButton from "@/components/buttons/StartWashButton";
@@ -261,10 +262,27 @@ export default function DetailsPage() {
                 </section>
               ))}
 
-              <StartWashButton
-                onClick={() => setShowCarPicker(true)}
-                status={selectedItem?.status as "Ledig" | "Optaget" | "Ud af drift" | undefined}
-              />
+              <div className="flex w-full items-center justify-center gap-3">
+                <StartWashButton
+                  onClick={() => setShowCarPicker(true)}
+                  status={selectedItem?.status as "Ledig" | "Optaget" | "Ud af drift" | undefined}
+                />
+                {location && (
+                  <Link
+                    href={`${ROUTES.map}?locationId=${locationId}&lat=${location.coords[1]}&lng=${location.coords[0]}`}
+                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[3px] bg-white shadow-md"
+                    title="Vis rute"
+                  >
+                    <Image
+                      src="/Car1.png"
+                      alt="Vis rute"
+                      className="h-11 w-11 object-contain"
+                      width={44}
+                      height={44}
+                    />
+                  </Link>
+                )}
+              </div>
               {selectedItem && (
                 <p className="text-center text-sm text-white">Valgt: {selectedItem.title}</p>
               )}
