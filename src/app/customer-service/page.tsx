@@ -19,8 +19,8 @@ import {
   supportContactCards,
   supportFaqItems,
   supportPageContent,
-  type SupportContactCard,
 } from "@/data/shared/supportData";
+import type { SupportContactCard } from "@/types/support";
 
 const supportCardIcons = {
   call: Phone,
