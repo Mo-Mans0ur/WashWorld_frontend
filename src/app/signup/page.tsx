@@ -209,7 +209,7 @@ export default function SignUpPage() {
                 href={ROUTES.terms}
                 className="text-(--color-secondary) font-semibold hover:underline"
               >
-                abonnementsvilkår
+                Brugervilkår
               </Link>
             </span>
           </label>
