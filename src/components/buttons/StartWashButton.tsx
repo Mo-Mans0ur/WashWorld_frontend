@@ -40,12 +40,22 @@ const DEFAULT_CONFIG = STATUS_CONFIG.Ledig;
 interface StartWashButtonProps {
   onClick?: () => void;
   status?: MachineStatus | string | null;
+  noSelection?: boolean;
 }
 
-export default function StartWashButton({ onClick, status }: StartWashButtonProps) {
-  const config = (status && status in STATUS_CONFIG)
-    ? STATUS_CONFIG[status as MachineStatus]
-    : DEFAULT_CONFIG;
+const NO_SELECTION_CONFIG: StatusConfig = {
+  disabled: true,
+  label: "Start vask",
+  gradient: DEFAULT_CONFIG.gradient,
+  hint: null,
+};
+
+export default function StartWashButton({ onClick, status, noSelection }: StartWashButtonProps) {
+  const config = noSelection
+    ? NO_SELECTION_CONFIG
+    : (status && status in STATUS_CONFIG)
+      ? STATUS_CONFIG[status as MachineStatus]
+      : DEFAULT_CONFIG;
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-102.5 gap-2">

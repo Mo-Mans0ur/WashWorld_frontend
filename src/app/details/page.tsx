@@ -266,6 +266,7 @@ export default function DetailsPage() {
                 <StartWashButton
                   onClick={() => setShowCarPicker(true)}
                   status={selectedItem?.status as "Ledig" | "Optaget" | "Ud af drift" | undefined}
+                  noSelection={!selectedId}
                 />
                 {location && (
                   <Link
