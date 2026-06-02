@@ -11,6 +11,7 @@ interface StatusConfig {
   disabled: boolean;
   label: string;
   gradient: string;
+  textColor: string;
   hint: string | null;
 }
 
@@ -19,19 +20,22 @@ const STATUS_CONFIG: Record<MachineStatus, StatusConfig> = {
     disabled: false,
     label: "Start vask",
     gradient: "bg-[linear-gradient(60deg,var(--brand-green-02)_0%,var(--brand-green-02)_52%,var(--color-grey-01)_52%,var(--color-grey-01)_100%)]",
+    textColor: "text-(--color-grey-03)",
     hint: null,
   },
   Optaget: {
     disabled: true,
     label: "Optaget",
     gradient: "bg-[linear-gradient(60deg,#f59e0b_0%,#f59e0b_52%,#d1d5db_52%,#d1d5db_100%)]",
-    hint: "Vælg en ledig maskine for at starte vask",
+    textColor: "text-white",
+    hint: null,
   },
   "Ud af drift": {
     disabled: true,
     label: "Ud af drift",
     gradient: "bg-[linear-gradient(60deg,#ef4444_0%,#ef4444_52%,#d1d5db_52%,#d1d5db_100%)]",
-    hint: "Denne maskine er ikke tilgængelig",
+    textColor: "text-white",
+    hint: null,
   },
 };
 
@@ -47,6 +51,7 @@ const NO_SELECTION_CONFIG: StatusConfig = {
   disabled: true,
   label: "Start vask",
   gradient: DEFAULT_CONFIG.gradient,
+  textColor: DEFAULT_CONFIG.textColor,
   hint: null,
 };
 
@@ -63,10 +68,10 @@ export default function StartWashButton({ onClick, status, noSelection }: StartW
         type="button"
         onClick={config.disabled ? undefined : onClick}
         disabled={config.disabled}
-        className="relative rounded-[3px] flex h-16 w-full max-w-80 items-center justify-center overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.18)] disabled:opacity-80 disabled:cursor-not-allowed"
+        className="relative rounded-[3px] flex h-16 w-full max-w-80 items-center justify-center overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.35)] disabled:opacity-80 disabled:cursor-not-allowed"
       >
         <div className={`absolute inset-0 ${config.gradient}`} />
-        <span className="relative z-10 text-[1.35rem] font-bold tracking-tight text-(--color-grey-03)">
+        <span className={`relative z-10 text-[1.35rem] font-bold tracking-tight ${config.textColor}`}>
           {config.label}
         </span>
       </button>
