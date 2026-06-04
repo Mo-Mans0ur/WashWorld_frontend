@@ -31,7 +31,7 @@ export default function AppHeader() {
         width={75}
         height={24}
         loading="eager"
-        style={{ width: "auto" }}
+        className="mt-1.5 h-auto w-auto"
       />
     </header>
   );
