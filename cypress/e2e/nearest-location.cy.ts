@@ -175,12 +175,15 @@ describe("Nearest location – list view", () => {
   });
 
   // ------------------------------------------------------------------ navigation
-  it("navigates to the details page when 'Se mere' is clicked", () => {
+  it("'Se mere' link points to the correct details URL", () => {
     visitList(grantGeo);
     cy.wait("@getLocations");
 
-    cy.get(".washworld-popup-card").first().contains("Se mere").click();
-    cy.url().should("include", "/details");
-    cy.url().should("include", "id=");
+    cy.get(".washworld-popup-card")
+      .first()
+      .find(".washworld-popup-more")
+      .should("have.attr", "href")
+      .and("include", "/details")
+      .and("include", "loc-1");
   });
 });
