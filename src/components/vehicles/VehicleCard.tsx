@@ -9,7 +9,8 @@ import { Car, Motorbike, Truck, Bus, MoreVertical, BadgePlus, Pencil, Trash2 } f
 import { LicensePlate } from "@/components/shared/LicensePlate";
 import StatusBadge from "@/components/vehicles/StatusBadge";
 import { useClickOutside } from "@/hooks";
-import type { Vehicle, VehicleType } from "@/context/VehiclesContext";
+import type { VehicleType } from "@/types/api";
+import type { Vehicle } from "@/context/VehiclesContext";
 
 const VEHICLE_ICONS: Record<VehicleType, ElementType> = {
   car: Car,

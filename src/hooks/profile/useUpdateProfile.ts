@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/hooks";
-import { updateAuthUser, deleteAuthUser } from "@/lib/api/auth";
+import { updateAuthUser, deleteAuthUser } from "@/lib/authApi";
 import { parsePhone, validateLocalPhone } from "@/lib/phoneUtils";
 import { ROUTES } from "@/lib/routes";
 

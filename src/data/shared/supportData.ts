@@ -1,7 +1,20 @@
 // supportData – data til kundeservicesiden: kontaktkort (ring, skriv, aktiv vask) og FAQ-spørgsmål.
 
-import type { SupportContactCard, SupportFaqItem } from "@/types/support";
-import { washworldMapLocations } from "@/data/location/washworldLocations";
+export type SupportContactCard = {
+  id: string
+  title: string
+  subtitle?: string
+  description?: string
+  actionLabel: string
+  actionType: "call" | "message" | "urgent"
+  href?: string
+}
+
+export type SupportFaqItem = {
+  id: string
+  question: string
+  answer: string
+}
 
 export const supportPageContent = {
   pageInfoTitle: "Kundeservice",
@@ -9,8 +22,6 @@ export const supportPageContent = {
   introSubtitle: "Vælg en mulighed herunder:",
   faqTitle: "Ofte stillede spørgsmål",
 } as const;
-
-const activeWashLocationId = washworldMapLocations[0]?.id.slice(0, 4) ?? "0000";
 
 export const supportContactCards: SupportContactCard[] = [
   {
@@ -31,7 +42,6 @@ export const supportContactCards: SupportContactCard[] = [
   {
     id: "active-wash",
     title: "Aktiv vask",
-    subtitle: `ID:${activeWashLocationId}`,
     description:
       "Hvis noget går galt under vasken, kan du få hjælp med det samme",
     actionLabel: "HJÆLP",

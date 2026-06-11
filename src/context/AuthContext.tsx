@@ -15,7 +15,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User } from "@/types/api";
-import { fetchAuthUser } from "@/lib/api/auth";
+import { fetchAuthUser } from "@/lib/authApi";
 import { saveToken, clearToken } from "@/lib/apiClient";
 import {
   getUserDisplayFirstName,

@@ -11,6 +11,7 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
@@ -32,6 +33,7 @@ import ViewToggle from "./ViewToggle";
 import { ROUTES } from "@/lib/routes";
 import type { MapLocation } from "@/types/location";
 import { fetchMapLocations } from "@/lib/locationsApi";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 import {
   formatKmDa,
   formatOpenHoursDisplay,
@@ -316,12 +318,13 @@ export default function Map() {
   const routeDrawnRef = useRef(false);
 
   const [lightPreset, setLightPreset] = useState<LightPreset>("day");
-  const [locations, setLocations] = useState<MapLocation[]>([]);
-  const [loadStatus, setLoadStatus] = useState<"loading" | "error" | "ready">(
-    "loading",
-  );
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+
+  const { data: locations = [], isLoading, isError, error } = useQuery({
+    queryKey: QUERY_KEYS.locations(),
+    queryFn: fetchMapLocations,
+    staleTime: 1000 * 60 * 5,
+  });
   const [routePanelOpen, setRoutePanelOpen] = useState(true);
   const [locationStatus, setLocationStatus] = useState<"pending" | "ok" | "error">(
     () => (typeof navigator !== "undefined" && !navigator.geolocation) ? "error" : "pending",
@@ -333,24 +336,6 @@ export default function Map() {
       try { orig.call(this, pointerId); } catch { /* mapbox-gl throws NotFoundError on fast drags */ }
     };
     return () => { Element.prototype.releasePointerCapture = orig; };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await fetchMapLocations();
-        if (cancelled) return;
-        setLocations(data);
-        setLoadStatus("ready");
-        setLoadError(null);
-      } catch (e) {
-        if (cancelled) return;
-        setLoadStatus("error");
-        setLoadError(e instanceof Error ? e.message : "Ukendt fejl");
-      }
-    })();
-    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -412,7 +397,7 @@ export default function Map() {
   }, [destLat, destLng]);
 
   useEffect(() => {
-    if (loadStatus !== "ready") return;
+    if (isLoading || isError) return;
     if (!mapContainer.current) return;
     if (mapRef.current) return;
 
@@ -474,7 +459,7 @@ export default function Map() {
       map.remove();
       mapRef.current = null;
     };
-  }, [loadStatus, locations, destLat, destLng]);
+  }, [isLoading, isError, locations, destLat, destLng]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -531,12 +516,12 @@ export default function Map() {
         onCycleLightPreset={cycleLightPreset}
         onCenterOnUser={centerOnUser}
       />
-      {loadStatus === "loading" && (
+      {isLoading && (
         <div style={overlayStyle}>Henter lokationer…</div>
       )}
-      {loadStatus === "error" && (
+      {isError && (
         <div style={overlayStyle}>
-          <span>{loadError ?? "Kunne ikke indlæse kortet."}</span>
+          <span>{error instanceof Error ? error.message : "Kunne ikke indlæse kortet."}</span>
         </div>
       )}
       <div
@@ -545,7 +530,7 @@ export default function Map() {
         style={{
           width: "100%",
           height: "100%",
-          visibility: loadStatus === "ready" ? "visible" : "hidden",
+          visibility: (!isLoading && !isError) ? "visible" : "hidden",
         }}
       />
 

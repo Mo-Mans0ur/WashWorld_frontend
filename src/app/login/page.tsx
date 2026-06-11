@@ -12,7 +12,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { AuthButton } from "@/components/buttons";
 import { useAuth } from "@/hooks";
-import { loginUser } from "@/lib/api/auth";
+import { loginUser } from "@/lib/authApi";
 import { ROUTES } from "@/lib/routes";
 
 const MIN_EMAIL_LENGTH = 5;

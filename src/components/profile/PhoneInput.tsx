@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-import { EUROPEAN_COUNTRIES, PHONE_DIAL_CODES } from "@/components/shared/CountrySelector";
+import { EUROPEAN_COUNTRIES, PHONE_DIAL_CODES } from "@/data/shared/countriesData";
 
 type PhoneInputProps = {
   label: string;

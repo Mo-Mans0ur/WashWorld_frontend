@@ -24,9 +24,7 @@ import {
   updateCar,
 } from "@/lib/carsApi";
 import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
-import type { Car, Subscription } from "@/types/api";
-
-export type VehicleType = "car" | "motorcycle" | "truck" | "bus";
+import type { Car, Subscription, VehicleType } from "@/types/api";
 
 const VEHICLE_TYPES: VehicleType[] = ["car", "motorcycle", "truck", "bus"];
 

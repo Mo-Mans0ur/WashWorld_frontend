@@ -1,26 +1,30 @@
-// useSubscriptions – henter og holder styr på brugerens aktive abonnementer.
-// Bruges på profiles/page.tsx (viser abonnementsliste med mulighed for opsigelse)
-// og details/page.tsx (tjekker om det valgte køretøj har et abonnement der dækker lokationen).
+// useSubscriptions – henter brugerens aktive abonnementer.
+// Bruges på profiles/page.tsx og details/page.tsx.
 //
-// Kalder fetchUserSubscriptions() fra subscriptionsApi.ts via brugerens user_id.
-// setSubscriptions returneres så siden selv kan opdatere listen optimistisk,
-// fx når brugeren opsiger et abonnement (profiles/page.tsx filtrerer det ud lokalt).
-//
-// Returnerer: { subscriptions, setSubscriptions }
+// removeSubscription(id) opdaterer cachen optimistisk når brugeren opsiger et abonnement,
+// så UI'et reagerer med det samme uden at vente på en ny fetch.
 
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
 import type { Subscription } from "@/types/api";
 
 export function useSubscriptions(userId: string | undefined) {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!userId) return;
-    fetchUserSubscriptions(userId)
-      .then(setSubscriptions)
-      .catch(() => {});
-  }, [userId]);
+  const { data: subscriptions = [] } = useQuery({
+    queryKey: QUERY_KEYS.subscriptions(userId ?? ""),
+    queryFn: () => fetchUserSubscriptions(userId!),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  return { subscriptions, setSubscriptions };
+  function removeSubscription(subscriptionId: string) {
+    queryClient.setQueryData<Subscription[]>(
+      QUERY_KEYS.subscriptions(userId ?? ""),
+      (prev) => prev?.filter((s) => s.subscription_id !== subscriptionId) ?? [],
+    );
+  }
+
+  return { subscriptions, removeSubscription };
 }

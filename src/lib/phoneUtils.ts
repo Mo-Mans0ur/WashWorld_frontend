@@ -1,7 +1,7 @@
 // Hjælpefunktioner til parsing og validering af telefonnumre med landekode.
 // Bruges af PhoneInput-komponenten og useUpdateProfile-hooken.
 
-import { PHONE_DIAL_CODES } from "@/components/shared/CountrySelector";
+import { PHONE_DIAL_CODES } from "@/data/shared/countriesData";
 
 // Forventede længder (antal cifre) for lokale numre per landekode.
 // Lande med ét gyldigt antal angives som [n, n], ellers [min, max].

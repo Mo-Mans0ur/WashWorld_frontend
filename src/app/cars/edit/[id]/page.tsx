@@ -10,7 +10,7 @@ import { useRouter, useParams } from "next/navigation";
 import PageInfo from "@/components/shared/PageInfo";
 import VehicleForm from "@/components/vehicles/VehicleForm";
 import { useVehicles } from "@/hooks";
-import { EUROPEAN_COUNTRIES } from "@/components/shared/CountrySelector";
+import { EUROPEAN_COUNTRIES } from "@/data/shared/countriesData";
 import { ROUTES } from "@/lib/routes";
 
 export default function RedigerBilPage() {

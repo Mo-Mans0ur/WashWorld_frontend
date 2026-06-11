@@ -13,9 +13,9 @@ import { dashboardPageNames } from "@/data/dashboard/dashboardData";
 import PageInfo from "@/components/shared/PageInfo";
 import FavoriteCard from "@/components/dashboard/FavoriteCard";
 import NewsCard from "@/components/dashboard/NewsCard";
-import { fetchLocations } from "@/lib/Api";
+import { fetchLocations, formatLocationAddress } from "@/lib/locationsApi";
 import { fetchOffers } from "@/lib/offersApi";
-import { formatLocationAddress } from "@/lib/locationsApi";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 import { useFavorites, useAuth, useVehicles, useNearestLocation, useAnimatedToast } from "@/hooks";
 import { ROUTES } from "@/lib/routes";
 
@@ -34,13 +34,13 @@ export default function DashboardPage() {
   const hasMissingProfileInfo = missingVehicle || missingPaymentCard;
 
   const { data: locations = [], isLoading } = useQuery({
-    queryKey: ["locations"],
+    queryKey: QUERY_KEYS.locations(),
     queryFn: fetchLocations,
     staleTime: 1000 * 60 * 5,
   });
 
   const { data: offers = [], isLoading: offersLoading } = useQuery({
-    queryKey: ["offers"],
+    queryKey: QUERY_KEYS.offers(),
     queryFn: fetchOffers,
     staleTime: 1000 * 60 * 5,
   });

@@ -15,7 +15,7 @@ const PUBLIC_ROUTES = new Set([
   "/reset-password",
   "/reset-password/confirm",
   "/email-verified",
-  "/505",
+  "/500",
   "/under-construction",
   "/terms",
 ]);

@@ -1,43 +1,35 @@
 // useReceiptHistory – henter brugerens fulde vaskehistorik og bygger en samlet kronologisk liste.
-// Bruges på receipts/page.tsx til at vise alle tidligere vaske og abonnementer.
+// Bruges på receipts/page.tsx.
 //
-// Kalder tre API-endpoints parallelt:
-//   - fetchWashLog (washLogApi.ts)       → individuelle vaske med pris, lokation, tid
-//   - fetchUserSubscriptions (subscriptionsApi.ts) → abonnements-køb og status
-//   - fetchUserCars (carsApi.ts)         → bruges til at slå nummerplade op på hvert kort
+// Henter tre endpoints parallelt og kombinerer dem:
+//   - QUERY_KEYS.receiptHistory → washLog + subscriptions + cars → buildReceiptList()
 //
-// buildReceiptList() (washLogApi.ts) kombinerer de tre svar til én sorteret liste af ReceiptItem.
-// Hvert element har kind = "wash" eller kind = "subscription" – bruges til at vælge det rigtige kort.
-//
-// Returnerer: { items, isLoading, error }
+// Hvert element har kind = "wash" eller kind = "subscription".
 
-import { useEffect, useState } from "react";
-import {
-  fetchWashLog,
-  buildReceiptList,
-  type ReceiptItem,
-} from "@/lib/washLogApi";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/queryKeys";
+import { fetchWashLog, buildReceiptList, type ReceiptItem } from "@/lib/washLogApi";
 import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
 import { fetchUserCars } from "@/lib/carsApi";
 
 export function useReceiptHistory(userId: string | undefined) {
-  const [items, setItems] = useState<ReceiptItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: items = [], isLoading, error } = useQuery<ReceiptItem[]>({
+    queryKey: QUERY_KEYS.receiptHistory(userId ?? ""),
+    queryFn: async () => {
+      const [washLog, subscriptions, cars] = await Promise.all([
+        fetchWashLog(userId!),
+        fetchUserSubscriptions(userId!),
+        fetchUserCars(userId!),
+      ]);
+      return buildReceiptList(washLog, subscriptions, cars);
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  useEffect(() => {
-    if (!userId) return;
-    Promise.all([
-      fetchWashLog(userId),
-      fetchUserSubscriptions(userId),
-      fetchUserCars(userId),
-    ])
-      .then(([washLog, subscriptions, cars]) => {
-        setItems(buildReceiptList(washLog, subscriptions, cars));
-      })
-      .catch(() => setError("Kunne ikke hente kvitteringer"))
-      .finally(() => setIsLoading(false));
-  }, [userId]);
-
-  return { items, isLoading, error };
+  return {
+    items,
+    isLoading,
+    error: error instanceof Error ? error.message : null,
+  };
 }

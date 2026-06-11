@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { AuthButton } from "@/components/buttons";
-import { registerUser } from "@/lib/api/auth";
+import { registerUser } from "@/lib/authApi";
 import { ROUTES } from "@/lib/routes";
 
 export default function SignUpPage() {

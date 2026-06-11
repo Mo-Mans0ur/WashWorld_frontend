@@ -1,8 +1,8 @@
-// Delte køretøjstype-definitioner brugt af både tilføj- og rediger-siderne for biler.
+// Køretøjstyper med labels og ikoner — bruges af bil-tilføj og bil-rediger siderne.
 
 import { type ElementType } from "react";
 import { Car, Motorbike, Truck, Bus } from "lucide-react";
-import type { VehicleType } from "@/context/VehiclesContext";
+import type { VehicleType } from "@/types/api";
 
 export const VEHICLE_TYPES: { type: VehicleType; label: string; icon: ElementType }[] = [
   { type: "car",        label: "Personbil",  icon: Car },

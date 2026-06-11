@@ -1,5 +1,7 @@
 // TypeScript-typer der matcher den faktiske MariaDB-database (init.sql)
 
+export type VehicleType = "car" | "motorcycle" | "truck" | "bus";
+
 export type User = {
   user_id: string;            // char(32) UUID
   user_email: string;

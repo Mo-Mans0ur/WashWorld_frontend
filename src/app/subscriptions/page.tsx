@@ -16,9 +16,11 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { getMissingProfileInfoState } from "@/data/profile/profileData";
 import { subscriptionPageNames, subscriptionPlans } from "@/data/subscriptions/subscriptionData";
-import { washworldMapLocations } from "@/data/location/washworldLocations";
+import { fetchMapLocations } from "@/lib/locationsApi";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 import { ROUTES } from "@/lib/routes";
 import PageInfo from "@/components/shared/PageInfo";
 import { PlanFeature } from "@/components/wash/PlanFeature";
@@ -36,6 +38,12 @@ export default function AbonnementPage() {
   const [allLocations, setAllLocations] = useState(false);
   const [selectedLocationId, setSelectedLocationId] = useState("");
   const [locationError, setLocationError] = useState(false);
+
+  const { data: locations = [], isLoading: locationsLoading } = useQuery({
+    queryKey: QUERY_KEYS.locations(),
+    queryFn: fetchMapLocations,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const selectedPlan = PLANS[selectedIndex];
   const currentPlan = subscriptionPlans.find((plan) => plan.name === selectedPlan);
@@ -145,10 +153,11 @@ export default function AbonnementPage() {
                   <select
                     value={selectedLocationId}
                     onChange={(e) => { setSelectedLocationId(e.target.value); setLocationError(false); }}
-                    className="w-full appearance-none bg-transparent py-2.5 pl-3 pr-8 text-[0.75rem] font-semibold text-black"
+                    disabled={locationsLoading}
+                    className="w-full appearance-none bg-transparent py-2.5 pl-3 pr-8 text-[0.75rem] font-semibold text-black disabled:opacity-50"
                   >
-                    <option value="">-- Vælg lokation --</option>
-                    {washworldMapLocations.map((loc) => (
+                    <option value="">{locationsLoading ? "Henter lokationer…" : "-- Vælg lokation --"}</option>
+                    {locations.map((loc) => (
                       <option key={loc.id} value={loc.id}>{loc.name}</option>
                     ))}
                   </select>

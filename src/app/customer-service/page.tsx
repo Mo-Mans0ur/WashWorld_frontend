@@ -20,7 +20,7 @@ import {
   supportFaqItems,
   supportPageContent,
 } from "@/data/shared/supportData";
-import type { SupportContactCard } from "@/types/support";
+import type { SupportContactCard } from "@/data/shared/supportData";
 
 const supportCardIcons = {
   call: Phone,

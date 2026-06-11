@@ -19,7 +19,7 @@
 
 export { useAuth } from "./auth/useAuth";
 export { useNavVisibility } from "./auth/useNavVisibility";
-export { useFavorites } from "./useFavorites";
+export { useFavorites } from "./favorites/useFavorites";
 export { useLocationDetails } from "./location/useLocationDetails";
 export { useNearestLocation } from "./location/useNearestLocation";
 export { useUpdateProfile } from "./profile/useUpdateProfile";

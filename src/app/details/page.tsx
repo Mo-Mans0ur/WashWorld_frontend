@@ -1,15 +1,28 @@
 // DetailsPage (details/page.tsx) – viser detaljer om én vaskelokalitet.
 // URL-parameter ?id= bruges til at hente lokationens data og udstyr.
 //
+// Siden er opdelt i tre dele:
+//   1. Lokationsinfo – navn, adresse, åbningstider og favoritknap
+//   2. Live Status – tæller ledige/optagede/ud-af-drift maskiner per type (vaskehal, støvsuger, vask-selv)
+//   3. Maskinkort – vandret scrollbar liste per sektion, brugeren vælger én maskine før vask
+//
 // Navigationslogik ved "Start vask":
 //   Støvsuger / vask-selv → /selfwash
 //   Vaskehal + aktivt abonnement der dækker lokationen → /activewash
 //   Vaskehal + abonnement der IKKE dækker lokationen → ConfirmModal → /singlewash
 //   Vaskehal uden abonnement → /singlewash
+//
+// State-oversigt:
+//   showCarPicker        → styrer om bil-vælger-bottomsheet er åben
+//   cars                 → brugerens registrerede biler, hentes fra backend via useEffect
+//   showLocationWarning  → styrer om advarsels-modal vises (abonnement dækker ikke lokationen)
+//   pendingCar           → den bil brugeren valgte mens advarsels-modal er åben
+//   openInfo             → hvilken udstyrssektion der viser dimensions-tooltip (null = ingen)
 
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,6 +43,7 @@ import {
 import { formatOpenHoursDisplay } from "@/lib/locationGeo";
 import { useFavorites, useAuth, useLocationDetails, useSubscriptions } from "@/hooks";
 import { fetchUserCars } from "@/lib/carsApi";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 import type { Car } from "@/types/api";
 import { ROUTES } from "@/lib/routes";
 
@@ -47,15 +61,16 @@ export default function DetailsPage() {
   const { subscriptions: userSubscriptions } = useSubscriptions(user?.user_id);
 
   const [showCarPicker, setShowCarPicker] = useState(false);
-  const [cars, setCars] = useState<Car[]>([]);
   const [showLocationWarning, setShowLocationWarning] = useState(false);
   const [pendingCar, setPendingCar] = useState<Car | null>(null);
   const [openInfo, setOpenInfo] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchUserCars(user.user_id).then(setCars).catch(() => {});
-  }, [user]);
+  const { data: cars = [] } = useQuery({
+    queryKey: QUERY_KEYS.cars(user?.user_id ?? ""),
+    queryFn: () => fetchUserCars(user!.user_id),
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+  });
 
   // Auto-åbn CarPickerSheet når bruger vender tilbage efter at have tilføjet bil
   useEffect(() => {
@@ -65,6 +80,7 @@ export default function DetailsPage() {
     }
   }, [searchParams, locationId, router]);
 
+  // Bygger live-status array til den øverste statusrække – genberegnes kun når equipment ændres
   const liveStatusCounts = useMemo(
     () =>
       EQUIPMENT_SECTIONS.map((section) => ({
@@ -75,6 +91,8 @@ export default function DetailsPage() {
     [equipment],
   );
 
+  // Finder den valgte maskine ud fra selectedId (format: "vaskehal-42") og returnerer titel + status
+  // Bruges til at vise "Valgt: Vaskehal 3" og sætte status på StartWashButton
   const selectedItem = useMemo(() => {
     if (!selectedId || equipment.length === 0) return null;
     for (const section of EQUIPMENT_SECTIONS) {
@@ -94,14 +112,18 @@ export default function DetailsPage() {
     return null;
   }, [selectedId, equipment]);
 
+  // Sender brugeren til singlewash-flowet med bil, nummerplade, lokation og valgt udstyr som URL-parametre
+  // encodeURIComponent sikrer at specialtegn i nummerpladen ikke ødelægger URL'en
   function routeToSingleWash(car: Car) {
     router.push(
       `${ROUTES.singlewash}?plate=${encodeURIComponent(car.car_license_plate)}&carId=${encodeURIComponent(car.car_id)}&location=${encodeURIComponent(locationId ?? "")}&equipment=${encodeURIComponent(selectedId ?? "")}`,
     );
   }
 
+  // Hovedlogik der afgør hvilken vaskeroute brugeren sendes til efter bilvalg
   function handleCarSelected(car: Car) {
     setShowCarPicker(false);
+    // Tjek om brugeren valgte selvvask eller støvsuger – de har et andet flow end automatisk vaskehal
     const isSelfService =
       selectedId?.startsWith("stovsuger") || selectedId?.startsWith("vask_selv");
 
@@ -112,11 +134,13 @@ export default function DetailsPage() {
       return;
     }
 
+    // Find aktivt abonnement for den valgte bil
     const carSub = userSubscriptions.find(
       (s) => s.car_id === car.car_id && s.subscriptions_status === "aktiv",
     );
 
     if (carSub) {
+      // location_id null betyder abonnementet dækker alle lokationer
       const coversThisLocation = !carSub.location_id || carSub.location_id === locationId;
       if (!coversThisLocation) {
         setPendingCar(car);

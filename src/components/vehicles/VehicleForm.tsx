@@ -6,11 +6,12 @@
 import { type ReactNode, useState } from "react";
 import { Zap } from "lucide-react";
 import PageInfo from "@/components/shared/PageInfo";
-import CountrySelector, { type Country, EUROPEAN_COUNTRIES } from "@/components/shared/CountrySelector";
+import CountrySelector from "@/components/shared/CountrySelector";
+import { type Country, EUROPEAN_COUNTRIES } from "@/data/shared/countriesData";
 import { Button } from "@/components/buttons";
 import { getPlateFormat } from "@/data/vehicles/plateFormats";
-import { VEHICLE_TYPES } from "@/types/vehicleTypes";
-import type { VehicleType } from "@/context/VehiclesContext";
+import { VEHICLE_TYPES } from "@/data/vehicles/vehicleTypes";
+import type { VehicleType } from "@/types/api";
 
 export type VehicleFormValues = {
   name: string;

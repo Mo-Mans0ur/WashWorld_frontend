@@ -3,8 +3,9 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import PageInfo from "@/components/shared/PageInfo";
 import WashDetail from "@/components/receipts/WashDetail";
 import SubscriptionDetail from "@/components/receipts/SubscriptionDetail";
@@ -13,7 +14,8 @@ import { fetchWashLog } from "@/lib/washLogApi";
 import { fetchUserSubscriptions } from "@/lib/subscriptionsApi";
 import { fetchUserCars } from "@/lib/carsApi";
 import { useAuth } from "@/hooks";
-import type { WashLogEntry, Subscription } from "@/types/api";
+import { QUERY_KEYS } from "@/lib/queryKeys";
+import type { Subscription } from "@/types/api";
 
 export default function VaskehistorikDetaljer() {
   const { user } = useAuth();
@@ -21,26 +23,37 @@ export default function VaskehistorikDetaljer() {
   const kind = searchParams.get("kind") ?? "wash";
   const id = searchParams.get("id") ?? "";
 
-  const [washEntry, setWashEntry] = useState<WashLogEntry | null>(null);
-  const [subEntry, setSubEntry] = useState<(Subscription & { car_license_plate: string }) | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: washEntries, isLoading: washLoading } = useQuery({
+    queryKey: QUERY_KEYS.washLog(user?.user_id ?? ""),
+    queryFn: () => fetchWashLog(user!.user_id),
+    enabled: !!user && kind === "wash",
+    staleTime: 1000 * 60 * 5,
+  });
 
-  useEffect(() => {
-    if (!user) return;
-    if (kind === "wash") {
-      fetchWashLog(user.user_id)
-        .then((entries) => setWashEntry(entries.find((e) => e.wash_log_id === id) ?? null))
-        .finally(() => setIsLoading(false));
-    } else {
-      Promise.all([fetchUserSubscriptions(user.user_id), fetchUserCars(user.user_id)])
-        .then(([subs, cars]) => {
-          const plateByCarId = Object.fromEntries(cars.map((c) => [c.car_id, c.car_license_plate]));
-          const sub = subs.find((s) => s.subscription_id === id) ?? null;
-          if (sub) setSubEntry({ ...sub, car_license_plate: plateByCarId[sub.car_id] ?? "—" });
-        })
-        .finally(() => setIsLoading(false));
-    }
-  }, [user, kind, id]);
+  const { data: subData, isLoading: subLoading } = useQuery({
+    queryKey: QUERY_KEYS.subscriptionDetail(user?.user_id ?? ""),
+    queryFn: async () => {
+      const [subs, cars] = await Promise.all([
+        fetchUserSubscriptions(user!.user_id),
+        fetchUserCars(user!.user_id),
+      ]);
+      return { subs, cars };
+    },
+    enabled: !!user && kind === "subscription",
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const washEntry = washEntries?.find((e) => e.wash_log_id === id) ?? null;
+
+  const subEntry = useMemo<(Subscription & { car_license_plate: string }) | null>(() => {
+    if (!subData) return null;
+    const plateByCarId = Object.fromEntries(subData.cars.map((c) => [c.car_id, c.car_license_plate]));
+    const sub = subData.subs.find((s) => s.subscription_id === id) ?? null;
+    if (!sub) return null;
+    return { ...sub, car_license_plate: plateByCarId[sub.car_id] ?? "—" };
+  }, [subData, id]);
+
+  const isLoading = kind === "wash" ? washLoading : subLoading;
 
   if (isLoading) {
     return (

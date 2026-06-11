@@ -1,8 +1,4 @@
-// locationsApi indeholder typer, formateringsfunktioner og API-kald til WashWorld-lokationer.
-// fetchMapLocations() bruges af Map.tsx (kortet) og LocationsList.tsx (listetabellen).
-// fetchLocationById() bruges af details/page.tsx til at vise én lokations detaljer.
-// mapApiRowToMapLocation() konverterer rå API-rækker til det MapLocation-format som kortet forventer.
-// Koordinatvalidering sikrer at kun gyldige danske koordinater vises på kortet.
+import { apiRequest } from "@/lib/apiClient";
 import type { MapLocation } from "@/types/location";
 
 export type ApiLocationRow = {
@@ -44,57 +40,19 @@ function mapApiRowToMapLocation(row: ApiLocationRow): MapLocation | null {
   };
 }
 
-/**
- * Henter lokationer fra Flask (`GET /api/locations`).
- * Base-URL sættes med `NEXT_PUBLIC_API_BASE_URL` i `.env.local`.
- */
+export async function fetchLocations(): Promise<ApiLocationRow[]> {
+  const data = await apiRequest<{ locations: ApiLocationRow[] }>("/api/locations");
+  return data.locations;
+}
+
 export async function fetchMapLocations(): Promise<MapLocation[]> {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-  if (!base?.trim()) {
-    throw new Error("NEXT_PUBLIC_API_BASE_URL er ikke sat");
-  }
-
-  const url = `${base.replace(/\/$/, "")}/api/locations`;
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    let message = `Kunne ikke hente lokationer (${res.status})`;
-    try {
-      const body: unknown = await res.json();
-      if (
-        body &&
-        typeof body === "object" &&
-        "error" in body &&
-        typeof (body as { error: unknown }).error === "string"
-      ) {
-        message = (body as { error: string }).error;
-      }
-    } catch {
-      /* ignore parse errors */
-    }
-    throw new Error(message);
-  }
-
-  const data: unknown = await res.json();
-  if (
-    !data ||
-    typeof data !== "object" ||
-    !("locations" in data) ||
-    !Array.isArray((data as { locations: unknown }).locations)
-  ) {
-    throw new Error("Uventet svar fra serveren");
-  }
-
-  const rows = (data as { locations: ApiLocationRow[] }).locations;
-  return rows
+  const data = await apiRequest<{ locations: ApiLocationRow[] }>("/api/locations");
+  return data.locations
     .map(mapApiRowToMapLocation)
     .filter((loc): loc is MapLocation => loc !== null);
 }
 
-/** Finder én lokation ud fra API-listen (samme endpoint som kortet). */
-export async function fetchLocationById(
-  id: string,
-): Promise<MapLocation | null> {
+export async function fetchLocationById(id: string): Promise<MapLocation | null> {
   const locations = await fetchMapLocations();
   return locations.find((loc) => loc.id === id) ?? null;
 }

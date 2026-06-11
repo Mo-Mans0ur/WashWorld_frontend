@@ -10,7 +10,7 @@ import { type FormEvent, useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/buttons";
 import { ROUTES } from "@/lib/routes";
-import { apiRequest } from "@/lib/apiClient";
+import { confirmPasswordReset } from "@/lib/authApi";
 
 const PASSWORD_MIN = 8;
 
@@ -44,10 +44,7 @@ function ResetPasswordConfirmForm() {
     setIsSubmitting(true);
 
     try {
-      await apiRequest("/api/auth/reset-password", {
-        method: "POST",
-        body: { reset_key: resetKey, user_password: password },
-      });
+      await confirmPasswordReset(resetKey, password);
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Noget gik galt. Prøv igen.");

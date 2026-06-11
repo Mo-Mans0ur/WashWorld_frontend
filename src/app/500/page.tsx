@@ -1,4 +1,4 @@
-// UnsupportedPage – 505-fejlsiden der vises ved en alvorlig serverfejl.
+// ServerErrorPage – 500-fejlsiden der vises ved en alvorlig serverfejl.
 // Har samme visuelle stil som 404-siden: mørkegrøn baggrund med hvidt WashWorld-logo og en tilbage-knap.
 
 import Image from "next/image";

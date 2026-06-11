@@ -5,8 +5,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { MapLocation } from "@/types/location";
 import { fetchMapLocations } from "@/lib/locationsApi";
+import { QUERY_KEYS } from "@/lib/queryKeys";
 import LocationPopupCard from "@/components/map/LocationPopupCard";
 import { formatKmDa, haversineKm } from "@/lib/locationGeo";
 import ViewToggle from "@/components/map/ViewToggle";
@@ -35,34 +37,13 @@ function sortByNearest(
 }
 
 export default function LocationsList() {
-  const [locations, setLocations] = useState<MapLocation[]>([]);
+  const { data: locations = [], isLoading, isError, error } = useQuery({
+    queryKey: QUERY_KEYS.locations(),
+    queryFn: fetchMapLocations,
+    staleTime: 1000 * 60 * 5,
+  });
+
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
-  const [loadStatus, setLoadStatus] = useState<"loading" | "error" | "ready">(
-    "loading",
-  );
-  const [loadError, setLoadError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const data = await fetchMapLocations();
-        if (cancelled) return;
-        setLocations(data);
-        setLoadStatus("ready");
-        setLoadError(null);
-      } catch (e) {
-        if (cancelled) return;
-        setLoadStatus("error");
-        setLoadError(e instanceof Error ? e.message : "Ukendt fejl");
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -98,19 +79,19 @@ export default function LocationsList() {
         </p>
       </header>
 
-      {loadStatus === "loading" ? (
+      {isLoading ? (
         <p className="px-5 py-12 text-center text-[0.95rem] text-black/70">
           Henter lokationer…
         </p>
       ) : null}
 
-      {loadStatus === "error" ? (
+      {isError ? (
         <p className="px-5 py-12 text-center text-[0.95rem] text-(--color-danger)">
-          {loadError ?? "Kunne ikke indlæse lokationer."}
+          {error instanceof Error ? error.message : "Kunne ikke indlæse lokationer."}
         </p>
       ) : null}
 
-      {loadStatus === "ready" ? (
+      {!isLoading && !isError ? (
         <ul className="space-y-3 px-5 py-4">
           {sortedLocations.length === 0 ? (
             <li className="py-8 text-center text-sm text-black/60">

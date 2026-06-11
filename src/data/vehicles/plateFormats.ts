@@ -2,7 +2,12 @@
 // Hvert format har et regex til validering og en mask-funktion der formaterer brugerens input løbende (fx "AB12345" → "AB 12 345").
 // getPlateFormat() bruges af nummerplade-inputfeltet på bil-tilføj/rediger-siderne.
 
-import type { PlateFormat } from "@/types/vehicles";
+export type PlateFormat = {
+  placeholder: string
+  hint: string
+  regex: RegExp
+  mask: (raw: string) => string
+}
 
 // Opdeler en streng i segmenter adskilt af mellemrum, fx seg("AB12345", 2, 2, 3) → "AB 12 345".
 function seg(s: string, ...lengths: number[]): string {

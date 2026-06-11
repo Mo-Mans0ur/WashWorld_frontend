@@ -1,4 +1,4 @@
-// auth.ts indeholder alle API-kald til brugerstyring: login, oprettelse og profilopdatering.
+// authApi indeholder alle API-kald til brugerstyring: login, oprettelse og profilopdatering.
 // Alle kald bruger apiRequest() fra apiClient, som vedhæfter token og håndterer fejl.
 
 import { apiRequest } from "@/lib/apiClient";
@@ -59,6 +59,25 @@ export async function updateAuthUser(
 export async function deleteAuthUser(userId: string): Promise<void> {
   await apiRequest(`/api/users/${encodeURIComponent(userId)}`, {
     method: "DELETE",
+  });
+}
+
+// Sender en nulstillingsmail til brugeren (POST /api/auth/forgot-password).
+// Fejler lydstille på siden af sikkerhedshensyn — API'et afslører ikke om emailen eksisterer.
+export async function requestPasswordReset(user_email: string): Promise<void> {
+  await apiRequest("/api/auth/forgot-password", {
+    method: "POST",
+    body: { user_email },
+    skipAuthRedirect: true,
+  });
+}
+
+// Sætter en ny adgangskode med reset-nøglen fra nulstillingslinket (POST /api/auth/reset-password).
+export async function confirmPasswordReset(reset_key: string, user_password: string): Promise<void> {
+  await apiRequest("/api/auth/reset-password", {
+    method: "POST",
+    body: { reset_key, user_password },
+    skipAuthRedirect: true,
   });
 }
 

@@ -22,7 +22,7 @@ export function useNavVisibility() {
 export default function ScreenLayout({ children }: { children: ReactNode }) {
   const [forcedHideNav, setForcedHideNav] = useState(false);
   const pathname = usePathname();
-  const hideNavRoutes = new Set(["/login", "/signup", "/505", "/under-construction", "/", "/reset-password", "/reset-password/confirm", "/email-verified", "/terms"]);
+  const hideNavRoutes = new Set(["/login", "/signup", "/500", "/under-construction", "/", "/reset-password", "/reset-password/confirm", "/email-verified", "/terms"]);
   const showNav = !hideNavRoutes.has(pathname) && !forcedHideNav;
 
   return (

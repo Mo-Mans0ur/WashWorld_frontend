@@ -36,7 +36,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, logout, displayFullName } = useAuth();
-  const { subscriptions, setSubscriptions } = useSubscriptions(user?.user_id);
+  const { subscriptions, removeSubscription } = useSubscriptions(user?.user_id);
 
   const [showBadges, setShowBadges] = useState(false);
   const [activeBadgeId, setActiveBadgeId] = useState<number | null>(null);
@@ -74,7 +74,7 @@ export default function ProfilePage() {
   async function handleCancelSubscription() {
     if (!cancelTarget) return;
     await deleteSubscription(cancelTarget.subscription_id).catch(() => {});
-    setSubscriptions((prev) => prev.filter((s) => s.subscription_id !== cancelTarget.subscription_id));
+    removeSubscription(cancelTarget.subscription_id);
     setCancelTarget(null);
   }
 
